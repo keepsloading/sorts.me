@@ -317,7 +317,7 @@ class RecommendationResultsView(nextcord.ui.View):
         self.session_id = session_id
         self.session_service = SessionService()
 
-    @nextcord.ui.button(label="Am I wrong?", style=nextcord.ButtonStyle.primary, emoji="❌")
+    @nextcord.ui.button(label="Am I wrong?", style=nextcord.ButtonStyle.secondary)
     async def refine_interests_button(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
         try:
             with get_db() as db:
