@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from sorts.database.connection import get_db
 from sorts.database import models as db_models
 from sorts.services.session_service import SessionService
+from sorts.services.training_service import TrainingService
 from sorts.bot.utils import BRAND_COLOR, clean_text, create_sortling_embed
 
 logger = logging.getLogger(__name__)
@@ -232,6 +233,13 @@ class RefineInterestsView(nextcord.ui.View):
                         comments=comment_str
                     )
                     db.add(fb)
+
+                # Trigger Automated Self-Training Engine
+                try:
+                    training_svc = TrainingService()
+                    training_svc.process_feedback_deltas(db, self.session_id, added_interests, removed_interests)
+                except Exception as te:
+                    logger.error(f"Self-training execution error: {te}", exc_info=True)
 
                 all_traits = db.query(db_models.Trait).all()
                 trait_map = {t.slug: t for t in all_traits}
