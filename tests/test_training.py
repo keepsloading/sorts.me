@@ -1,3 +1,4 @@
+import uuid
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -27,7 +28,7 @@ def db_session():
     session.add(club)
     session.commit()
 
-    rec_session = db_models.RecommendationSession(university_id=univ.id, user_identifier="user_123")
+    rec_session = db_models.RecommendationSession(id=str(uuid.uuid4()), university_id=univ.id, user_identifier="user_123")
     session.add(rec_session)
     session.commit()
 
