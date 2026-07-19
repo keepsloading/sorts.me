@@ -57,7 +57,7 @@ def bootstrap():
 
         # ── Auto-import clubs if none are published yet ──────────────────────
         club_count = db.query(db_models.Club).filter_by(
-            university_id=mahindra.id, status="active"
+            university_id=mahindra.id
         ).count()
 
         if club_count == 0:
@@ -82,8 +82,8 @@ def bootstrap():
             logger.info(f"{club_count} clubs already live. Skipping auto-import.")
 
 def main():
+    start_health_server()  # Open port before anything else so Render health check passes
     bootstrap()
-    start_health_server()
     logger.info("Starting Sortling Discord Bot...")
     run_bot()
 
