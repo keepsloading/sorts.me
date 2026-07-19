@@ -1,15 +1,39 @@
-import nextcord
 import os
 import logging
+from typing import Optional, List, Dict
+import nextcord
+from sqlalchemy.orm import Session
 
 from sorts.database.connection import get_db
-from sorts.services.session_service import SessionService
 from sorts.database import models as db_models
-from sorts.bot.utils import BRAND_COLOR, create_sortling_embed, clean_text
+from sorts.services.session_service import SessionService
+from sorts.bot.utils import BRAND_COLOR, clean_text, create_sortling_embed
 
 logger = logging.getLogger(__name__)
 
-RANK_MEDALS = {1: "🥇", 2: "🥈", 3: "🥉"}
+RANK_MEDALS = {
+    1: "🥇",
+    2: "🥈",
+    3: "🥉",
+}
+
+INTEREST_NODES = [
+    ("software", "Software & Coding"),
+    ("web_dev", "Web & App Development"),
+    ("ai_data", "AI & Machine Learning"),
+    ("competitive_coding", "Competitive Programming"),
+    ("hardware", "Hardware & Electronics"),
+    ("robotics_automotive", "Robotics & BAJA Racing"),
+    ("aerospace", "Aerospace & Drones"),
+    ("public_speaking", "Public Speaking & Debates"),
+    ("mun_journalism", "Model UN & Journalism"),
+    ("entrepreneurship", "Entrepreneurship & Startups"),
+    ("music", "Music & Jamming"),
+    ("performing_arts", "Dance & Theatre"),
+    ("design_media", "Design & Photography"),
+    ("gaming_esports", "Gaming & Esports"),
+    ("social", "Social & Community Events"),
+]
 
 
 class OptionButton(nextcord.ui.Button):
@@ -40,21 +64,19 @@ class OptionButton(nextcord.ui.Button):
                     await interaction.response.edit_message(embed=embed, view=view)
 
                 else:
-                    # Show a brief loading state while computing
                     loading_embed = nextcord.Embed(
                         description="Finding your matches...",
                         color=BRAND_COLOR,
                     )
-                    loading_embed.set_thumbnail(url="attachment://thinking.gif")
                     await interaction.response.edit_message(embed=loading_embed, view=None)
 
-                    recs = view.session_service.generate_recommendations(db, view.session_id, limit=3)
+                    recs = view.session_service.generate_recommendations(db, view.session_id)
 
                     if not recs:
                         embed, file = create_sortling_embed(
                             title="No Matches Found",
-                            description="No clubs matched your profile. Try running `/sort` again with different answers.",
-                            is_error=True,
+                            description="We couldn't find matches for your profile. Try /clubs to browse all clubs.",
+                            is_error=False,
                         )
                         if file:
                             await interaction.followup.send(embed=embed, file=file)
@@ -93,10 +115,12 @@ class OptionButton(nextcord.ui.Button):
                         file = nextcord.File(icon_path, filename="Icon_Neutral.png")
                         embed.set_thumbnail(url="attachment://Icon_Neutral.png")
 
+                    result_view = RecommendationResultsView(view.session_id)
+
                     if file:
-                        await interaction.followup.send(embed=embed, file=file)
+                        await interaction.followup.send(embed=embed, file=file, view=result_view)
                     else:
-                        await interaction.followup.send(embed=embed)
+                        await interaction.followup.send(embed=embed, view=result_view)
 
         except Exception as e:
             logger.error(f"Questionnaire error: {e}", exc_info=True)
@@ -145,3 +169,135 @@ class QuestionnaireView(nextcord.ui.View):
                 style=styles[idx % len(styles)],
             )
             self.add_item(btn)
+
+
+class RefineInterestsView(nextcord.ui.View):
+    def __init__(self, session_id: str, active_trait_slugs: List[str]):
+        super().__init__(timeout=180.0)
+        self.session_id = session_id
+        self.session_service = SessionService()
+
+        options = []
+        for slug, label in INTEREST_NODES:
+            is_checked = slug in active_trait_slugs
+            options.append(
+                nextcord.SelectOption(
+                    label=label,
+                    value=slug,
+                    default=is_checked,
+                    description="Matched from quiz" if is_checked else "Tap to add"
+                )
+            )
+
+        self.select = nextcord.ui.Select(
+            placeholder="Check or uncheck your interest areas...",
+            min_values=0,
+            max_values=len(options),
+            options=options,
+        )
+        self.select.callback = self._on_select_submit
+        self.add_item(self.select)
+
+    async def _on_select_submit(self, interaction: nextcord.Interaction):
+        selected_slugs = set(self.select.values)
+
+        with get_db() as db:
+            session = self.session_service.get_session(db, self.session_id)
+            if not session:
+                await interaction.response.send_message("Session expired.", ephemeral=True)
+                return
+
+            current_traits = {st.trait.slug: st.value for st in session.traits}
+            old_positive = {slug for slug, val in current_traits.items() if val > 0.0}
+
+            added_interests = list(selected_slugs - old_positive)
+            removed_interests = list(old_positive - selected_slugs)
+
+            logger.info(
+                f"[TRAINING_LOG] Missed Interest Feedback for session {self.session_id}: "
+                f"Added={added_interests}, Removed={removed_interests}"
+            )
+
+            if session.recommendations:
+                rec_id = session.recommendations[0].id
+                comment_str = f"[MISSED_INTEREST_FEEDBACK] Added: {added_interests}, Removed: {removed_interests}"
+                fb = db_models.Feedback(
+                    recommendation_id=rec_id,
+                    rating=4,
+                    comments=comment_str
+                )
+                db.add(fb)
+
+            all_traits = db.query(db_models.Trait).all()
+            trait_map = {t.slug: t for t in all_traits}
+
+            for slug, label in INTEREST_NODES:
+                if slug in trait_map:
+                    t_obj = trait_map[slug]
+                    st = db.query(db_models.SessionTrait).filter_by(
+                        session_id=self.session_id, trait_id=t_obj.id
+                    ).first()
+                    if not st:
+                        st = db_models.SessionTrait(
+                            session_id=self.session_id, trait_id=t_obj.id, value=0.0
+                        )
+                        db.add(st)
+
+                    if slug in selected_slugs:
+                        st.value = 1.0
+                    else:
+                        st.value = -0.5
+
+            db.commit()
+
+            new_recs = self.session_service.generate_recommendations(db, self.session_id)
+
+            univ = db.query(db_models.University).filter_by(id=session.university_id).first()
+            univ_name = univ.name if univ else "your campus"
+
+            embed = nextcord.Embed(
+                title="Your Refined Club Matches",
+                description=f"Updated recommendations for **{univ_name}** based on your refined interests.",
+                color=BRAND_COLOR,
+            )
+
+            for r in new_recs:
+                club = r.club
+                medal = RANK_MEDALS.get(r.rank, f"#{r.rank}")
+                embed.add_field(
+                    name=f"{medal}  {clean_text(club.name)}",
+                    value=(
+                        f"> {clean_text(club.summary)}\n\n"
+                        f"**Why you fit:** {clean_text(r.explanation)}"
+                    ),
+                    inline=False,
+                )
+
+            embed.set_footer(text="Interests updated and logged")
+
+            result_view = RecommendationResultsView(self.session_id)
+            await interaction.response.send_message(embed=embed, view=result_view, ephemeral=True)
+
+
+class RecommendationResultsView(nextcord.ui.View):
+    def __init__(self, session_id: str):
+        super().__init__(timeout=600.0)
+        self.session_id = session_id
+        self.session_service = SessionService()
+
+    @nextcord.ui.button(label="Did I miss an interest?", style=nextcord.ButtonStyle.primary, emoji="🎯")
+    async def refine_interests_button(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
+        with get_db() as db:
+            session = self.session_service.get_session(db, self.session_id)
+            if not session:
+                await interaction.response.send_message("Session expired.", ephemeral=True)
+                return
+
+            active_trait_slugs = [st.trait.slug for st in session.traits if st.value > 0.0]
+
+            view = RefineInterestsView(self.session_id, active_trait_slugs)
+            await interaction.response.send_message(
+                "**Refine Your Interests**\nCheck any missing interests or uncheck incorrect ones to re-rank your recommendations:",
+                view=view,
+                ephemeral=True
+            )
