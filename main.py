@@ -69,11 +69,14 @@ def bootstrap():
                 if not sources:
                     logger.warning("No import sources configured for Mahindra University.")
                     return
-                job_id = svc.trigger_import(db, sources[0].id)
+                # Prefer live website source (type='website') over static test file (type='file')
+                live_source = next((s for s in sources if s.source_type == "website"), sources[-1])
+                logger.info(f"Selected live source '{live_source.name}' (ID: {live_source.id})")
+                job_id = svc.trigger_import(db, live_source.id)
                 logger.info(f"Import job {job_id} complete. Publishing clubs...")
                 svc.publish_job(db, job_id)
                 published = db.query(db_models.Club).filter_by(
-                    university_id=mahindra.id, status="active"
+                    university_id=mahindra.id
                 ).count()
                 logger.info(f"Auto-import done. {published} clubs now live.")
             except Exception as e:
