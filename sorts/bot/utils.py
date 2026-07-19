@@ -9,17 +9,14 @@ MASCOT_DIR = "Sortling Mascot"
 BRAND_COLOR = nextcord.Color(0x000543)
 
 def clean_text(text: Optional[str]) -> str:
-    """Sanitizes text to avoid em-dashes and removes hyphens used as separators.
-    
-    Converts space-padded hyphens or dashes (e.g. ' - ' or ' – ') into clean colons.
+    """Sanitizes text by replacing typographic dashes with plain hyphens.
+
+    Replaces em-dashes (—) and en-dashes (–) with a simple hyphen (-).
+    Plain hyphens and spaced separators (e.g. ' - ') are left untouched.
     """
     if not text:
         return ""
-    # Standardise dashes to simple spaced hyphens first
-    t = text.replace("—", " - ").replace("–", " - ")
-    # Replace any spaced hyphens (used as separators) with clean colons
-    t = t.replace(" - ", " : ")
-    return t
+    return text.replace("—", "-").replace("–", "-")
 
 def create_sortling_embed(
     title: str,
