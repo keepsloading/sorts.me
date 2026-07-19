@@ -8,7 +8,9 @@ from sorts.bot.utils import BRAND_COLOR, create_sortling_embed, get_guild_univer
 
 
 def _is_admin(interaction: nextcord.Interaction) -> bool:
-    return interaction.user.guild_permissions.administrator
+    if not interaction.user or not hasattr(interaction.user, "guild_permissions"):
+        return False
+    return bool(interaction.user.guild_permissions.administrator)
 
 
 class AdminCog(commands.Cog):

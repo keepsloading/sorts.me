@@ -30,8 +30,24 @@ class SortlingBot(commands.Bot):
         logger.info("Ready to guide students!")
 
     async def check_application_command(self, interaction: nextcord.Interaction) -> bool:
-        # Always allow admin command anywhere for setup/maintenance
-        if interaction.application_command and interaction.application_command.name == "admin":
+        cmd_name = interaction.application_command.name if interaction.application_command else ""
+
+        # Strictly restrict administrative commands (/admin, /setup) to Administrators ONLY
+        if cmd_name in ("admin", "setup"):
+            if not interaction.user_permissions or not interaction.user_permissions.administrator:
+                embed, file = create_sortling_embed(
+                    title="Access Denied",
+                    description="Only server administrators can run administrative commands.",
+                    is_error=True,
+                )
+                try:
+                    if file:
+                        await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
+                    else:
+                        await interaction.response.send_message(embed=embed, ephemeral=True)
+                except Exception:
+                    pass
+                return False
             return True
 
         # Allow Admins and Mods (users with Administrator, Manage Guild, or Manage Messages permissions) anywhere
