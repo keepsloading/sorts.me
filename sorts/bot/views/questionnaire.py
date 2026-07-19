@@ -139,7 +139,7 @@ class OptionButton(nextcord.ui.Button):
 
 
 class QuestionnaireView(nextcord.ui.View):
-    def __init__(self, session_id: str, initial_q: db_models.Question, total_questions: int):
+    def __init__(self, session_id: str, initial_q: db_models.Question, total_questions: int = 16):
         super().__init__(timeout=300.0)
         self.session_id = session_id
         self.session_service = SessionService()
@@ -248,35 +248,59 @@ class RefineInterestsView(nextcord.ui.View):
                     else:
                         st.value = -0.5
 
+            # Reactivate session to allow adaptive follow-up questions for newly added interests
+            session.status = "active"
             db.commit()
 
-            new_recs = self.session_service.generate_recommendations(db, self.session_id)
+            # Check if there are follow-up questions targeting the newly added interests
+            next_q = self.session_service.get_next_question(db, self.session_id)
 
-            univ = db.query(db_models.University).filter_by(id=session.university_id).first()
-            univ_name = univ.name if univ else "your campus"
+            if next_q and added_interests:
+                # Launch adaptive follow-up questionnaire flow
+                view = QuestionnaireView(self.session_id, next_q)
+                embed = nextcord.Embed(
+                    title=clean_text(next_q.text),
+                    description="Follow-up question for your updated interests. Select the option that fits you best.",
+                    color=BRAND_COLOR,
+                )
+                embed.set_footer(text="Follow-up Question")
+                embed.set_thumbnail(url="attachment://thinking.gif")
 
-            embed = nextcord.Embed(
-                title="Your Refined Club Matches",
-                description=f"Updated recommendations for **{univ_name}** based on your refined interests.",
-                color=BRAND_COLOR,
-            )
+                await interaction.response.send_message(
+                    f"**Interest Profile Updated!**\nAdded: {', '.join(added_interests) if added_interests else 'None'}. Let's fine-tune your matches with a quick follow-up:",
+                    embed=embed,
+                    view=view,
+                    ephemeral=True
+                )
+            else:
+                # No follow-up questions needed; directly compute updated recommendations
+                new_recs = self.session_service.generate_recommendations(db, self.session_id)
 
-            for r in new_recs:
-                club = r.club
-                medal = RANK_MEDALS.get(r.rank, f"#{r.rank}")
-                embed.add_field(
-                    name=f"{medal}  {clean_text(club.name)}",
-                    value=(
-                        f"> {clean_text(club.summary)}\n\n"
-                        f"**Why you fit:** {clean_text(r.explanation)}"
-                    ),
-                    inline=False,
+                univ = db.query(db_models.University).filter_by(id=session.university_id).first()
+                univ_name = univ.name if univ else "your campus"
+
+                embed = nextcord.Embed(
+                    title="Your Refined Club Matches",
+                    description=f"Updated recommendations for **{univ_name}** based on your refined interests.",
+                    color=BRAND_COLOR,
                 )
 
-            embed.set_footer(text="Interests updated and logged")
+                for r in new_recs:
+                    club = r.club
+                    medal = RANK_MEDALS.get(r.rank, f"#{r.rank}")
+                    embed.add_field(
+                        name=f"{medal}  {clean_text(club.name)}",
+                        value=(
+                            f"> {clean_text(club.summary)}\n\n"
+                            f"**Why you fit:** {clean_text(r.explanation)}"
+                        ),
+                        inline=False,
+                    )
 
-            result_view = RecommendationResultsView(self.session_id)
-            await interaction.response.send_message(embed=embed, view=result_view, ephemeral=True)
+                embed.set_footer(text="Interests updated and logged")
+
+                result_view = RecommendationResultsView(self.session_id)
+                await interaction.response.send_message(embed=embed, view=result_view, ephemeral=True)
 
 
 class RecommendationResultsView(nextcord.ui.View):
