@@ -7,69 +7,79 @@ from sorts.services.session_service import SessionService
 from sorts.bot.views.questionnaire import QuestionnaireView
 from sorts.bot.utils import BRAND_COLOR, create_sortling_embed, get_guild_university
 
+
 class SortCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.session_service = SessionService()
 
-    @nextcord.slash_command(name="sort", description="Start your interactive campus club recommendation questionnaire.")
+    @nextcord.slash_command(name="sort", description="Find the clubs that match who you are.")
     async def sort(self, interaction: nextcord.Interaction):
-        """Starts a recommendation session and sends the first question embed with buttons."""
+        """Starts an adaptive recommendation session for the user."""
         user_id = str(interaction.user.id)
-        
-        with get_db() as db:
-            # Retrieve university for this guild
-            univ = get_guild_university(db, interaction.guild_id)
-            if not univ:
-                embed, file = create_sortling_embed(
-                    title="Setup Required",
-                    description=(
-                        "Sortling: 'Hmm... This server hasn't been set up yet. "
-                        "Please ask an administrator to run `/setup` to link this server to a university profile!'"
-                    ),
-                    color=BRAND_COLOR,
-                    is_error=True
-                )
-                await interaction.send(embed=embed, file=file, ephemeral=True)
-                return
 
-            # Initialize a new session for this user
-            session = self.session_service.create_session(db, univ.id, user_identifier=user_id)
-            
-            # Fetch the first question
-            first_q = self.session_service.get_next_question(db, session.id)
-            if not first_q:
-                embed, file = create_sortling_embed(
-                    title="No Questions Available",
-                    description="Sortling: 'Hmm... I don't have any questions ready for this university. Let's add some!'",
-                    color=BRAND_COLOR,
-                    is_error=True
-                )
-                await interaction.send(embed=embed, file=file, ephemeral=True)
-                return
+        try:
+            with get_db() as db:
+                univ = get_guild_university(db, interaction.guild_id)
+                if not univ:
+                    embed, file = create_sortling_embed(
+                        title="Not Configured",
+                        description="This server hasn't been linked to a university yet. Ask an administrator to run `/setup`.",
+                        is_error=True,
+                    )
+                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    return
 
-            # Instantiate questionnaire buttons view
-            view = QuestionnaireView(session.id, first_q)
-            
-            # Make the question card embed with Mascot thinking GIF
-            embed = nextcord.Embed(
-                title="Sortling's Questionnaire: Question 1",
-                description=f"### {first_q.text}",
-                color=BRAND_COLOR
+                # Count total questions so the view can display progress
+                total_questions = db.query(db_models.Question).filter_by(university_id=univ.id).count()
+                if total_questions == 0:
+                    embed, file = create_sortling_embed(
+                        title="No Questions Available",
+                        description="The questionnaire hasn't been set up for this university. Contact a sorts.me administrator.",
+                        is_error=True,
+                    )
+                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    return
+
+                session = self.session_service.create_session(db, univ.id, user_identifier=user_id)
+                first_q = self.session_service.get_next_question(db, session.id)
+
+                if not first_q:
+                    embed, file = create_sortling_embed(
+                        title="No Questions Available",
+                        description="The questionnaire hasn't been set up for this university. Contact a sorts.me administrator.",
+                        is_error=True,
+                    )
+                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    return
+
+                view = QuestionnaireView(session.id, first_q, total_questions)
+
+                embed = nextcord.Embed(
+                    title=first_q.text,
+                    color=BRAND_COLOR,
+                )
+                embed.set_footer(text=f"Question 1 of {total_questions}  ·  sorts.me")
+
+                thinking_path = os.path.join("Sortling Mascot", "thinking.gif")
+                file = None
+                if os.path.exists(thinking_path):
+                    file = nextcord.File(thinking_path, filename="thinking.gif")
+                    embed.set_thumbnail(url="attachment://thinking.gif")
+
+                if file:
+                    await interaction.send(embed=embed, view=view, file=file, ephemeral=True)
+                else:
+                    await interaction.send(embed=embed, view=view, ephemeral=True)
+
+        except Exception as e:
+            embed, file = create_sortling_embed(
+                title="Something went wrong",
+                description="Could not start the session. Please try again in a moment.",
+                is_error=True,
             )
-            embed.set_footer(text="Sortling: 'Answer honestly, and I'll find where you fit.'")
+            await interaction.send(embed=embed, file=file, ephemeral=True)
 
-            # Attach thinking.gif
-            file = None
-            thinking_path = os.path.join("Sortling Mascot", "thinking.gif")
-            if os.path.exists(thinking_path):
-                file = nextcord.File(thinking_path, filename="thinking.gif")
-                embed.set_thumbnail(url="attachment://thinking.gif")
-
-            if file:
-                await interaction.send(embed=embed, view=view, file=file, ephemeral=True)
-            else:
-                await interaction.send(embed=embed, view=view, ephemeral=True)
 
 def setup(bot):
     bot.add_cog(SortCog(bot))
