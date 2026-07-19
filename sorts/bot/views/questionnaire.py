@@ -85,7 +85,7 @@ class OptionButton(nextcord.ui.Button):
                             inline=False,
                         )
 
-                    embed.set_footer(text="Rate your matches with /feedback  ·  sorts.me")
+                    embed.set_footer(text="Rate your matches with /feedback")
 
                     icon_path = os.path.join("Sortling Mascot", "Icon_Neutral.png")
                     file = None

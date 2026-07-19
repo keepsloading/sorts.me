@@ -123,7 +123,7 @@ class ClubsCog(commands.Cog):
                 if socials:
                     embed.add_field(name="Links", value="  ·  ".join(socials), inline=False)
 
-                embed.set_footer(text="sorts.me Campus Guide")
+                embed.set_footer(text="Campus Guide")
                 await interaction.send(embed=embed)
 
         except Exception as e:

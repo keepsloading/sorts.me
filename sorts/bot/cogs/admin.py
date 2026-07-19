@@ -238,7 +238,7 @@ class AdminCog(commands.Cog):
                     value=clean_text("\n".join(rem_names) or "None"),
                     inline=True,
                 )
-                embed.set_footer(text="sorts.me: Publishing will immediately update the club directory for all students.")
+                embed.set_footer(text="Publishing will immediately update the club directory for all students.")
 
                 view = AdminPreviewView(job.id)
                 await interaction.send(embed=embed, view=view, ephemeral=True)
