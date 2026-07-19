@@ -8,7 +8,7 @@ from sorts.bot.utils import create_sortling_embed
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_ALLOWED_CHANNELS = {1475575132108882133, 1475575133979803653}
+DEFAULT_ALLOWED_CHANNELS = {1475575132108882133, 1475575133979803653, 1475575132108882132}
 
 
 class SortlingBot(commands.Bot):
