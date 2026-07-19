@@ -167,17 +167,17 @@
           }
         },
         {
-          "text": "I am a vibe coder (AI prompts over syntax).",
+          "text": "I am a vibe coder (I build with AI prompts).",
           "trait_modifiers": {
-            "software": 0.8,
-            "ai_data": 0.6,
-            "creative": 0.5
+            "software": 0.6,
+            "ai_data": 0.8,
+            "creative": 0.6
           }
         },
         {
-          "text": "Only when forced. Maybe.",
+          "text": "Somewhat. Only when required.",
           "trait_modifiers": {
-            "software": 0.4
+            "software": 0.3
           }
         },
         {
