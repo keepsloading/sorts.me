@@ -274,14 +274,28 @@ class RefineInterestsView(nextcord.ui.View):
                         color=BRAND_COLOR,
                     )
                     embed.set_footer(text="Follow-up Question")
-                    embed.set_thumbnail(url="attachment://thinking.gif")
 
-                    await interaction.response.send_message(
-                        f"**Interest Profile Updated!**\nAdded: {', '.join(added_interests)}. Let's fine-tune your matches with a quick follow-up:",
-                        embed=embed,
-                        view=view,
-                        ephemeral=True
-                    )
+                    thinking_path = os.path.join("Sortling Mascot", "thinking.gif")
+                    file = None
+                    if os.path.exists(thinking_path):
+                        file = nextcord.File(thinking_path, filename="thinking.gif")
+                        embed.set_thumbnail(url="attachment://thinking.gif")
+
+                    if file:
+                        await interaction.response.send_message(
+                            f"**Interest Profile Updated!**\nAdded: {', '.join(added_interests)}. Let's fine-tune your matches with a quick follow-up:",
+                            embed=embed,
+                            view=view,
+                            file=file,
+                            ephemeral=True
+                        )
+                    else:
+                        await interaction.response.send_message(
+                            f"**Interest Profile Updated!**\nAdded: {', '.join(added_interests)}. Let's fine-tune your matches with a quick follow-up:",
+                            embed=embed,
+                            view=view,
+                            ephemeral=True
+                        )
                 else:
                     new_recs = self.session_service.generate_recommendations(db, self.session_id)
 
@@ -308,8 +322,17 @@ class RefineInterestsView(nextcord.ui.View):
 
                     embed.set_footer(text="Interests updated and logged")
 
+                    icon_path = os.path.join("Sortling Mascot", "Icon_Neutral.png")
+                    file = None
+                    if os.path.exists(icon_path):
+                        file = nextcord.File(icon_path, filename="Icon_Neutral.png")
+                        embed.set_thumbnail(url="attachment://Icon_Neutral.png")
+
                     result_view = RecommendationResultsView(self.session_id)
-                    await interaction.response.send_message(embed=embed, view=result_view, ephemeral=True)
+                    if file:
+                        await interaction.response.send_message(embed=embed, view=result_view, file=file, ephemeral=True)
+                    else:
+                        await interaction.response.send_message(embed=embed, view=result_view, ephemeral=True)
 
         except Exception as e:
             logger.error(f"Error in _on_select_submit: {e}", exc_info=True)
