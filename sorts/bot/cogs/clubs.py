@@ -49,20 +49,6 @@ class ClubsCog(commands.Cog):
             )
             await interaction.send(embed=embed, file=file, ephemeral=True)
 
-    @club.on_autocomplete("name")
-    async def club_autocomplete(self, interaction: nextcord.Interaction, name: str):
-        try:
-            with get_db() as db:
-                univ = get_guild_university(db, interaction.guild_id)
-                if not univ:
-                    await interaction.response.send_autocomplete([])
-                    return
-                matches = self.club_service.search_clubs(db, univ.id, name)
-                choices = [c.name for c in matches[:25]]
-                await interaction.response.send_autocomplete(choices)
-        except Exception:
-            await interaction.response.send_autocomplete([])
-
     @nextcord.slash_command(name="club", description="Look up a specific club by name.")
     async def club(
         self,
@@ -171,6 +157,20 @@ class ClubsCog(commands.Cog):
                 is_error=True,
             )
             await interaction.send(embed=embed, file=file, ephemeral=True)
+
+    @club.on_autocomplete("name")
+    async def club_autocomplete(self, interaction: nextcord.Interaction, name: str):
+        try:
+            with get_db() as db:
+                univ = get_guild_university(db, interaction.guild_id)
+                if not univ:
+                    await interaction.response.send_autocomplete([])
+                    return
+                matches = self.club_service.search_clubs(db, univ.id, name)
+                choices = [c.name for c in matches[:25]]
+                await interaction.response.send_autocomplete(choices)
+        except Exception:
+            await interaction.response.send_autocomplete([])
 
 
 def setup(bot):
