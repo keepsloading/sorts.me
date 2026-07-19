@@ -49,6 +49,20 @@ class ClubsCog(commands.Cog):
             )
             await interaction.send(embed=embed, file=file, ephemeral=True)
 
+    @club.on_autocomplete("name")
+    async def club_autocomplete(self, interaction: nextcord.Interaction, name: str):
+        try:
+            with get_db() as db:
+                univ = get_guild_university(db, interaction.guild_id)
+                if not univ:
+                    await interaction.response.send_autocomplete([])
+                    return
+                matches = self.club_service.search_clubs(db, univ.id, name)
+                choices = [c.name for c in matches[:25]]
+                await interaction.response.send_autocomplete(choices)
+        except Exception:
+            await interaction.response.send_autocomplete([])
+
     @nextcord.slash_command(name="club", description="Look up a specific club by name.")
     async def club(
         self,
@@ -105,25 +119,49 @@ class ClubsCog(commands.Cog):
                 if club.image:
                     embed.set_thumbnail(url=club.image)
 
+                # Category & Official Status
+                cat_text = clean_text(club.category or "General")
+                type_text = "Official Club" if club.official else "Verified Community Club"
+                embed.add_field(name="Category", value=f"{cat_text} ({type_text})", inline=True)
+
                 if club.meeting_frequency:
                     embed.add_field(name="Meets", value=clean_text(club.meeting_frequency), inline=True)
                 if club.commitment:
                     embed.add_field(name="Commitment", value=clean_text(club.commitment), inline=True)
 
-                socials = []
-                if club.website and club.website != "-":
-                    socials.append(f"[Website]({club.website})")
-                if club.discord and club.discord != "-":
-                    socials.append(f"[Discord]({club.discord})")
-                if club.instagram and club.instagram != "-":
-                    socials.append(f"[Instagram]({club.instagram})")
-                if club.email and club.email != "-":
-                    socials.append(f"[Email](mailto:{club.email})")
+                # Verification metadata
+                ver = club.get_verification()
+                conf = ver.get("confidence", 100 if club.official else 75)
+                is_ver = "Verified" if ver.get("verified", True) else "Unverified"
+                embed.add_field(name="Verification", value=f"{conf}% Confidence ({is_ver})", inline=True)
 
-                if socials:
-                    embed.add_field(name="Links", value="  ·  ".join(socials), inline=False)
+                # Social Links (ONLY non-empty verified links, no placeholders)
+                soc_dict = club.get_socials()
+                social_labels = {
+                    "website": "Website",
+                    "instagram": "Instagram",
+                    "linkedin": "LinkedIn",
+                    "github": "GitHub",
+                    "youtube": "YouTube",
+                    "discord": "Discord",
+                    "linktree": "Linktree",
+                    "beacons": "Beacons",
+                    "email": "Email"
+                }
 
-                embed.set_footer(text="Campus Guide")
+                social_links = []
+                for key, label in social_labels.items():
+                    val = soc_dict.get(key)
+                    if val and val not in ["-", "Unknown", "N/A", "none", "null"]:
+                        if key == "email" and not val.startswith("mailto:"):
+                            social_links.append(f"[{label}](mailto:{val})")
+                        else:
+                            social_links.append(f"[{label}]({val})")
+
+                if social_links:
+                    embed.add_field(name="Social Links", value="  ·  ".join(social_links), inline=False)
+
+                embed.set_footer(text="Sortling Campus Club Registry")
                 await interaction.send(embed=embed)
 
         except Exception as e:

@@ -30,5 +30,31 @@ def get_db():
         session.close()
 
 def init_db():
-    """Creates all database tables defined by models."""
+    """Creates all database tables defined by models and performs lightweight schema migrations."""
     Base.metadata.create_all(bind=engine)
+
+    from sqlalchemy import inspect, text
+    inspector = inspect(engine)
+    if "clubs" in inspector.get_table_names():
+        existing_cols = {col["name"] for col in inspector.get_columns("clubs")}
+        new_cols = {
+            "category": "VARCHAR(100)",
+            "official": "BOOLEAN DEFAULT 1",
+            "linkedin": "VARCHAR(255)",
+            "github": "VARCHAR(255)",
+            "youtube": "VARCHAR(255)",
+            "linktree": "VARCHAR(255)",
+            "beacons": "VARCHAR(255)",
+            "aliases_json": "TEXT DEFAULT '[]'",
+            "verification_json": "TEXT DEFAULT '{}'",
+            "socials_json": "TEXT DEFAULT '{}'",
+            "club_metadata_json": "TEXT DEFAULT '{}'"
+        }
+        with engine.connect() as conn:
+            for col_name, col_type in new_cols.items():
+                if col_name not in existing_cols:
+                    try:
+                        conn.execute(text(f"ALTER TABLE clubs ADD COLUMN {col_name} {col_type}"))
+                        conn.commit()
+                    except Exception:
+                        pass

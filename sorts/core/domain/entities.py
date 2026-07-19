@@ -74,15 +74,25 @@ class Club:
     slug: str
     summary: str
     description: str
+    category: Optional[str] = "General"
+    official: bool = True
+    aliases: List[str] = field(default_factory=list)
     website: Optional[str] = None
     discord: Optional[str] = None
     instagram: Optional[str] = None
+    linkedin: Optional[str] = None
+    github: Optional[str] = None
+    youtube: Optional[str] = None
+    linktree: Optional[str] = None
+    beacons: Optional[str] = None
     email: Optional[str] = None
     image: Optional[str] = None
     meeting_frequency: Optional[str] = None
     commitment: Optional[str] = None
+    verification: Optional[Dict[str, Any]] = field(default_factory=dict)
+    socials: Optional[Dict[str, str]] = field(default_factory=dict)
     traits: List[ClubTraitValue] = field(default_factory=list)
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = field(default_factory=dict)
     id: Optional[int] = None
 
 @dataclass

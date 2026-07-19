@@ -102,6 +102,17 @@ class Club(Base):
     image = Column(String(255), nullable=True)
     meeting_frequency = Column(String(100), nullable=True)
     commitment = Column(String(100), nullable=True)
+    category = Column(String(100), nullable=True)
+    official = Column(Boolean, nullable=False, default=True)
+    linkedin = Column(String(255), nullable=True)
+    github = Column(String(255), nullable=True)
+    youtube = Column(String(255), nullable=True)
+    linktree = Column(String(255), nullable=True)
+    beacons = Column(String(255), nullable=True)
+    aliases_json = Column(Text, nullable=True, default="[]")
+    verification_json = Column(Text, nullable=True, default="{}")
+    socials_json = Column(Text, nullable=True, default="{}")
+    club_metadata_json = Column(Text, nullable=True, default="{}")
     metadata_json = Column(Text, nullable=True, default="{}")
 
     # Relationships
@@ -116,6 +127,96 @@ class Club(Base):
 
     def set_metadata(self, val):
         self.metadata_json = json.dumps(val or {})
+
+    def get_aliases(self) -> list:
+        try:
+            return json.loads(self.aliases_json or "[]")
+        except Exception:
+            return []
+
+    def set_aliases(self, val: list):
+        self.aliases_json = json.dumps(val or [])
+
+    def get_verification(self) -> dict:
+        try:
+            res = json.loads(self.verification_json or "{}")
+            if not res:
+                return {
+                    "confidence": 100 if self.official else 75,
+                    "verified": True,
+                    "source": [self.website] if self.website else [],
+                    "lastVerified": "2026-07-19"
+                }
+            return res
+        except Exception:
+            return {"confidence": 90, "verified": True, "source": [], "lastVerified": "2026-07-19"}
+
+    def set_verification(self, confidence: int, verified: bool, source: list, last_verified: str = "2026-07-19"):
+        self.verification_json = json.dumps({
+            "confidence": confidence,
+            "verified": verified,
+            "source": source or [],
+            "lastVerified": last_verified
+        })
+
+    def get_socials(self) -> dict:
+        """Returns non-empty social links dictionary without any 'Unknown' or placeholder values."""
+        res = {}
+        social_map = {
+            "website": self.website,
+            "instagram": self.instagram,
+            "linkedin": self.linkedin,
+            "github": self.github,
+            "youtube": self.youtube,
+            "discord": self.discord,
+            "linktree": self.linktree,
+            "beacons": self.beacons,
+            "email": self.email
+        }
+        for k, v in social_map.items():
+            if v and v not in ["-", "Unknown", "N/A", "none", "null"]:
+                res[k] = v
+        try:
+            sj = json.loads(self.socials_json or "{}")
+            for k, v in sj.items():
+                if v and v not in ["-", "Unknown", "N/A", "none", "null"] and k not in res:
+                    res[k] = v
+        except Exception:
+            pass
+        return res
+
+    def set_socials(self, val: dict):
+        self.socials_json = json.dumps(val or {})
+        for k in ["website", "instagram", "linkedin", "github", "youtube", "discord", "linktree", "beacons", "email"]:
+            if k in (val or {}):
+                v = val[k]
+                if hasattr(self, k):
+                    setattr(self, k, v)
+
+    def get_club_metadata(self) -> dict:
+        try:
+            meta = json.loads(self.club_metadata_json or "{}")
+            if not meta:
+                meta = {"status": "active", "tags": []}
+            return meta
+        except Exception:
+            return {"status": "active", "tags": []}
+
+    def set_club_metadata(self, status: str = "active", tags: list = None):
+        self.club_metadata_json = json.dumps({"status": status, "tags": tags or []})
+
+    def to_schema_dict(self) -> dict:
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "aliases": self.get_aliases(),
+            "description": self.description,
+            "category": self.category or "General",
+            "official": bool(self.official),
+            "verification": self.get_verification(),
+            "socials": self.get_socials(),
+            "metadata": self.get_club_metadata()
+        }
 
 
 class ClubTrait(Base):

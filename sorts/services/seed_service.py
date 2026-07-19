@@ -185,3 +185,102 @@ def ensure_qubit_club_seeded(db: Session) -> None:
                 ct.weight = weight
     db.commit()
     logger.info("Qubit Club trait mappings synchronized.")
+
+def sync_verified_clubs(db: Session) -> None:
+    """Synchronizes the database with the verified club registry and merges duplicates."""
+    from sorts.database import models as db_models
+
+    univ = db.query(db_models.University).filter_by(slug="mahindra").first()
+    if not univ:
+        logger.warning("Mahindra University record not found during club sync.")
+        return
+
+    # 1. Merge duplicates by deleting redundant duplicate rows
+    duplicate_slugs_to_remove = [
+        "debate-literary-club-erudite",
+        "debate-literary-club",
+        "community-service-club-outreach",
+        "community-service-club",
+        "baja-sae-team"
+    ]
+    for dup_slug in duplicate_slugs_to_remove:
+        dup_club = db.query(db_models.Club).filter_by(university_id=univ.id, slug=dup_slug).first()
+        if dup_club:
+            logger.info(f"Merging duplicate club '{dup_club.name}' into main registry...")
+            db.delete(dup_club)
+    db.commit()
+
+    # 2. Load verified dataset
+    json_path = "sorts/assets/data/verified_clubs.json"
+    if not os.path.exists(json_path):
+        logger.error(f"Verified clubs file missing: {json_path}")
+        return
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        clubs_data = json.load(f)
+
+    logger.info(f"Synchronizing {len(clubs_data)} verified clubs into database...")
+
+    for club_info in clubs_data:
+        slug = club_info["slug"]
+        db_club = db.query(db_models.Club).filter_by(university_id=univ.id, slug=slug).first()
+        if not db_club:
+            db_club = db_models.Club(
+                university_id=univ.id,
+                slug=slug,
+                name=club_info["name"],
+                summary=club_info["summary"],
+                description=club_info["description"],
+                category=club_info.get("category", "General"),
+                official=club_info.get("official", True),
+                meeting_frequency=club_info.get("meeting_frequency", "Bi-weekly sessions"),
+                commitment=club_info.get("commitment", "Medium commitment")
+            )
+            db.add(db_club)
+            db.commit()
+            db.refresh(db_club)
+
+        # Update attributes
+        db_club.name = club_info["name"]
+        db_club.summary = club_info["summary"]
+        db_club.description = club_info["description"]
+        db_club.category = club_info.get("category", "General")
+        db_club.official = club_info.get("official", True)
+        db_club.meeting_frequency = club_info.get("meeting_frequency", "Bi-weekly sessions")
+        db_club.commitment = club_info.get("commitment", "Medium commitment")
+
+        db_club.set_aliases(club_info.get("aliases", []))
+        
+        ver = club_info.get("verification", {})
+        db_club.set_verification(
+            confidence=ver.get("confidence", 95 if db_club.official else 75),
+            verified=ver.get("verified", True),
+            source=ver.get("source", []),
+            last_verified=ver.get("lastVerified", "2026-07-19")
+        )
+
+        soc = club_info.get("socials", {})
+        db_club.set_socials(soc)
+
+        meta = club_info.get("metadata", {})
+        db_club.set_club_metadata(
+            status=meta.get("status", "active"),
+            tags=meta.get("tags", [])
+        )
+        db.commit()
+
+        # Synchronize trait weights
+        traits_dict = club_info.get("traits", {})
+        for trait_slug, weight in traits_dict.items():
+            t_obj = db.query(db_models.Trait).filter_by(slug=trait_slug).first()
+            if t_obj:
+                ct = db.query(db_models.ClubTrait).filter_by(club_id=db_club.id, trait_id=t_obj.id).first()
+                if not ct:
+                    ct = db_models.ClubTrait(club_id=db_club.id, trait_id=t_obj.id, weight=weight)
+                    db.add(ct)
+                else:
+                    ct.weight = weight
+        db.commit()
+
+    total_count = db.query(db_models.Club).filter_by(university_id=univ.id).count()
+    logger.info(f"Registry sync complete. Total active clubs: {total_count}")
