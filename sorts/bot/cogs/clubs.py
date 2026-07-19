@@ -99,10 +99,10 @@ class ClubsCog(commands.Cog):
                 if club.image:
                     embed.set_thumbnail(url=club.image)
 
-                freq = clean_text(club.meeting_frequency or "Not specified")
-                commit = clean_text(club.commitment or "Not specified")
-                embed.add_field(name="Meets", value=freq, inline=True)
-                embed.add_field(name="Commitment", value=commit, inline=True)
+                if club.meeting_frequency:
+                    embed.add_field(name="Meets", value=clean_text(club.meeting_frequency), inline=True)
+                if club.commitment:
+                    embed.add_field(name="Commitment", value=clean_text(club.commitment), inline=True)
 
                 socials = []
                 if club.website and club.website != "-":
