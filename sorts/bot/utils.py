@@ -11,12 +11,17 @@ BRAND_COLOR = nextcord.Color(0x000543)
 def clean_text(text: Optional[str]) -> str:
     """Sanitizes text by replacing typographic dashes with plain hyphens.
 
-    Replaces em-dashes (—) and en-dashes (–) with a simple hyphen (-).
-    Plain hyphens and spaced separators (e.g. ' - ') are left untouched.
+    Replaces em-dashes (—), en-dashes (–), and replacement characters (\ufffd) with a simple hyphen (-).
     """
     if not text:
         return ""
-    return text.replace("—", "-").replace("–", "-")
+    return (
+        text.replace("—", "-")
+        .replace("–", "-")
+        .replace("", "-")
+        .replace("\ufffd", "-")
+        .replace("\xa0", " ")
+    )
 
 def create_sortling_embed(
     title: str,
