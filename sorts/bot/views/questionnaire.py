@@ -131,10 +131,10 @@ class QuestionnaireView(nextcord.ui.View):
         """Rebuild buttons for the current question."""
         self.clear_items()
         styles = [
+            nextcord.ButtonStyle.green,
             nextcord.ButtonStyle.secondary,
-            nextcord.ButtonStyle.secondary,
-            nextcord.ButtonStyle.secondary,
-            nextcord.ButtonStyle.secondary,
+            nextcord.ButtonStyle.danger,
+            nextcord.ButtonStyle.blurple,
         ]
         for idx, opt in enumerate(question.options):
             btn = OptionButton(
