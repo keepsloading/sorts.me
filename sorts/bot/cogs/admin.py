@@ -6,311 +6,310 @@ from sorts.services.import_service import ImportService
 from sorts.bot.views.admin_preview import AdminPreviewView
 from sorts.bot.utils import BRAND_COLOR, create_sortling_embed, get_guild_university, clean_text
 
+
+def _is_admin(interaction: nextcord.Interaction) -> bool:
+    return interaction.user.guild_permissions.administrator
+
+
 class AdminCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.import_service = ImportService()
 
-    @nextcord.slash_command(name="setup", description="Configure university profile details for this Discord server.")
+    # ─── /setup ───────────────────────────────────────────────────────────────
+
+    @nextcord.slash_command(name="setup", description="Link this server to a university profile.")
     async def setup_university(
         self,
         interaction: nextcord.Interaction,
         name: str = nextcord.SlashOption(description="Full name of the university"),
         website: str = nextcord.SlashOption(description="Official website URL"),
-        logo_url: str = nextcord.SlashOption(description="URL to the university's logo image", required=False),
-        description: str = nextcord.SlashOption(description="Short description of the university", required=False)
+        logo_url: str = nextcord.SlashOption(description="URL to the university logo", required=False),
+        description: str = nextcord.SlashOption(description="Short one-line description", required=False),
     ):
-        """Sets up a unique university profile for this Discord server."""
-        if not interaction.user.guild_permissions.administrator:
+        """Registers or updates this server's university profile."""
+        if not _is_admin(interaction):
             embed, file = create_sortling_embed(
                 title="Access Denied",
-                description="Sortling: 'Oops! Only server administrators can configure university setups.'",
-                color=BRAND_COLOR,
-                is_error=True
+                description="Only server administrators can run setup.",
+                is_error=True,
             )
             await interaction.send(embed=embed, file=file, ephemeral=True)
             return
 
         guild_id = interaction.guild_id
         if not guild_id:
-            await interaction.send("Sortling: 'Setup commands can only be run inside a Discord server.'", ephemeral=True)
+            embed, file = create_sortling_embed(
+                title="Server Only",
+                description="This command can only be used inside a Discord server.",
+                is_error=True,
+            )
+            await interaction.send(embed=embed, file=file, ephemeral=True)
             return
 
-        # Excepted servers cannot be overwritten
         from sorts.config.settings import EXEMPTED_GUILDS
         if guild_id in EXEMPTED_GUILDS:
-            await interaction.send("Sortling: 'This server is hardcoded to Mahindra University. No setup is needed here!'", ephemeral=True)
+            embed, file = create_sortling_embed(
+                title="Already Configured",
+                description="This server is pre-configured and does not need setup.",
+                is_error=False,
+            )
+            await interaction.send(embed=embed, file=file, ephemeral=True)
             return
 
-        with get_db() as db:
-            # Check if this guild already has a university
-            univ = db.query(db_models.University).filter_by(guild_id=str(guild_id)).first()
-            
-            slug = f"guild_{guild_id}"
-            
-            if not univ:
-                # Create new university profile
-                univ = db_models.University(
-                    slug=slug,
-                    name=name,
-                    website=website,
-                    logo=logo_url,
-                    description=description or f"Welcome to the matching guide for {name}.",
-                    guild_id=str(guild_id)
-                )
-                db.add(univ)
-                db.commit()
-                db.refresh(univ)
-                
-                # Automatically add a default import source for this university
-                import_src = db_models.ImportSource(
-                    university_id=univ.id,
-                    name="Default Simulated File Source",
-                    source_type="file",
-                    url=f"sorts/assets/data/{slug}_clubs.html"
-                )
-                db.add(import_src)
-                db.commit()
-                
-                msg = f"Setup complete! University **{name}** has been registered (sorts.me ID: **{univ.id}**). You can now import clubs using `/admin`!"
-            else:
-                # Update existing profile
-                univ.name = name
-                univ.website = website
-                if logo_url:
-                    univ.logo = logo_url
-                if description:
-                    univ.description = description
-                db.commit()
-                msg = f"University profile updated! University **{name}** is configured (sorts.me ID: **{univ.id}**)."
+        try:
+            with get_db() as db:
+                univ = db.query(db_models.University).filter_by(guild_id=str(guild_id)).first()
+                slug = f"guild_{guild_id}"
 
+                if not univ:
+                    univ = db_models.University(
+                        slug=slug,
+                        name=name,
+                        website=website,
+                        logo=logo_url,
+                        description=description or f"Campus guide for {name}.",
+                        guild_id=str(guild_id),
+                    )
+                    db.add(univ)
+                    db.commit()
+                    db.refresh(univ)
+                    import_src = db_models.ImportSource(
+                        university_id=univ.id,
+                        name="Default Source",
+                        source_type="file",
+                        url=f"sorts/assets/data/{slug}_clubs.html",
+                    )
+                    db.add(import_src)
+                    db.commit()
+                    msg = f"**{name}** is now registered on sorts.me. Use `/admin sync` whenever you want to update the club directory."
+                else:
+                    univ.name = name
+                    univ.website = website
+                    if logo_url:
+                        univ.logo = logo_url
+                    if description:
+                        univ.description = description
+                    db.commit()
+                    msg = f"Profile updated for **{name}**."
+
+                embed, file = create_sortling_embed(title="Setup Complete", description=msg, is_error=False)
+                await interaction.send(embed=embed, file=file)
+        except Exception as e:
             embed, file = create_sortling_embed(
-                title="University Configuration Success",
-                description=msg,
-                is_error=False
+                title="Setup Failed",
+                description=f"Something went wrong. Please try again or contact support.\n`{e}`",
+                is_error=True,
             )
-            await interaction.send(embed=embed, file=file)
+            await interaction.send(embed=embed, file=file, ephemeral=True)
 
-    @nextcord.slash_command(name="admin", description="Admin commands to manage university crawler data.")
+    # ─── /admin ───────────────────────────────────────────────────────────────
+
+    @nextcord.slash_command(name="admin", description="Manage the club directory for this server.")
     async def admin(self, interaction: nextcord.Interaction):
         pass
 
-    @admin.subcommand(name="import", description="Trigger an import crawl on a specific ImportSource.")
-    async def trigger_import(
-        self,
-        interaction: nextcord.Interaction,
-        source_id: int = nextcord.SlashOption(description="The ID of the ImportSource to run.")
-    ):
-        """Triggers crawling and trait inference on an import source."""
-        if not interaction.user.guild_permissions.administrator:
+    # ─── /admin sync ──────────────────────────────────────────────────────────
+
+    @admin.subcommand(name="sync", description="Fetch the latest club data from the university website.")
+    async def sync(self, interaction: nextcord.Interaction):
+        """Crawls the configured source and stages changes for review."""
+        if not _is_admin(interaction):
             embed, file = create_sortling_embed(
                 title="Access Denied",
-                description="Sortling: 'Oops! Only university admins can teach me about the campus.'",
-                color=BRAND_COLOR,
-                is_error=True
+                description="Only server administrators can sync the club directory.",
+                is_error=True,
             )
             await interaction.send(embed=embed, file=file, ephemeral=True)
             return
 
         await interaction.response.defer(ephemeral=True)
 
-        with get_db() as db:
-            # Multi-tenant safety: Check if source belongs to the guild's university
-            univ = get_guild_university(db, interaction.guild_id)
-            if not univ:
-                embed, file = create_sortling_embed(
-                    title="Setup Required",
-                    description="Sortling: 'This server has not been configured yet. Run `/setup` first!'",
-                    is_error=True
-                )
-                await interaction.followup.send(embed=embed, file=file, ephemeral=True)
-                return
+        try:
+            with get_db() as db:
+                univ = get_guild_university(db, interaction.guild_id)
+                if not univ:
+                    embed, file = create_sortling_embed(
+                        title="Not Configured",
+                        description="Run `/setup` first to link this server to a university.",
+                        is_error=True,
+                    )
+                    await interaction.followup.send(embed=embed, file=file, ephemeral=True)
+                    return
 
-            source = db.query(db_models.ImportSource).filter_by(id=source_id, university_id=univ.id).first()
-            if not source:
-                embed, file = create_sortling_embed(
-                    title="Source Not Found",
-                    description=f"Sortling: 'Hmm... I couldn't find an import source with ID {source_id} for this university.'",
-                    is_error=True
-                )
-                await interaction.followup.send(embed=embed, file=file, ephemeral=True)
-                return
+                sources = self.import_service.get_university_sources(db, univ.id)
+                if not sources:
+                    embed, file = create_sortling_embed(
+                        title="No Source Configured",
+                        description="No club data source has been set up for this university. Contact a sorts.me administrator.",
+                        is_error=True,
+                    )
+                    await interaction.followup.send(embed=embed, file=file, ephemeral=True)
+                    return
 
-            try:
-                job_id = self.import_service.trigger_import(db, source_id)
+                # Use the first active source
+                source = sources[0]
+                job_id = self.import_service.trigger_import(db, source.id)
+
                 embed, file = create_sortling_embed(
-                    title="Crawl Started Successfully",
+                    title="Sync Complete",
                     description=(
-                        f"Sortling: 'Finished running crawler! Job ID is **{job_id}**. "
-                        f"To preview changes, type `/admin preview job_id: {job_id}`.'"
+                        f"Club data has been fetched and is ready for review.\n\n"
+                        f"Run `/admin review` to see what changed before publishing."
                     ),
-                    color=BRAND_COLOR,
-                    is_error=False
+                    is_error=False,
                 )
                 await interaction.followup.send(embed=embed, file=file, ephemeral=True)
-            except Exception as e:
-                embed, file = create_sortling_embed(
-                    title="Import Failed",
-                    description=f"Sortling: 'Uh-oh, something failed during crawling: `{str(e)}`.'",
-                    color=BRAND_COLOR,
-                    is_error=True
-                )
-                await interaction.followup.send(embed=embed, file=file, ephemeral=True)
+        except Exception as e:
+            embed, file = create_sortling_embed(
+                title="Sync Failed",
+                description=f"The sync could not complete. Please try again.\n`{e}`",
+                is_error=True,
+            )
+            await interaction.followup.send(embed=embed, file=file, ephemeral=True)
 
-    @admin.subcommand(name="preview", description="Preview crawled draft differences and approve publishing.")
-    async def preview_drafts(
-        self,
-        interaction: nextcord.Interaction,
-        job_id: int = nextcord.SlashOption(description="The ID of the ImportJob to review.")
-    ):
-        """Displays categorized draft changes and provides an approve/publish view."""
-        if not interaction.user.guild_permissions.administrator:
+    # ─── /admin review ────────────────────────────────────────────────────────
+
+    @admin.subcommand(name="review", description="Preview pending club changes before they go live.")
+    async def review(self, interaction: nextcord.Interaction):
+        """Shows staged changes from the latest sync and lets admins approve them."""
+        if not _is_admin(interaction):
             embed, file = create_sortling_embed(
                 title="Access Denied",
-                description="Sortling: 'Oops! Only university admins can teach me about the campus.'",
-                color=BRAND_COLOR,
-                is_error=True
+                description="Only server administrators can review pending changes.",
+                is_error=True,
             )
             await interaction.send(embed=embed, file=file, ephemeral=True)
             return
 
-        with get_db() as db:
-            univ = get_guild_university(db, interaction.guild_id)
-            if not univ:
-                embed, file = create_sortling_embed(
-                    title="Setup Required",
-                    description="Sortling: 'This server has not been configured yet. Run `/setup` first!'",
-                    is_error=True
-                )
-                await interaction.send(embed=embed, file=file, ephemeral=True)
-                return
-
-            job = db.query(db_models.ImportJob).filter_by(id=job_id, university_id=univ.id).first()
-            if not job:
-                embed, file = create_sortling_embed(
-                    title="Job Not Found",
-                    description=f"Sortling: 'Hmm... I couldn't find an import job with ID {job_id} for this university.'",
-                    color=BRAND_COLOR,
-                    is_error=True
-                )
-                await interaction.send(embed=embed, file=file, ephemeral=True)
-                return
-
-            if job.status not in ["completed", "approved"]:
-                embed, file = create_sortling_embed(
-                    title="Invalid Job Status",
-                    description=f"Sortling: 'Hmm... This job is in status `{job.status}`. I can only preview finished jobs.'",
-                    color=BRAND_COLOR,
-                    is_error=True
-                )
-                await interaction.send(embed=embed, file=file, ephemeral=True)
-                return
-
-            diff = self.import_service.get_draft_diff(db, job_id)
-            
-            new_names = [f"• {dc.name}" for dc in diff["new"]]
-            up_names = [f"• {dc.name}" for dc in diff["updated"]]
-            rem_names = [f"• {dc.name}" for dc in diff["removed"]]
-
-            embed = nextcord.Embed(
-                title=f"Draft Review: Job ID {job_id}",
-                description=f"Review changes for University ID: {job.university_id} (Status: **{job.status}**)",
-                color=BRAND_COLOR
-            )
-            
-            embed.add_field(
-                name=f"🟢 New Clubs ({len(new_names)})",
-                value=clean_text("\n".join(new_names) if new_names else "None"),
-                inline=True
-            )
-            embed.add_field(
-                name=f"🟡 Updated Clubs ({len(up_names)})",
-                value=clean_text("\n".join(up_names) if up_names else "None"),
-                inline=True
-            )
-            embed.add_field(
-                name=f"🔴 Removed Clubs ({len(rem_names)})",
-                value=clean_text("\n".join(rem_names) if rem_names else "None"),
-                inline=True
-            )
-
-            # Check if Neutral Icon Mascot file exists and attach
-            file = None
-            import os
-            mascot_path = os.path.join("Sortling Mascot", "Icon_Neutral.png")
-            if os.path.exists(mascot_path):
-                file = nextcord.File(mascot_path, filename="Icon_Neutral.png")
-                embed.set_thumbnail(url="attachment://Icon_Neutral.png")
-
-            if job.status == "approved":
-                embed.set_footer(text="Changes for this job have already been published.")
-                if file:
+        try:
+            with get_db() as db:
+                univ = get_guild_university(db, interaction.guild_id)
+                if not univ:
+                    embed, file = create_sortling_embed(
+                        title="Not Configured",
+                        description="Run `/setup` first to link this server to a university.",
+                        is_error=True,
+                    )
                     await interaction.send(embed=embed, file=file, ephemeral=True)
-                else:
-                    await interaction.send(embed=embed, ephemeral=True)
-            else:
-                view = AdminPreviewView(job_id)
-                if file:
-                    await interaction.send(embed=embed, view=view, file=file, ephemeral=True)
-                else:
-                    await interaction.send(embed=embed, view=view, ephemeral=True)
+                    return
 
-    @admin.subcommand(name="publish", description="Force publish and approve a completed ImportJob.")
-    async def force_publish(
-        self,
-        interaction: nextcord.Interaction,
-        job_id: int = nextcord.SlashOption(description="The ID of the ImportJob to publish.")
-    ):
-        """Directly publishes a completed job without interactive view."""
-        if not interaction.user.guild_permissions.administrator:
+                job = self.import_service.get_latest_job(db, univ.id)
+                if not job:
+                    embed, file = create_sortling_embed(
+                        title="Nothing to Review",
+                        description="No sync has been run yet. Use `/admin sync` to fetch the latest club data.",
+                        is_error=False,
+                    )
+                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    return
+
+                if job.status == "approved":
+                    embed, file = create_sortling_embed(
+                        title="Already Published",
+                        description="The most recent sync has already been published. Run `/admin sync` to fetch fresh data.",
+                        is_error=False,
+                    )
+                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    return
+
+                diff = self.import_service.get_draft_diff(db, job.id)
+                new_names = [f"+ {dc.name}" for dc in diff["new"]]
+                up_names  = [f"~ {dc.name}" for dc in diff["updated"]]
+                rem_names = [f"- {dc.name}" for dc in diff["removed"]]
+
+                embed = nextcord.Embed(
+                    title="Pending Club Changes",
+                    description="Review the changes below, then click **Publish** to make them live.",
+                    color=BRAND_COLOR,
+                )
+                embed.add_field(
+                    name=f"New  ({len(new_names)})",
+                    value=clean_text("\n".join(new_names) or "None"),
+                    inline=True,
+                )
+                embed.add_field(
+                    name=f"Updated  ({len(up_names)})",
+                    value=clean_text("\n".join(up_names) or "None"),
+                    inline=True,
+                )
+                embed.add_field(
+                    name=f"Removed  ({len(rem_names)})",
+                    value=clean_text("\n".join(rem_names) or "None"),
+                    inline=True,
+                )
+                embed.set_footer(text="sorts.me: Publishing will immediately update the club directory for all students.")
+
+                view = AdminPreviewView(job.id)
+                await interaction.send(embed=embed, view=view, ephemeral=True)
+        except Exception as e:
+            embed, file = create_sortling_embed(
+                title="Review Failed",
+                description=f"Could not load pending changes.\n`{e}`",
+                is_error=True,
+            )
+            await interaction.send(embed=embed, file=file, ephemeral=True)
+
+    # ─── /admin publish ───────────────────────────────────────────────────────
+
+    @admin.subcommand(name="publish", description="Immediately publish the latest synced club data.")
+    async def publish(self, interaction: nextcord.Interaction):
+        """Skips review and publishes the most recent sync directly."""
+        if not _is_admin(interaction):
             embed, file = create_sortling_embed(
                 title="Access Denied",
-                description="Sortling: 'Oops! Only university admins can teach me about the campus.'",
-                color=BRAND_COLOR,
-                is_error=True
+                description="Only server administrators can publish changes.",
+                is_error=True,
             )
             await interaction.send(embed=embed, file=file, ephemeral=True)
             return
 
-        with get_db() as db:
-            univ = get_guild_university(db, interaction.guild_id)
-            if not univ:
-                embed, file = create_sortling_embed(
-                    title="Setup Required",
-                    description="Sortling: 'This server has not been configured yet. Run `/setup` first!'",
-                    is_error=True
-                )
-                await interaction.send(embed=embed, file=file, ephemeral=True)
-                return
+        try:
+            with get_db() as db:
+                univ = get_guild_university(db, interaction.guild_id)
+                if not univ:
+                    embed, file = create_sortling_embed(
+                        title="Not Configured",
+                        description="Run `/setup` first to link this server to a university.",
+                        is_error=True,
+                    )
+                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    return
 
-            job = db.query(db_models.ImportJob).filter_by(id=job_id, university_id=univ.id).first()
-            if not job:
-                embed, file = create_sortling_embed(
-                    title="Job Not Found",
-                    description=f"Sortling: 'Hmm... I couldn't find an import job with ID {job_id} for this university.'",
-                    color=BRAND_COLOR,
-                    is_error=True
-                )
-                await interaction.send(embed=embed, file=file, ephemeral=True)
-                return
+                job = self.import_service.get_latest_job(db, univ.id)
+                if not job:
+                    embed, file = create_sortling_embed(
+                        title="Nothing to Publish",
+                        description="Run `/admin sync` to fetch the latest club data first.",
+                        is_error=False,
+                    )
+                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    return
 
-            try:
-                self.import_service.publish_job(db, job_id)
+                if job.status == "approved":
+                    embed, file = create_sortling_embed(
+                        title="Already Published",
+                        description="The latest sync is already live. Run `/admin sync` to check for new changes.",
+                        is_error=False,
+                    )
+                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    return
+
+                self.import_service.publish_job(db, job.id)
                 embed, file = create_sortling_embed(
-                    title="Publish Success",
-                    description=f"Sortling: 'I've approved and published Job ID **{job_id}**. The club list is now live!'",
-                    color=BRAND_COLOR,
-                    is_error=False
+                    title="Published",
+                    description="The club directory has been updated. Students will see the latest data immediately.",
+                    is_error=False,
                 )
                 await interaction.send(embed=embed, file=file, ephemeral=True)
-            except Exception as e:
-                embed, file = create_sortling_embed(
-                    title="Publish Failed",
-                    description=f"Sortling: 'Oops! Failed to publish: `{str(e)}`.'",
-                    color=BRAND_COLOR,
-                    is_error=True
-                )
-                await interaction.send(embed=embed, file=file, ephemeral=True)
+        except Exception as e:
+            embed, file = create_sortling_embed(
+                title="Publish Failed",
+                description=f"Could not publish changes.\n`{e}`",
+                is_error=True,
+            )
+            await interaction.send(embed=embed, file=file, ephemeral=True)
+
 
 def setup(bot):
     bot.add_cog(AdminCog(bot))
