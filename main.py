@@ -84,6 +84,13 @@ def bootstrap():
         else:
             logger.info(f"{club_count} clubs already live. Skipping auto-import.")
 
+        # ── Ensure Qubit Club is seeded and synchronized ──────────────────────
+        try:
+            from sorts.services.seed_service import ensure_qubit_club_seeded
+            ensure_qubit_club_seeded(db)
+        except Exception as e:
+            logger.error(f"Failed to seed Qubit Club: {e}")
+
 def main():
     start_health_server()  # Open port before anything else so Render health check passes
     bootstrap()

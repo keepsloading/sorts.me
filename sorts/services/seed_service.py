@@ -111,3 +111,77 @@ def seed_database(db: Session, seed_filepath: str) -> None:
             logger.debug(f"Question '{q_data['code']}' already exists. Skipping.")
 
     logger.info("Database seeding finished.")
+
+def ensure_qubit_club_seeded(db: Session) -> None:
+    """Ensures Qubit Club exists in the database with appropriate trait mappings."""
+    from sorts.database import models as db_models
+
+    univ = db.query(db_models.University).filter_by(slug="mahindra").first()
+    if not univ:
+        return
+
+    qubit = db.query(db_models.Club).filter_by(university_id=univ.id, slug="qubit-club").first()
+    if not qubit:
+        qubit = db.query(db_models.Club).filter(
+            db_models.Club.university_id == univ.id,
+            db_models.Club.name.ilike("%Qubit Club%")
+        ).first()
+
+    summary_text = (
+        "We introduce students to quantum computing through hands-on workshops, technical sessions, "
+        "hackathons, and collaborative projects. Members explore quantum algorithms, Qiskit, cloud "
+        "quantum platforms, and emerging research while building a strong foundation in quantum technologies."
+    )
+
+    desc_text = (
+        "Qubit Club is dedicated to introducing students to quantum computing, quantum algorithms, Qiskit, "
+        "and cloud quantum platforms. Members participate in technical workshops, R&D projects, hackathons, "
+        "and research in mathematics, physics, computer science, artificial intelligence, and emerging technologies. "
+        "Best suited for students interested in CS, AI, Math, Physics, and Research."
+    )
+
+    if not qubit:
+        qubit = db_models.Club(
+            university_id=univ.id,
+            slug="qubit-club",
+            name="Qubit Club",
+            summary=summary_text,
+            description=desc_text,
+            website="https://qubit-mu.github.io",
+            discord="https://discord.gg/qubit-mu",
+            instagram="https://instagram.com/qubit_mu",
+            email="qubit@mahindrauniversity.edu.in",
+            meeting_frequency="Weekly sessions",
+            commitment="Medium commitment"
+        )
+        db.add(qubit)
+        db.commit()
+        db.refresh(qubit)
+        logger.info(f"Seeded Qubit Club into database (ID: {qubit.id}).")
+    else:
+        qubit.summary = summary_text
+        qubit.description = desc_text
+        qubit.commitment = "Medium commitment"
+        db.commit()
+
+    # Map traits for Qubit Club so /sort can naturally recommend it
+    trait_weights = {
+        "software": 0.9,            # Programming & CS
+        "ai_data": 1.0,             # AI, Data Science & Quantum Computing
+        "competitive_coding": 0.8, # Algorithms, Qiskit & Hackathons
+        "creative": 0.6,            # Emerging Tech & R&D Research
+        "commitment_medium": 1.0,  # Medium Commitment
+        "social": 0.5               # Workshops & collaborative projects
+    }
+
+    for slug, weight in trait_weights.items():
+        t_obj = db.query(db_models.Trait).filter_by(slug=slug).first()
+        if t_obj:
+            ct = db.query(db_models.ClubTrait).filter_by(club_id=qubit.id, trait_id=t_obj.id).first()
+            if not ct:
+                ct = db_models.ClubTrait(club_id=qubit.id, trait_id=t_obj.id, weight=weight)
+                db.add(ct)
+            else:
+                ct.weight = weight
+    db.commit()
+    logger.info("Qubit Club trait mappings synchronized.")

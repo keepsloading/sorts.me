@@ -11,7 +11,8 @@ class RuleTraitInferencer(ITraitInferencer):
                 r"\bcod(e|ing|er|ers)\b", r"\bprogramm(ing|er|ers)\b", r"\bsoftware\b", 
                 r"\bdevelop(ment|er|ers)\b", r"\bhackathon(s)?\b", r"\bpython\b", 
                 r"\bjava\b", r"\bweb\b", r"\bapp\b", r"\balgorithm(s)?\b", 
-                r"\bgit\b", r"\bgithub\b", r"\bcomputer science\b", r"\bopen-source\b"
+                r"\bgit\b", r"\bgithub\b", r"\bcomputer science\b", r"\bopen-source\b",
+                r"\bqiskit\b", r"\bquantum\b"
             ],
             "hardware": [
                 r"\brobotic(s)?\b", r"\bhardware\b", r"\barduino\b", r"\braspberry pi\b", 
