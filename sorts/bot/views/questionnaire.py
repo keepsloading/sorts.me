@@ -1,15 +1,16 @@
 import nextcord
 import os
-from sqlalchemy.orm import Session
-from datetime import datetime
 import logging
 
 from sorts.database.connection import get_db
 from sorts.services.session_service import SessionService
 from sorts.database import models as db_models
-from sorts.bot.utils import BRAND_COLOR, clean_text
+from sorts.bot.utils import BRAND_COLOR, create_sortling_embed, clean_text
 
 logger = logging.getLogger(__name__)
+
+RANK_MEDALS = {1: "🥇", 2: "🥈", 3: "🥉"}
+
 
 class OptionButton(nextcord.ui.Button):
     def __init__(self, option_id: int, question_id: int, label: str, style: nextcord.ButtonStyle):
@@ -18,108 +19,128 @@ class OptionButton(nextcord.ui.Button):
         self.question_id = question_id
 
     async def callback(self, interaction: nextcord.Interaction):
-        view: 'QuestionnaireView' = self.view
-        # Submit the user's choice
-        with get_db() as db:
-            view.session_service.submit_answer(db, view.session_id, self.question_id, self.option_id)
-            
-            # Fetch the next question
-            next_q = view.session_service.get_next_question(db, view.session_id)
-            
-            if next_q:
-                # Update the view with the next question's buttons
-                view.update_question(next_q)
-                
-                # Build embed for next question. Reuses the original thinking.gif attachment
-                embed = nextcord.Embed(
-                    title=clean_text(f"sorts.me: Question {view.question_count}"),
-                    description=f"### {clean_text(next_q.text)}",
-                    color=BRAND_COLOR
-                )
-                embed.set_thumbnail(url="attachment://thinking.gif")
-                embed.set_footer(text="Sortling: 'One more question...'")
-                
-                await interaction.response.edit_message(embed=embed, view=view)
-            else:
-                # No more questions! Generate recommendations. Show the thinking GIF animation!
-                calculating_embed = nextcord.Embed(
-                    description="### Sortling: 'I have a theory. Let me calculate...'", 
-                    color=BRAND_COLOR
-                )
-                calculating_embed.set_thumbnail(url="attachment://thinking.gif")
-                
-                await interaction.response.edit_message(
-                    embed=calculating_embed,
-                    view=None
-                )
-                
-                # Calculate recommendation match details
-                recs = view.session_service.generate_recommendations(db, view.session_id, limit=3)
-                
-                # Fetch university logo and colors
-                univ = db.query(db_models.University).filter_by(id=recs[0].session.university_id).first() if recs else None
-                
-                embed = nextcord.Embed(
-                    title=clean_text("Sortling's Guide: Match Results!"),
-                    description=clean_text(f"Here are the top clubs matched for you at **{univ.name if univ else 'your campus'}**:"),
-                    color=BRAND_COLOR
-                )
-                
-                # Attach mascot neutral icon to new follow-up results card
-                file = None
-                mascot_path = os.path.join("Sortling Mascot", "Icon_Neutral.png")
-                if os.path.exists(mascot_path):
-                    file = nextcord.File(mascot_path, filename="Icon_Neutral.png")
-                    embed.set_thumbnail(url="attachment://Icon_Neutral.png")
-                
-                for r in recs:
-                    club = r.club
-                    
-                    # Social connect links are removed for match results to optimize cognitive load and UI spacing
+        view: "QuestionnaireView" = self.view
 
-                    embed.add_field(
-                        name=f"🏆 Rank {r.rank}: {clean_text(club.name)}",
-                        value=(
-                            f"**Summary:** {clean_text(club.summary)}\n\n"
-                            f"**Why you fit:** {clean_text(r.explanation)}"
-                        ),
-                        inline=False
+        try:
+            with get_db() as db:
+                view.session_service.submit_answer(db, view.session_id, self.question_id, self.option_id)
+                next_q = view.session_service.get_next_question(db, view.session_id)
+
+                if next_q:
+                    view.advance(next_q)
+                    embed = nextcord.Embed(
+                        title=clean_text(next_q.text),
+                        color=BRAND_COLOR,
                     )
-                
-                embed.set_footer(text="To leave feedback on these results, use /feedback [rating] [comments]")
-                
-                if file:
-                    await interaction.followup.send(embed=embed, file=file)
+                    embed.set_footer(
+                        text=f"Question {view.question_number} of {view.total_questions}  ·  sorts.me"
+                    )
+                    embed.set_thumbnail(url="attachment://thinking.gif")
+                    await interaction.response.edit_message(embed=embed, view=view)
+
                 else:
-                    await interaction.followup.send(embed=embed)
+                    # Show a brief loading state while computing
+                    loading_embed = nextcord.Embed(
+                        description="Finding your matches...",
+                        color=BRAND_COLOR,
+                    )
+                    loading_embed.set_thumbnail(url="attachment://thinking.gif")
+                    await interaction.response.edit_message(embed=loading_embed, view=None)
+
+                    recs = view.session_service.generate_recommendations(db, view.session_id, limit=3)
+
+                    if not recs:
+                        embed, file = create_sortling_embed(
+                            title="No Matches Found",
+                            description="No clubs matched your profile. Try running `/sort` again with different answers.",
+                            is_error=True,
+                        )
+                        if file:
+                            await interaction.followup.send(embed=embed, file=file)
+                        else:
+                            await interaction.followup.send(embed=embed)
+                        return
+
+                    univ = db.query(db_models.University).filter_by(
+                        id=recs[0].session.university_id
+                    ).first()
+                    univ_name = univ.name if univ else "your campus"
+
+                    embed = nextcord.Embed(
+                        title="Your Club Matches",
+                        description=f"Based on your answers, here are the best-fit clubs at **{univ_name}**.",
+                        color=BRAND_COLOR,
+                    )
+
+                    for r in recs:
+                        club = r.club
+                        medal = RANK_MEDALS.get(r.rank, f"#{r.rank}")
+                        embed.add_field(
+                            name=f"{medal}  {clean_text(club.name)}",
+                            value=(
+                                f"> {clean_text(club.summary)}\n\n"
+                                f"**Why you fit** — {clean_text(r.explanation)}"
+                            ),
+                            inline=False,
+                        )
+
+                    embed.set_footer(text="Rate your matches with /feedback  ·  sorts.me")
+
+                    icon_path = os.path.join("Sortling Mascot", "Icon_Neutral.png")
+                    file = None
+                    if os.path.exists(icon_path):
+                        file = nextcord.File(icon_path, filename="Icon_Neutral.png")
+                        embed.set_thumbnail(url="attachment://Icon_Neutral.png")
+
+                    if file:
+                        await interaction.followup.send(embed=embed, file=file)
+                    else:
+                        await interaction.followup.send(embed=embed)
+
+        except Exception as e:
+            logger.error(f"Questionnaire error: {e}", exc_info=True)
+            embed, file = create_sortling_embed(
+                title="Something went wrong",
+                description="An error occurred. Please try running `/sort` again.",
+                is_error=True,
+            )
+            try:
+                if file:
+                    await interaction.followup.send(embed=embed, file=file, ephemeral=True)
+                else:
+                    await interaction.followup.send(embed=embed, ephemeral=True)
+            except Exception:
+                pass
 
 
 class QuestionnaireView(nextcord.ui.View):
-    def __init__(self, session_id: str, initial_q: db_models.Question):
-        super().__init__(timeout=180.0)
+    def __init__(self, session_id: str, initial_q: db_models.Question, total_questions: int):
+        super().__init__(timeout=300.0)
         self.session_id = session_id
         self.session_service = SessionService()
-        self.question_count = 1
-        self.update_question(initial_q)
+        self.total_questions = total_questions
+        self.question_number = 1
+        self._populate_buttons(initial_q)
 
-    def update_question(self, question: db_models.Question):
-        """Clears existing buttons and adds new ones for the current question options."""
+    def advance(self, question: db_models.Question):
+        """Move to the next question, updating buttons and counter."""
+        self.question_number += 1
+        self._populate_buttons(question)
+
+    def _populate_buttons(self, question: db_models.Question):
+        """Rebuild buttons for the current question."""
         self.clear_items()
         styles = [
-            nextcord.ButtonStyle.green,
             nextcord.ButtonStyle.secondary,
-            nextcord.ButtonStyle.danger,
-            nextcord.ButtonStyle.blurple
+            nextcord.ButtonStyle.secondary,
+            nextcord.ButtonStyle.secondary,
+            nextcord.ButtonStyle.secondary,
         ]
-        
         for idx, opt in enumerate(question.options):
-            style = styles[idx % len(styles)]
             btn = OptionButton(
                 option_id=opt.id,
                 question_id=question.id,
                 label=opt.text,
-                style=style
+                style=styles[idx % len(styles)],
             )
             self.add_item(btn)
-        
-        self.question_count += 1
