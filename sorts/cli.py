@@ -106,7 +106,7 @@ def main():
                 sys.exit(1)
 
         elif args.command == "interactive":
-            # Start Akinator questionnaire in the console
+            # Start Adaptive questionnaire in the console
             univ = db.query(db_models.University).filter_by(slug=args.university_slug).first()
             if not univ:
                 print(f"Error: University '{args.university_slug}' not found. Did you run 'seed'?", file=sys.stderr)

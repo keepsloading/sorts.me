@@ -90,7 +90,7 @@ class SessionService:
 
             # Fast exit (3-5 questions): top match is clear (top_score >= 0.45 AND margin >= 0.15)
             if top_score >= 0.45 and margin >= 0.15:
-                logger.info(f"Session {session_id}: Akinator convergence reached after {num_answered} questions (Top: {top_score:.2f}, Margin: {margin:.2f}). Finishing tree.")
+                logger.info(f"Session {session_id}: Adaptive decision tree convergence reached after {num_answered} questions (Top: {top_score:.2f}, Margin: {margin:.2f}). Finishing tree.")
                 return None
 
             # Exit at 6+ questions if any positive match exists
