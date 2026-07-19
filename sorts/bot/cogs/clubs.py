@@ -91,9 +91,15 @@ class ClubsCog(commands.Cog):
 
                 club = matches[0]
 
+                summary = clean_text(club.summary)
+                full_desc = clean_text(club.description or "")
+                desc_text = f"> {summary}"
+                if full_desc and full_desc != summary:
+                    desc_text += f"\n\n{full_desc}"
+
                 embed = nextcord.Embed(
                     title=clean_text(club.name),
-                    description=f"> {clean_text(club.summary)}\n\n{clean_text(club.description or '')}",
+                    description=desc_text,
                     color=BRAND_COLOR,
                 )
                 if club.image:
