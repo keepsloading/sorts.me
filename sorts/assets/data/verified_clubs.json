@@ -1,6 +1,6 @@
 [
   {
-    "name": "Enigma \u2013 Computer Science Club",
+    "name": "Enigma – Computer Science Club",
     "slug": "enigma-computer-science-club",
     "aliases": [
       "enigma",
@@ -27,10 +27,6 @@
       "lastVerified": "2026-07-19"
     },
     "socials": {
-      "website": "https://enigma-mu.github.io",
-      "discord": "https://discord.gg/enigma-mu",
-      "instagram": "https://instagram.com/enigma_mu",
-      "github": "https://github.com/enigma-mu",
       "email": "enigma@mahindrauniversity.edu.in"
     },
     "metadata": {
@@ -78,9 +74,6 @@
       "lastVerified": "2026-07-19"
     },
     "socials": {
-      "website": "https://eicmu.in",
-      "instagram": "https://instagram.com/eic_mu",
-      "linkedin": "https://linkedin.com/company/eic-mu",
       "email": "eic@mahindrauniversity.edu.in"
     },
     "metadata": {
@@ -126,9 +119,6 @@
       "lastVerified": "2026-07-19"
     },
     "socials": {
-      "website": "https://tedxmahindrauniversity.com",
-      "instagram": "https://instagram.com/tedxmahindrauniversity",
-      "youtube": "https://youtube.com/@tedxmahindrauniversity",
       "email": "tedx@mahindrauniversity.edu.in"
     },
     "metadata": {
@@ -175,10 +165,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/mastershot_mu",
-      "youtube": "https://youtube.com/@mastershot_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -221,10 +208,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/econova_mu",
-      "linkedin": "https://linkedin.com/company/econova-mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -267,10 +251,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/aiclub_mu",
-      "github": "https://github.com/aiclub-mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -311,9 +292,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/ccubee_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -331,7 +310,7 @@
     }
   },
   {
-    "name": "Literary Society \u2013 The Erudite Club",
+    "name": "Literary Society – The Erudite Club",
     "slug": "literary-society-the-erudite-club",
     "aliases": [
       "Debate & Literary Club",
@@ -356,7 +335,6 @@
       "lastVerified": "2026-07-19"
     },
     "socials": {
-      "instagram": "https://instagram.com/erudite_mu",
       "email": "erudite@mahindrauniversity.edu.in"
     },
     "metadata": {
@@ -401,7 +379,6 @@
       "lastVerified": "2026-07-19"
     },
     "socials": {
-      "instagram": "https://instagram.com/outreach_mu",
       "email": "outreach@mahindrauniversity.edu.in"
     },
     "metadata": {
@@ -443,7 +420,6 @@
       "lastVerified": "2026-07-19"
     },
     "socials": {
-      "instagram": "https://instagram.com/saebaja_mu",
       "email": "saebaja@mahindrauniversity.edu.in"
     },
     "metadata": {
@@ -463,7 +439,7 @@
     }
   },
   {
-    "name": "Echo \u2013 MU Monthly Newspaper",
+    "name": "Echo – MU Monthly Newspaper",
     "slug": "echo-mu-monthly-newspaper",
     "aliases": [
       "echo",
@@ -487,8 +463,6 @@
       "lastVerified": "2026-07-19"
     },
     "socials": {
-      "instagram": "https://instagram.com/echo_mu",
-      "website": "https://echomu.in",
       "email": "echo@mahindrauniversity.edu.in"
     },
     "metadata": {
@@ -532,7 +506,6 @@
       "lastVerified": "2026-07-19"
     },
     "socials": {
-      "instagram": "https://instagram.com/lincolnlabs_mu",
       "email": "lincolnlabs@mahindrauniversity.edu.in"
     },
     "metadata": {
@@ -576,7 +549,6 @@
       "lastVerified": "2026-07-19"
     },
     "socials": {
-      "instagram": "https://instagram.com/mumun_official",
       "email": "mun@mahindrauniversity.edu.in"
     },
     "metadata": {
@@ -619,9 +591,6 @@
       "lastVerified": "2026-07-19"
     },
     "socials": {
-      "website": "https://qubit-mu.github.io",
-      "discord": "https://discord.gg/qubit-mu",
-      "instagram": "https://instagram.com/qubit_mu",
       "email": "qubit@mahindrauniversity.edu.in"
     },
     "metadata": {
@@ -666,7 +635,6 @@
       "lastVerified": "2026-07-19"
     },
     "socials": {
-      "instagram": "https://instagram.com/saeaero_mu",
       "email": "saeaero@mahindrauniversity.edu.in"
     },
     "metadata": {
@@ -686,7 +654,7 @@
     }
   },
   {
-    "name": "Roboverse \u2013 Robotics Club",
+    "name": "Roboverse – Robotics Club",
     "slug": "roboverse-robotics-club",
     "aliases": [
       "roboverse",
@@ -708,9 +676,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/roboverse_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -727,7 +693,7 @@
     }
   },
   {
-    "name": "Synolo \u2013 Music Club",
+    "name": "Synolo – Music Club",
     "slug": "synolo-music-club",
     "aliases": [
       "synolo",
@@ -750,9 +716,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/synolo_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -770,7 +734,7 @@
     }
   },
   {
-    "name": "Dance Club \u2013 8 Counts",
+    "name": "Dance Club – 8 Counts",
     "slug": "dance-club-8-counts",
     "aliases": [
       "8 counts",
@@ -793,9 +757,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/8counts_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -834,9 +796,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/aether_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -875,9 +835,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/secretgarden_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -894,7 +852,7 @@
     }
   },
   {
-    "name": "AeiForia \u2013 The Sustainability Club",
+    "name": "AeiForia – The Sustainability Club",
     "slug": "aeiforia-the-sustainability-club",
     "aliases": [
       "aeiforia",
@@ -904,7 +862,7 @@
     "category": "Social",
     "official": true,
     "summary": "Sustainability and green campus initiatives.",
-    "description": "AeiForia \u2013 The Sustainability Club is dedicated to sustainability and green campus initiatives. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "AeiForia – The Sustainability Club is dedicated to sustainability and green campus initiatives. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -915,9 +873,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/aeiforia_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -953,9 +909,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/aiesec_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -971,7 +925,7 @@
     }
   },
   {
-    "name": "Ambrosia \u2013 The Biology Club",
+    "name": "Ambrosia – The Biology Club",
     "slug": "ambrosia-the-biology-club",
     "aliases": [
       "ambrosia",
@@ -981,7 +935,7 @@
     "category": "Science",
     "official": true,
     "summary": "Biotechnology and life sciences exploration.",
-    "description": "Ambrosia \u2013 The Biology Club is dedicated to biotechnology and life sciences exploration. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "Ambrosia – The Biology Club is dedicated to biotechnology and life sciences exploration. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -992,9 +946,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/ambrosia_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1009,7 +961,7 @@
     }
   },
   {
-    "name": "Amartya \u2013 The Finance Club",
+    "name": "Amartya – The Finance Club",
     "slug": "amartya-the-finance-club",
     "aliases": [
       "amartya",
@@ -1019,7 +971,7 @@
     "category": "Business",
     "official": true,
     "summary": "Financial literacy, stock trading, and investment.",
-    "description": "Amartya \u2013 The Finance Club is dedicated to financial literacy, stock trading, and investment. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "Amartya – The Finance Club is dedicated to financial literacy, stock trading, and investment. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -1030,9 +982,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/amartya_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1068,9 +1018,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/art_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1106,9 +1054,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/asce_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1142,9 +1088,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/auv_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1159,7 +1103,7 @@
     }
   },
   {
-    "name": "Celeste \u2013 The Astronomy Club",
+    "name": "Celeste – The Astronomy Club",
     "slug": "celeste-the-astronomy-club",
     "aliases": [
       "celeste",
@@ -1169,7 +1113,7 @@
     "category": "Science",
     "official": true,
     "summary": "Stargazing, astrophysics, and space science.",
-    "description": "Celeste \u2013 The Astronomy Club is dedicated to stargazing, astrophysics, and space science. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "Celeste – The Astronomy Club is dedicated to stargazing, astrophysics, and space science. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -1180,9 +1124,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/celeste_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1217,9 +1159,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/coding_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1254,9 +1194,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/evolve_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1290,9 +1228,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/finance_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1327,9 +1263,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/gas_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1345,7 +1279,7 @@
     }
   },
   {
-    "name": "Gender & Inclusion Forum \u2013 MU Athena",
+    "name": "Gender & Inclusion Forum – MU Athena",
     "slug": "gender-inclusion-forum-mu-athena",
     "aliases": [
       "athena",
@@ -1355,7 +1289,7 @@
     "category": "Social",
     "official": true,
     "summary": "Promoting inclusion, diversity, and equality on campus.",
-    "description": "Gender & Inclusion Forum \u2013 MU Athena is dedicated to promoting inclusion, diversity, and equality on campus. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "Gender & Inclusion Forum – MU Athena is dedicated to promoting inclusion, diversity, and equality on campus. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -1366,9 +1300,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/gender_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1383,7 +1315,7 @@
     }
   },
   {
-    "name": "Haven \u2013 Animal Welfare Club",
+    "name": "Haven – Animal Welfare Club",
     "slug": "haven-animal-welfare-club",
     "aliases": [
       "haven",
@@ -1393,7 +1325,7 @@
     "category": "Social",
     "official": true,
     "summary": "Campus animal care, feeding drives, and rescue.",
-    "description": "Haven \u2013 Animal Welfare Club is dedicated to campus animal care, feeding drives, and rescue. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "Haven – Animal Welfare Club is dedicated to campus animal care, feeding drives, and rescue. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -1404,9 +1336,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/haven_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1441,9 +1371,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/isb_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1457,7 +1385,7 @@
     }
   },
   {
-    "name": "Kalakriti \u2013 Cultural Club",
+    "name": "Kalakriti – Cultural Club",
     "slug": "kalakriti-cultural-club",
     "aliases": [
       "kalakriti",
@@ -1466,7 +1394,7 @@
     "category": "Creative",
     "official": true,
     "summary": "Cultural celebrations and traditional arts.",
-    "description": "Kalakriti \u2013 Cultural Club is dedicated to cultural celebrations and traditional arts. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "Kalakriti – Cultural Club is dedicated to cultural celebrations and traditional arts. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -1477,9 +1405,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/kalakriti_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1514,9 +1440,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/management_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1530,7 +1454,7 @@
     }
   },
   {
-    "name": "Marketing Club \u2013 Vipanan",
+    "name": "Marketing Club – Vipanan",
     "slug": "marketing-club-vipanan",
     "aliases": [
       "vipanan",
@@ -1539,7 +1463,7 @@
     "category": "Business",
     "official": true,
     "summary": "Brand marketing, social media strategy, and ad campaigns.",
-    "description": "Marketing Club \u2013 Vipanan is dedicated to brand marketing, social media strategy, and ad campaigns. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "Marketing Club – Vipanan is dedicated to brand marketing, social media strategy, and ad campaigns. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -1550,9 +1474,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/marketing_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1587,9 +1509,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/math_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1623,9 +1543,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/media_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1659,9 +1577,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/nss_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1675,7 +1591,7 @@
     }
   },
   {
-    "name": "Orion Club \u2013 Aeronautics Society",
+    "name": "Orion Club – Aeronautics Society",
     "slug": "orion-club-aeronautics-society",
     "aliases": [
       "orion",
@@ -1684,7 +1600,7 @@
     "category": "Engineering",
     "official": true,
     "summary": "Rocketry, drone mechanics, and aeronautical engineering.",
-    "description": "Orion Club \u2013 Aeronautics Society is dedicated to rocketry, drone mechanics, and aeronautical engineering. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "Orion Club – Aeronautics Society is dedicated to rocketry, drone mechanics, and aeronautical engineering. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -1695,9 +1611,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/orion_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1711,7 +1625,7 @@
     }
   },
   {
-    "name": "Palaestro \u2013 Fitness Club",
+    "name": "Palaestro – Fitness Club",
     "slug": "palaestro-fitness-club",
     "aliases": [
       "palaestro",
@@ -1721,7 +1635,7 @@
     "category": "Entertainment",
     "official": true,
     "summary": "Calisthenics, gym workouts, and sports fitness.",
-    "description": "Palaestro \u2013 Fitness Club is dedicated to calisthenics, gym workouts, and sports fitness. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "Palaestro – Fitness Club is dedicated to calisthenics, gym workouts, and sports fitness. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -1732,9 +1646,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/palaestro_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1769,9 +1681,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/power_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1785,7 +1695,7 @@
     }
   },
   {
-    "name": "Secret Garden \u2013 Cybersecurity Club",
+    "name": "Secret Garden – Cybersecurity Club",
     "slug": "secret-garden-cybersecurity-club",
     "aliases": [
       "secret garden",
@@ -1794,7 +1704,7 @@
     "category": "Technology",
     "official": true,
     "summary": "Network safety and hacking challenges.",
-    "description": "Secret Garden \u2013 Cybersecurity Club is dedicated to network safety and hacking challenges. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "Secret Garden – Cybersecurity Club is dedicated to network safety and hacking challenges. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -1805,9 +1715,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/secret_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1821,7 +1729,7 @@
     }
   },
   {
-    "name": "SPIC MACAY \u2013 MU Chapter",
+    "name": "SPIC MACAY – MU Chapter",
     "slug": "spic-macay-mu-chapter",
     "aliases": [
       "spic macay",
@@ -1830,7 +1738,7 @@
     "category": "Arts",
     "official": true,
     "summary": "Indian classical music, dance, and cultural heritage.",
-    "description": "SPIC MACAY \u2013 MU Chapter is dedicated to indian classical music, dance, and cultural heritage. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "SPIC MACAY – MU Chapter is dedicated to indian classical music, dance, and cultural heritage. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -1841,9 +1749,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/spic_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1858,7 +1764,7 @@
     }
   },
   {
-    "name": "SRELP \u2013 Society for Research in Environmental Law & Policy",
+    "name": "SRELP – Society for Research in Environmental Law & Policy",
     "slug": "srelp-society-for-research-in-environmental-law-policy",
     "aliases": [
       "srelp",
@@ -1867,7 +1773,7 @@
     "category": "Science",
     "official": true,
     "summary": "Legal research on environmental policy and sustainability.",
-    "description": "SRELP \u2013 Society for Research in Environmental Law & Policy is dedicated to legal research on environmental policy and sustainability. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "SRELP – Society for Research in Environmental Law & Policy is dedicated to legal research on environmental policy and sustainability. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -1878,9 +1784,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/srelp_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1894,7 +1798,7 @@
     }
   },
   {
-    "name": "The Fashion Club \u2013 Voguenze",
+    "name": "The Fashion Club – Voguenze",
     "slug": "the-fashion-club-voguenze",
     "aliases": [
       "voguenze",
@@ -1903,7 +1807,7 @@
     "category": "Arts",
     "official": true,
     "summary": "Fashion shows, styling, and ramp walks.",
-    "description": "The Fashion Club \u2013 Voguenze is dedicated to fashion shows, styling, and ramp walks. We organize regular student activities, collaborative projects, and skill-building sessions.",
+    "description": "The Fashion Club – Voguenze is dedicated to fashion shows, styling, and ramp walks. We organize regular student activities, collaborative projects, and skill-building sessions.",
     "meeting_frequency": "Bi-weekly sessions",
     "commitment": "Medium commitment",
     "verification": {
@@ -1914,9 +1818,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/the_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1951,9 +1853,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/the_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
@@ -1987,9 +1887,7 @@
       ],
       "lastVerified": "2026-07-19"
     },
-    "socials": {
-      "instagram": "https://instagram.com/zenith_mu"
-    },
+    "socials": {},
     "metadata": {
       "status": "active",
       "tags": [
