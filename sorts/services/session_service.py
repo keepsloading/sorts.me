@@ -60,6 +60,19 @@ class SessionService:
         if not db_clubs:
             return unasked_db_questions[0]
 
+        # Early stopping check:
+        # If student has answered at least 4 questions, check if top match confidence is high or threshold reached
+        if len(answered_q_ids) >= 4:
+            session_traits = {st.trait.slug: st.value for st in session.traits}
+            domain_clubs = [self._map_club(c) for c in db_clubs]
+            scores = self.question_selector._calculate_scores(session_traits, domain_clubs)
+            scores.sort(reverse=True)
+
+            # Cap at max 5 questions, or stop after 4 if top match score >= 0.6
+            if len(answered_q_ids) >= 5 or (scores and scores[0] >= 0.6):
+                logger.info(f"Adaptive early stopping triggered for session {session_id} after {len(answered_q_ids)} questions (top score: {scores[0] if scores else 0:.2f})")
+                return None
+
         # 4. Map DB models to Domain models
         domain_questions = [self._map_question(q) for q in unasked_db_questions]
         domain_clubs = [self._map_club(c) for c in db_clubs]

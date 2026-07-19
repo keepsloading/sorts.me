@@ -3,13 +3,17 @@ from sorts.core.domain.entities import RecommendationEvidence
 
 class ExplanationGenerator(IExplanationGenerator):
     def generate_explanation(self, evidence: RecommendationEvidence) -> str:
-        """Generates a short, humorous, and crisp explanation dynamically without hardcoding."""
+        """Generates a short, clear explanation dynamically based on positive trait matches."""
         reasons = []
         
-        # Sort matches by absolute contribution to prioritize the strongest matches
-        sorted_matches = sorted(evidence.matches, key=lambda m: abs(m.contribution), reverse=True)
+        # Filter strictly for positive contributions (where student showed actual interest or matching commitment)
+        positive_matches = [
+            m for m in evidence.matches 
+            if m.contribution > 0.001 and m.student_weight > 0
+        ]
+        positive_matches.sort(key=lambda m: m.contribution, reverse=True)
         
-        for m in sorted_matches[:2]:
+        for m in positive_matches[:2]:
             name_lower = m.trait_name.lower()
             if "commitment" in m.trait_slug:
                 reasons.append(f"You wanted {name_lower}, fitting their schedule.")
@@ -17,6 +21,8 @@ class ExplanationGenerator(IExplanationGenerator):
                 reasons.append(f"Your interest in {name_lower} fits their focus.")
                 
         if not reasons:
-            return "I ran the numbers and it just fits. Trust me."
+            if evidence.overall_score <= 0.001:
+                return "Fits an open student profile — a great starting point to explore campus life."
+            return "Fits your general profile across campus activity."
             
         return " ".join(reasons)
