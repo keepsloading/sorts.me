@@ -15,33 +15,28 @@ class DeterministicRecommendationEngine(IRecommendationEngine):
         """Calculates cosine similarity between two vectors."""
         epsilon = 1e-9
         
-        # Calculate norm for vec1
         v1_sum_sq = sum(val ** 2 for val in vec1.values())
         v1_norm = math.sqrt(v1_sum_sq)
         
-        # Calculate norm for vec2
         v2_sum_sq = sum(val ** 2 for val in vec2.values())
         v2_norm = math.sqrt(v2_sum_sq)
         
         if v1_norm <= 0.001 or v2_norm <= 0.001:
             return 0.0
             
-        # Calculate dot product
         dot_product = sum(vec1.get(k, 0.0) * vec2.get(k, 0.0) for k in vec1.keys())
         return dot_product / (v1_norm * v2_norm + epsilon)
 
     def calculate_recommendations(
         self, session_traits: Dict[str, float], clubs: List[Club]
     ) -> List[RecommendationEvidence]:
-        """Calculates match scores by separating interests (85%) and commitment (15%).
+        """Calculates match scores dynamically by separating interests and commitment.
         
-        This prevents workload commitment from dominates matching when interests do not align.
+        Categorizes commitment traits if 'commitment' is in the trait slug.
         """
-        interest_slugs = {
-            "software", "hardware", "public_speaking", "entrepreneurship",
-            "aerospace", "music", "social", "creative"
-        }
-        commitment_slugs = {"commitment_high", "commitment_medium", "commitment_low"}
+        # Classify traits dynamically
+        interest_slugs = {slug for slug in session_traits.keys() if "commitment" not in slug}
+        commitment_slugs = {slug for slug in session_traits.keys() if "commitment" in slug}
 
         # Extract student vectors
         s_interests = {slug: val for slug, val in session_traits.items() if slug in interest_slugs and abs(val) > 0.001}
@@ -61,7 +56,6 @@ class DeterministicRecommendationEngine(IRecommendationEngine):
                 elif ct.trait_slug in commitment_slugs:
                     c_commitments[ct.trait_slug] = ct.weight
 
-                # Capture non-trivial matches for explanation evidence
                 s_val = session_traits.get(ct.trait_slug, 0.0)
                 contribution = s_val * ct.weight
                 if abs(contribution) > 0.001:
@@ -82,7 +76,6 @@ class DeterministicRecommendationEngine(IRecommendationEngine):
 
             # Combine scores
             if c_interests and interest_score <= 0.0:
-                # If they have no matching interests (or negative alignment), heavily penalize the match
                 overall_score = min(0.0, interest_score)
             else:
                 # Weighted combination: 85% interests, 15% commitment
@@ -91,7 +84,6 @@ class DeterministicRecommendationEngine(IRecommendationEngine):
             # Clamp score to [0.0, 1.0] range
             overall_score = max(0.0, min(1.0, overall_score))
 
-            # Sort matches by absolute contribution
             matches.sort(key=lambda m: abs(m.contribution), reverse=True)
 
             results.append(
@@ -103,6 +95,5 @@ class DeterministicRecommendationEngine(IRecommendationEngine):
                 )
             )
 
-        # Sort recommendations by overall score descending
         results.sort(key=lambda r: r.overall_score, reverse=True)
         return results

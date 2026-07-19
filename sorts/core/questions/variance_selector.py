@@ -25,12 +25,10 @@ class VarianceQuestionSelector(IQuestionSelector):
         return dot_product / (v1_norm * v2_norm + 1e-9)
 
     def _calculate_scores(self, traits: Dict[str, float], clubs: List[Club]) -> List[float]:
-        """Calculates match scores by separating interests (85%) and commitment (15%)."""
-        interest_slugs = {
-            "software", "hardware", "public_speaking", "entrepreneurship",
-            "aerospace", "music", "social", "creative"
-        }
-        commitment_slugs = {"commitment_high", "commitment_medium", "commitment_low"}
+        """Calculates match scores dynamically by separating interests and commitment."""
+        # Classify traits dynamically
+        interest_slugs = {slug for slug in traits.keys() if "commitment" not in slug}
+        commitment_slugs = {slug for slug in traits.keys() if "commitment" in slug}
 
         # Extract student vectors
         s_interests = {slug: val for slug, val in traits.items() if slug in interest_slugs and abs(val) > 0.001}
