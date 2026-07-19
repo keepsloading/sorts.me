@@ -52,13 +52,12 @@ def create_sortling_embed(
 def get_guild_university(db: Session, guild_id: Optional[int]):
     """Resolves the university associated with the Discord guild.
     
-    Exempted guild IDs are hardcoded to Mahindra University.
+    Exempted guild IDs are loaded from configuration settings.
     """
-    exempted_guilds = {1475575129726517349, 1361752080297230376}
-    
+    from sorts.config.settings import EXEMPTED_GUILDS
     from sorts.database import models as db_models
     
-    if not guild_id or guild_id in exempted_guilds:
+    if not guild_id or guild_id in EXEMPTED_GUILDS:
         # Default to Mahindra University (slug: "mahindra")
         return db.query(db_models.University).filter_by(slug="mahindra").first()
         

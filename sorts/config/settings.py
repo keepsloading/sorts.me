@@ -10,6 +10,10 @@ DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///sorts.db")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
+# Exempted guilds for auto-university resolution (Mahindra Uni and test servers)
+EXEMPTED_GUILDS_STR = os.getenv("EXEMPTED_GUILDS", "1475575129726517349,1361752080297230376")
+EXEMPTED_GUILDS = {int(x.strip()) for x in EXEMPTED_GUILDS_STR.split(",") if x.strip()}
+
 # Configure logging
 numeric_level = getattr(logging, LOG_LEVEL, logging.INFO)
 logging.basicConfig(

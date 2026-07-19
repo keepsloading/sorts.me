@@ -37,7 +37,8 @@ class AdminCog(commands.Cog):
             return
 
         # Excepted servers cannot be overwritten
-        if guild_id in {1475575129726517349, 1361752080297230376}:
+        from sorts.config.settings import EXEMPTED_GUILDS
+        if guild_id in EXEMPTED_GUILDS:
             await interaction.send("Sortling: 'This server is hardcoded to Mahindra University. No setup is needed here!'", ephemeral=True)
             return
 
