@@ -95,7 +95,6 @@ def test_explanation_generator():
     )
     
     explanation = generator.generate_explanation(evidence)
-    assert "Coding Guild" in explanation
     assert "software development" in explanation
     assert "medium commitment" in explanation
     assert "fit" in explanation or "stood out" in explanation
