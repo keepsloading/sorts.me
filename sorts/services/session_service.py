@@ -72,20 +72,11 @@ class SessionService:
 
         num_answered = len(answered_q_ids)
 
-        # 5. Dynamic Stopping Condition based on tree convergence (Minimum 3 questions)
+        # 5. Stop if user denied all traits (all club scores 0.0) after at least 3 questions
         if num_answered >= 3:
             top_score = club_scores[0][1] if club_scores else 0.0
-            second_score = club_scores[1][1] if len(club_scores) > 1 else 0.0
-            margin = top_score - second_score
-
-            # Stop if user denied all traits (all scores 0.0)
             if top_score <= 0.0:
                 logger.info(f"Session {session_id}: User denied all traits after {num_answered} questions. Finishing tree.")
-                return None
-
-            # Stop if a distinct top match is found with clear score separation
-            if top_score >= 0.55 and margin >= 0.25:
-                logger.info(f"Session {session_id}: Distinct match found after {num_answered} questions (Top: {top_score:.2f}, Margin: {margin:.2f}). Finishing tree.")
                 return None
 
         # 6. Filter candidate pool for next question selection to current viable clubs (score > 0.0)
