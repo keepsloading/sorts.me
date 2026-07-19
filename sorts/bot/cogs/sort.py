@@ -57,6 +57,7 @@ class SortCog(commands.Cog):
 
                 embed = nextcord.Embed(
                     title=first_q.text,
+                    description="Select the option that fits you best.",
                     color=BRAND_COLOR,
                 )
                 embed.set_footer(text=f"Question 1 of {total_questions}  ·  sorts.me")

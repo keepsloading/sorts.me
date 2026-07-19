@@ -30,6 +30,7 @@ class OptionButton(nextcord.ui.Button):
                     view.advance(next_q)
                     embed = nextcord.Embed(
                         title=clean_text(next_q.text),
+                        description="Select the option that fits you best.",
                         color=BRAND_COLOR,
                     )
                     embed.set_footer(
