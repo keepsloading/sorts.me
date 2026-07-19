@@ -22,7 +22,7 @@ class ExplanationGenerator(IExplanationGenerator):
                 
         if not reasons:
             if evidence.overall_score <= 0.001:
-                return "Fits an open student profile — a great starting point to explore campus life."
+                return "Fits an open student profile: a great starting point to explore campus life."
             return "Fits your general profile across campus activity."
             
         return " ".join(reasons)

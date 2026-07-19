@@ -80,7 +80,7 @@ class OptionButton(nextcord.ui.Button):
                             name=f"{medal}  {clean_text(club.name)}",
                             value=(
                                 f"> {clean_text(club.summary)}\n\n"
-                                f"**Why you fit** — {clean_text(r.explanation)}"
+                                f"**Why you fit:** {clean_text(r.explanation)}"
                             ),
                             inline=False,
                         )
