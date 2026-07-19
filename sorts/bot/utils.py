@@ -9,17 +9,13 @@ MASCOT_DIR = "Sortling Mascot"
 BRAND_COLOR = nextcord.Color(0x000543)
 
 def clean_text(text: Optional[str]) -> str:
-    """Sanitizes text by replacing typographic dashes with plain hyphens.
-
-    Replaces em-dashes (—), en-dashes (–), and replacement characters (\ufffd) with a simple hyphen (-).
-    """
+    """Sanitizes text by replacing typographic dashes and non-breaking spaces."""
     if not text:
         return ""
     return (
         text.replace("—", "-")
         .replace("–", "-")
-        .replace("", "-")
-        .replace("\ufffd", "-")
+        .replace("\ufffd", "")
         .replace("\xa0", " ")
     )
 
