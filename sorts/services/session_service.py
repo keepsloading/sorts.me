@@ -72,11 +72,27 @@ class SessionService:
 
         num_answered = len(answered_q_ids)
 
-        # 5. Stop if user denied all traits (all club scores 0.0) after at least 3 questions
+        # 1. Hard cap at 15 questions maximum
+        if num_answered >= 15:
+            logger.info(f"Session {session_id}: Reached max 15 questions cap. Finishing tree.")
+            return None
+
+        # 2. Dynamic Convergence Check (3 to 15 questions)
         if num_answered >= 3:
             top_score = club_scores[0][1] if club_scores else 0.0
+            second_score = club_scores[1][1] if len(club_scores) > 1 else 0.0
+            margin = top_score - second_score
+
+            # Stop if user denied all traits (all scores 0.0)
             if top_score <= 0.0:
                 logger.info(f"Session {session_id}: User denied all traits after {num_answered} questions. Finishing tree.")
+                return None
+
+            # Dynamic Convergence Condition:
+            # - High confidence: top_score >= 0.70 AND margin >= 0.30 (fast exit at 3-5 questions)
+            # - Medium confidence: num_answered >= 8 AND margin >= 0.15 (exit at 8-10 questions)
+            if (top_score >= 0.70 and margin >= 0.30) or (num_answered >= 8 and margin >= 0.15):
+                logger.info(f"Session {session_id}: Akinator convergence reached after {num_answered} questions (Top: {top_score:.2f}, Margin: {margin:.2f}). Finishing tree.")
                 return None
 
         # 6. Filter candidate pool for next question selection to current viable clubs (score > 0.0)
