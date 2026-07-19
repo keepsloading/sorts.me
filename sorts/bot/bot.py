@@ -8,7 +8,7 @@ from sorts.bot.utils import create_sortling_embed
 
 logger = logging.getLogger(__name__)
 
-ALLOWED_CHANNEL_ID = 1475575132108882133
+DEFAULT_ALLOWED_CHANNELS = {1475575132108882133, 1475575133979803653}
 
 
 class SortlingBot(commands.Bot):
@@ -40,13 +40,18 @@ class SortlingBot(commands.Bot):
             if perms.administrator or perms.manage_guild or perms.manage_messages:
                 return True
 
-        allowed_channel_id = int(os.getenv("SORTLING_ALLOWED_CHANNEL_ID", str(ALLOWED_CHANNEL_ID)))
+        env_channels = os.getenv("SORTLING_ALLOWED_CHANNELS", "")
+        if env_channels:
+            allowed_channels = {int(c.strip()) for c in env_channels.split(",") if c.strip().isdigit()}
+        else:
+            allowed_channels = DEFAULT_ALLOWED_CHANNELS
 
-        # Enforce dedicated channel restriction if triggered by a student in a different channel
-        if interaction.channel_id and interaction.channel_id != allowed_channel_id:
+        # Enforce dedicated channel restriction if triggered by a student in an unapproved channel
+        if interaction.channel_id and interaction.channel_id not in allowed_channels:
+            channel_mentions = " or ".join([f"<#{cid}>" for cid in sorted(allowed_channels)])
             embed, file = create_sortling_embed(
                 title="Wrong Channel 📍",
-                description=f"Please use <#{allowed_channel_id}> to run Sortling commands!",
+                description=f"Please use {channel_mentions} to run Sortling commands!",
                 is_error=False,
             )
             try:
