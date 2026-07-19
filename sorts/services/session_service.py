@@ -38,7 +38,9 @@ class SessionService:
         return db.query(db_models.RecommendationSession).filter_by(id=session_id).first()
 
     def get_next_question(self, db: Session, session_id: str) -> Optional[db_models.Question]:
-        """Returns the next question to ask using the VarianceQuestionSelector."""
+        """Returns the next question dynamically chosen to bisect the remaining candidate pool.
+        The tree traversal length depends entirely on user responses and confidence convergence.
+        """
         session = self.get_session(db, session_id)
         if not session:
             raise SessionNotFoundException(session_id)
@@ -60,34 +62,48 @@ class SessionService:
         if not db_clubs:
             return unasked_db_questions[0]
 
-        # Early stopping check:
-        # If student has answered at least 4 questions, check if top match confidence is high or threshold reached
-        if len(answered_q_ids) >= 4:
-            session_traits = {st.trait.slug: st.value for st in session.traits}
-            domain_clubs = [self._map_club(c) for c in db_clubs]
-            scores = self.question_selector._calculate_scores(session_traits, domain_clubs)
-            scores.sort(reverse=True)
-
-            # Cap at max 5 questions, or stop after 4 if top match score >= 0.6
-            if len(answered_q_ids) >= 5 or (scores and scores[0] >= 0.6):
-                logger.info(f"Adaptive early stopping triggered for session {session_id} after {len(answered_q_ids)} questions (top score: {scores[0] if scores else 0:.2f})")
-                return None
-
-        # 4. Map DB models to Domain models
-        domain_questions = [self._map_question(q) for q in unasked_db_questions]
         domain_clubs = [self._map_club(c) for c in db_clubs]
-        
         session_traits = {st.trait.slug: st.value for st in session.traits}
 
-        # 5. Run question selector
+        # 4. Calculate current scores for all candidate clubs
+        scores = self.question_selector._calculate_scores(session_traits, domain_clubs)
+        club_scores = list(zip(domain_clubs, scores))
+        club_scores.sort(key=lambda cs: cs[1], reverse=True)
+
+        num_answered = len(answered_q_ids)
+
+        # 5. Dynamic Stopping Condition based on tree convergence (Minimum 3 questions)
+        if num_answered >= 3:
+            top_score = club_scores[0][1] if club_scores else 0.0
+            second_score = club_scores[1][1] if len(club_scores) > 1 else 0.0
+            margin = top_score - second_score
+
+            # Stop if user denied all traits (all scores 0.0)
+            if top_score <= 0.0:
+                logger.info(f"Session {session_id}: User denied all traits after {num_answered} questions. Finishing tree.")
+                return None
+
+            # Stop if a distinct top match is found with clear score separation
+            if top_score >= 0.55 and margin >= 0.25:
+                logger.info(f"Session {session_id}: Distinct match found after {num_answered} questions (Top: {top_score:.2f}, Margin: {margin:.2f}). Finishing tree.")
+                return None
+
+        # 6. Filter candidate pool for next question selection to current viable clubs (score > 0.0)
+        viable_candidates = [c for c, s in club_scores if s > 0.0]
+        if not viable_candidates:
+            viable_candidates = domain_clubs
+
+        # 7. Map DB models to Domain models
+        domain_questions = [self._map_question(q) for q in unasked_db_questions]
+
+        # 8. Select next question that maximizes information gain specifically over viable candidates
         selected_domain_q = self.question_selector.select_next_question(
-            domain_questions, session_traits, domain_clubs
+            domain_questions, session_traits, viable_candidates
         )
 
         if not selected_domain_q:
             return None
 
-        # Return the original DB question model
         return db.query(db_models.Question).filter_by(id=selected_domain_q.id).first()
 
     def submit_answer(self, db: Session, session_id: str, question_id: int, option_id: int) -> None:
@@ -152,80 +168,60 @@ class SessionService:
         db_recs = []
         for index, ev in enumerate(evidence_list[:limit]):
             explanation = self.explanation_generator.generate_explanation(ev)
-            
             rec = db_models.Recommendation(
                 session_id=session_id,
                 club_id=ev.club_id,
-                score=ev.overall_score,
                 rank=index + 1,
-                explanation=explanation,
-                created_at=datetime.utcnow()
+                score=ev.overall_score,
+                explanation=explanation
             )
             db.add(rec)
             db_recs.append(rec)
 
-        # Complete the session
         session.status = "completed"
         session.completed_at = datetime.utcnow()
         db.commit()
         
-        # Refresh models to bind them to the session
-        for r in db_recs:
-            db.refresh(r)
-
-        # Collect and log all user responses, final traits, and matches for analytics/improvement
-        logger.info("=== sorts.me: Session matching analytics ===")
-        logger.info(f"Session ID: {session_id} | University ID: {session.university_id} | User: {session.user_identifier or 'Guest'}")
-        logger.info("User Answers:")
-        for idx, ans in enumerate(session.answers):
-            logger.info(f"  Question {idx+1} ({ans.question.code}): {ans.option.text}")
-        logger.info("Session Trait Vector:")
-        for t_slug, val in session_traits.items():
-            logger.info(f"  {t_slug}: {val:.2f}")
-        logger.info("Matched Clubs:")
-        for r in db_recs:
-            logger.info(f"  Rank {r.rank}: {r.club.name} (Score: {r.score:.3f})")
-        logger.info("============================================")
-
         logger.info(f"Generated {len(db_recs)} recommendations for session {session_id}")
         return db_recs
 
-    # MAPPING HELPERS
-    def _map_club(self, db_club: db_models.Club) -> domain_ent.Club:
-        return domain_ent.Club(
-            id=db_club.id,
-            university_id=db_club.university_id,
-            name=db_club.name,
-            slug=db_club.slug,
-            summary=db_club.summary,
-            description=db_club.description,
-            website=db_club.website,
-            discord=db_club.discord,
-            instagram=db_club.instagram,
-            email=db_club.email,
-            image=db_club.image,
-            meeting_frequency=db_club.meeting_frequency,
-            commitment=db_club.commitment,
-            traits=[domain_ent.ClubTraitValue(trait_slug=ct.trait.slug, weight=ct.weight) for ct in db_club.traits]
-        )
-
-    def _map_question(self, db_q: db_models.Question) -> domain_ent.Question:
+    def _map_question(self, q: db_models.Question) -> domain_ent.Question:
         options = []
-        for opt in db_q.options:
+    def _map_question(self, q: db_models.Question) -> domain_ent.Question:
+        options = []
+        for opt in q.options:
             modifiers = [
-                domain_ent.OptionTraitModifier(trait_slug=mod.trait.slug, weight=mod.weight)
-                for mod in opt.trait_modifiers
+                domain_ent.OptionTraitModifier(
+                    trait_slug=mod.trait.slug,
+                    weight=mod.weight
+                ) for mod in opt.trait_modifiers
             ]
             options.append(domain_ent.QuestionOption(
                 id=opt.id,
-                question_id=opt.question_id,
                 text=opt.text,
                 trait_modifiers=modifiers
             ))
         return domain_ent.Question(
-            id=db_q.id,
-            university_id=db_q.university_id,
-            text=db_q.text,
-            code=db_q.code,
+            id=q.id,
+            text=q.text,
+            code=q.code if hasattr(q, 'code') else f"q_{q.id}",
+            university_id=q.university_id,
             options=options
+        )
+
+    def _map_club(self, c: db_models.Club) -> domain_ent.Club:
+        traits = [
+            domain_ent.ClubTraitValue(
+                trait_slug=ct.trait.slug,
+                weight=ct.weight
+            ) for ct in c.traits
+        ]
+        return domain_ent.Club(
+            id=c.id,
+            university_id=c.university_id,
+            name=c.name,
+            slug=c.slug,
+            summary=c.summary,
+            description=c.description,
+            traits=traits
         )

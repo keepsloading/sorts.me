@@ -34,7 +34,7 @@ class OptionButton(nextcord.ui.Button):
                         color=BRAND_COLOR,
                     )
                     embed.set_footer(
-                        text=f"Question {view.question_number} of {view.total_questions}"
+                        text=f"Question {view.question_number}"
                     )
                     embed.set_thumbnail(url="attachment://thinking.gif")
                     await interaction.response.edit_message(embed=embed, view=view)
