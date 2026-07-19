@@ -153,20 +153,14 @@ class QuestionnaireView(nextcord.ui.View):
         self._populate_buttons(question)
 
     def _populate_buttons(self, question: db_models.Question):
-        """Rebuild buttons for the current question."""
+        """Rebuild buttons for the current question using uniform neutral styling."""
         self.clear_items()
-        styles = [
-            nextcord.ButtonStyle.green,
-            nextcord.ButtonStyle.secondary,
-            nextcord.ButtonStyle.danger,
-            nextcord.ButtonStyle.blurple,
-        ]
         for idx, opt in enumerate(question.options):
             btn = OptionButton(
                 option_id=opt.id,
                 question_id=question.id,
                 label=opt.text,
-                style=styles[idx % len(styles)],
+                style=nextcord.ButtonStyle.secondary,
             )
             self.add_item(btn)
 
@@ -190,6 +184,7 @@ class RefineInterestsView(nextcord.ui.View):
             )
 
         self.select = nextcord.ui.Select(
+            custom_id=f"refine_select_{session_id[:8]}",
             placeholder="Check or uncheck your interest areas...",
             min_values=0,
             max_values=len(options),
