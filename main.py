@@ -36,21 +36,50 @@ def start_health_server():
     logger.info(f"Health server running on port {port}")
 
 def bootstrap():
-    """Initializes database schema and automatically seeds Mahindra University dataset if missing."""
+    """Initializes database schema, seeds university data, and imports clubs if missing."""
     logger.info("Initializing database schema...")
     init_db()
 
     with get_db() as db:
+        # ── Seed university / questions ──────────────────────────────────────
         mahindra = db.query(db_models.University).filter_by(slug="mahindra").first()
         if not mahindra:
-            logger.info("Mahindra University records not found. Running auto-seeding...")
+            logger.info("Mahindra University not found. Running auto-seeding...")
             try:
                 seed_database(db, "sorts/assets/data/mahindra_seed.json")
                 logger.info("Auto-seeding completed.")
+                mahindra = db.query(db_models.University).filter_by(slug="mahindra").first()
             except Exception as e:
-                logger.error(f"Auto-seeding failed: {str(e)}")
+                logger.error(f"Auto-seeding failed: {e}")
+                return
         else:
-            logger.info("Mahindra University records already present. Skipping auto-seeding.")
+            logger.info("Mahindra University records present. Skipping seed.")
+
+        # ── Auto-import clubs if none are published yet ──────────────────────
+        club_count = db.query(db_models.Club).filter_by(
+            university_id=mahindra.id, status="active"
+        ).count()
+
+        if club_count == 0:
+            logger.info("No clubs found. Running auto-import from source...")
+            try:
+                from sorts.services.import_service import ImportService
+                svc = ImportService()
+                sources = svc.get_university_sources(db, mahindra.id)
+                if not sources:
+                    logger.warning("No import sources configured for Mahindra University.")
+                    return
+                job_id = svc.trigger_import(db, sources[0].id)
+                logger.info(f"Import job {job_id} complete. Publishing clubs...")
+                svc.publish_job(db, job_id)
+                published = db.query(db_models.Club).filter_by(
+                    university_id=mahindra.id, status="active"
+                ).count()
+                logger.info(f"Auto-import done. {published} clubs now live.")
+            except Exception as e:
+                logger.error(f"Auto-import failed: {e}")
+        else:
+            logger.info(f"{club_count} clubs already live. Skipping auto-import.")
 
 def main():
     bootstrap()
