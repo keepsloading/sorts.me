@@ -38,7 +38,7 @@ class ClubPagingView(nextcord.ui.View):
         embed.set_footer(text="Use /club [name] to view specific details.")
         return embed
 
-    @nextcord.ui.button(label="◀ Previous", style=nextcord.ButtonStyle.primary)
+    @nextcord.ui.button(label="◀ Previous", style=nextcord.ButtonStyle.secondary)
     async def prev_page_btn(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
         if self.page > 1:
             self.page -= 1
@@ -47,7 +47,7 @@ class ClubPagingView(nextcord.ui.View):
                 self.update_buttons()
                 await interaction.response.edit_message(embed=self.make_embed(clubs), view=self)
 
-    @nextcord.ui.button(label="Next ▶", style=nextcord.ButtonStyle.primary)
+    @nextcord.ui.button(label="Next ▶", style=nextcord.ButtonStyle.secondary)
     async def next_page_btn(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
         if self.page * self.per_page < self.total_count:
             self.page += 1

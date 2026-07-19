@@ -34,9 +34,15 @@ class SortlingBot(commands.Bot):
         if interaction.application_command and interaction.application_command.name == "admin":
             return True
 
+        # Allow Admins and Mods (users with Administrator, Manage Guild, or Manage Messages permissions) anywhere
+        if interaction.user_permissions:
+            perms = interaction.user_permissions
+            if perms.administrator or perms.manage_guild or perms.manage_messages:
+                return True
+
         allowed_channel_id = int(os.getenv("SORTLING_ALLOWED_CHANNEL_ID", str(ALLOWED_CHANNEL_ID)))
 
-        # Enforce dedicated channel restriction if triggered in a different channel
+        # Enforce dedicated channel restriction if triggered by a student in a different channel
         if interaction.channel_id and interaction.channel_id != allowed_channel_id:
             embed, file = create_sortling_embed(
                 title="Wrong Channel 📍",
