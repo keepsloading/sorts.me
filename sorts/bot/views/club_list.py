@@ -1,0 +1,57 @@
+import nextcord
+from sorts.database.connection import get_db
+from sorts.services.club_service import ClubService
+from sorts.database import models as db_models
+from sorts.bot.utils import BRAND_COLOR, clean_text
+
+class ClubPagingView(nextcord.ui.View):
+    def __init__(self, university_id: int, current_page: int, per_page: int, total_count: int, primary_color_hex: str):
+        super().__init__(timeout=120.0)
+        self.university_id = university_id
+        self.page = current_page
+        self.per_page = per_page
+        self.total_count = total_count
+        self.club_service = ClubService()
+        self.color = BRAND_COLOR
+        self.update_buttons()
+
+    def update_buttons(self):
+        """Disables or enables pagination buttons based on current page index."""
+        self.prev_page_btn.disabled = self.page <= 1
+        self.next_page_btn.disabled = self.page * self.per_page >= self.total_count
+
+    def make_embed(self, clubs: list[db_models.Club]) -> nextcord.Embed:
+        embed = nextcord.Embed(
+            title=clean_text(f"Club Directory: Page {self.page}"),
+            description=clean_text(f"Showing clubs {((self.page - 1) * self.per_page) + 1} to {min(self.page * self.per_page, self.total_count)} of {self.total_count}."),
+            color=self.color
+        )
+        for club in clubs:
+            embed.add_field(
+                name=f"✨ {clean_text(club.name)}",
+                value=(
+                    f"**Summary:** {clean_text(club.summary)}\n\n"
+                    f"**Workload:** {clean_text(club.commitment or 'Unknown')}"
+                ),
+                inline=False
+            )
+        embed.set_footer(text="Use /club [name] to view specific details.")
+        return embed
+
+    @nextcord.ui.button(label="◀ Previous", style=nextcord.ButtonStyle.primary)
+    async def prev_page_btn(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
+        if self.page > 1:
+            self.page -= 1
+            with get_db() as db:
+                clubs, _ = self.club_service.get_clubs_paginated(db, self.university_id, self.page, self.per_page)
+                self.update_buttons()
+                await interaction.response.edit_message(embed=self.make_embed(clubs), view=self)
+
+    @nextcord.ui.button(label="Next ▶", style=nextcord.ButtonStyle.primary)
+    async def next_page_btn(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
+        if self.page * self.per_page < self.total_count:
+            self.page += 1
+            with get_db() as db:
+                clubs, _ = self.club_service.get_clubs_paginated(db, self.university_id, self.page, self.per_page)
+                self.update_buttons()
+                await interaction.response.edit_message(embed=self.make_embed(clubs), view=self)

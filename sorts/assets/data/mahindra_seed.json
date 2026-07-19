@@ -1,0 +1,316 @@
+{
+  "university": {
+    "name": "Mahindra University",
+    "slug": "mahindra",
+    "website": "https://www.mahindrauniversity.edu.in",
+    "logo": "https://www.mahindrauniversity.edu.in/wp-content/uploads/2021/04/mu-logo.png",
+    "primary_color": "#800000",
+    "secondary_color": "#FFD700",
+    "description": "Mahindra University is a premium private institution in Hyderabad, focused on creating entrepreneurial and technical leaders.",
+    "metadata": {
+      "city": "Hyderabad",
+      "state": "Telangana"
+    }
+  },
+  "import_sources": [
+    {
+      "name": "Official Clubs Page (Simulated)",
+      "source_type": "file",
+      "url": "sorts/assets/data/mahindra_clubs.html",
+      "parser_config": {
+        "club_selector": "article.club-card",
+        "name_selector": ".club-name",
+        "summary_selector": ".club-summary",
+        "description_selector": ".club-description",
+        "website_selector": "a.link-website",
+        "discord_selector": "a.link-discord",
+        "instagram_selector": "a.link-instagram",
+        "email_selector": "a.link-email",
+        "image_selector": "img.club-logo",
+        "meeting_frequency_selector": ".freq",
+        "commitment_selector": ".commit"
+      }
+    },
+    {
+      "name": "Official Clubs Page (Live)",
+      "source_type": "website",
+      "url": "https://www.mahindrauniversity.edu.in/student-clubs/",
+      "parser_config": {
+        "club_selector": "div.content-group",
+        "name_selector": ".card-title",
+        "summary_selector": ".card-description",
+        "description_selector": ".card-description"
+      }
+    }
+  ],
+  "traits": [
+    {
+      "slug": "software",
+      "name": "Software & Coding",
+      "description": "Programming, software development, web/app engineering, and competitive coding.",
+      "category": "Technical"
+    },
+    {
+      "slug": "hardware",
+      "name": "Robotics & Hardware",
+      "description": "Electronics, circuits, embedded programming, microcontrollers, and mechanical design.",
+      "category": "Technical"
+    },
+    {
+      "slug": "public_speaking",
+      "name": "Public Speaking & Debate",
+      "description": "Oratory skills, debate, Toastmasters, MUNs, and presentation confidence.",
+      "category": "Literary"
+    },
+    {
+      "slug": "entrepreneurship",
+      "name": "Business & Startups",
+      "description": "Entrepreneurship, marketing, startup culture, case studies, and business strategy.",
+      "category": "Business"
+    },
+    {
+      "slug": "aerospace",
+      "name": "Aerospace & Drones",
+      "description": "Aviation, UAV assembly, flight mechanics, and remote control airplane piloting.",
+      "category": "Technical"
+    },
+    {
+      "slug": "music",
+      "name": "Music & Performing Arts",
+      "description": "Singing, playing instruments, music production, jamming, and live performances.",
+      "category": "Creative"
+    },
+    {
+      "slug": "social",
+      "name": "Social & Teamwork",
+      "description": "Collaborative group settings, networking, team events, and active community interaction.",
+      "category": "Culture"
+    },
+    {
+      "slug": "creative",
+      "name": "Creativity & Artistry",
+      "description": "Design, expression, theatricals, creative writing, and artistic expression.",
+      "category": "Arts"
+    },
+    {
+      "slug": "commitment_high",
+      "name": "High Commitment",
+      "description": "Requires intensive weekly involvement (e.g. 5+ hours).",
+      "category": "Workload"
+    },
+    {
+      "slug": "commitment_medium",
+      "name": "Medium Commitment",
+      "description": "Requires moderate weekly involvement (e.g. 2-5 hours).",
+      "category": "Workload"
+    },
+    {
+      "slug": "commitment_low",
+      "name": "Low Commitment",
+      "description": "Requires light involvement (e.g. less than 2 hours weekly or monthly).",
+      "category": "Workload"
+    }
+  ],
+  "questions": [
+    {
+      "code": "likes_software",
+      "text": "How do you feel about writing code?",
+      "options": [
+        {
+          "text": "I live in my IDE. Yes.",
+          "trait_modifiers": {
+            "software": 1.0,
+            "social": 0.2
+          }
+        },
+        {
+          "text": "Only when forced. Maybe.",
+          "trait_modifiers": {
+            "software": 0.4
+          }
+        },
+        {
+          "text": "I hate syntax errors. No.",
+          "trait_modifiers": {
+            "software": -1.0
+          }
+        }
+      ]
+    },
+    {
+      "code": "likes_hardware",
+      "text": "Fascinated by robotics or building gadgets?",
+      "options": [
+        {
+          "text": "Give me the hardware! Yes.",
+          "trait_modifiers": {
+            "hardware": 1.0,
+            "software": 0.3
+          }
+        },
+        {
+          "text": "A little bit.",
+          "trait_modifiers": {
+            "hardware": 0.4
+          }
+        },
+        {
+          "text": "Keep electricity away. No.",
+          "trait_modifiers": {
+            "hardware": -1.0
+          }
+        }
+      ]
+    },
+    {
+      "code": "likes_public_speaking",
+      "text": "Spotlight or silence?",
+      "options": [
+        {
+          "text": "Love debating/speaking. Yes.",
+          "trait_modifiers": {
+            "public_speaking": 1.0,
+            "social": 0.6
+          }
+        },
+        {
+          "text": "Somewhat.",
+          "trait_modifiers": {
+            "public_speaking": 0.4
+          }
+        },
+        {
+          "text": "Let me write in quiet. No.",
+          "trait_modifiers": {
+            "public_speaking": -1.0,
+            "creative": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "code": "likes_business",
+      "text": "Do you want to be a startup CEO?",
+      "options": [
+        {
+          "text": "Pitch decks excite me. Yes.",
+          "trait_modifiers": {
+            "entrepreneurship": 1.0,
+            "social": 0.4
+          }
+        },
+        {
+          "text": "Maybe a little.",
+          "trait_modifiers": {
+            "entrepreneurship": 0.3
+          }
+        },
+        {
+          "text": "I hate networking. No.",
+          "trait_modifiers": {
+            "entrepreneurship": -1.0
+          }
+        }
+      ]
+    },
+    {
+      "code": "likes_aerospace",
+      "text": "Things that fly?",
+      "options": [
+        {
+          "text": "Drones and aviation. Yes.",
+          "trait_modifiers": {
+            "aerospace": 1.0,
+            "hardware": 0.3
+          }
+        },
+        {
+          "text": "Not my thing. No.",
+          "trait_modifiers": {
+            "aerospace": -1.0
+          }
+        }
+      ]
+    },
+    {
+      "code": "likes_music",
+      "text": "Musical jam sessions?",
+      "options": [
+        {
+          "text": "I sing/play. Yes.",
+          "trait_modifiers": {
+            "music": 1.0,
+            "creative": 0.8,
+            "social": 0.4
+          }
+        },
+        {
+          "text": "I just listen.",
+          "trait_modifiers": {
+            "music": 0.2
+          }
+        },
+        {
+          "text": "Pure silence please. No.",
+          "trait_modifiers": {
+            "music": -1.0
+          }
+        }
+      ]
+    },
+    {
+      "code": "commitment_level",
+      "text": "Weekly club commitment?",
+      "options": [
+        {
+          "text": "Intense (5+ hours). Rip free time.",
+          "trait_modifiers": {
+            "commitment_high": 1.0,
+            "commitment_low": -1.0,
+            "commitment_medium": -0.3
+          }
+        },
+        {
+          "text": "Balanced (2-5 hours).",
+          "trait_modifiers": {
+            "commitment_medium": 1.0,
+            "commitment_high": -0.3,
+            "commitment_low": -0.3
+          }
+        },
+        {
+          "text": "Chill (under 2 hours).",
+          "trait_modifiers": {
+            "commitment_low": 1.0,
+            "commitment_high": -1.0,
+            "commitment_medium": -0.3
+          }
+        }
+      ]
+    },
+    {
+      "code": "likes_social",
+      "text": "Social butterfly or lone wolf?",
+      "options": [
+        {
+          "text": "Love teams and parties.",
+          "trait_modifiers": {
+            "social": 0.8
+          }
+        },
+        {
+          "text": "Healthy mix.",
+          "trait_modifiers": {
+            "social": 0.3
+          }
+        },
+        {
+          "text": "Leave me alone.",
+          "trait_modifiers": {
+            "social": -0.8
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+# sorts.me - Render.com Blueprint Configuration
+# This file is used to manage online multi-tenant deployments on Render.
+
+services:
+  - type: worker
+    name: sortling-bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false # To be configured in the Render Dashboard UI
+      - key: DATABASE_URL
+        value: sqlite:////var/data/sorts.db
+    disk:
+      name: sqlite-data
+      mountPath: /var/data
+      sizeGB: 1
