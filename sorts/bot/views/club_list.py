@@ -27,12 +27,12 @@ class ClubPagingView(nextcord.ui.View):
             color=self.color
         )
         for club in clubs:
+            lines = [f"> {clean_text(club.summary)}"]
+            if club.commitment:
+                lines.append(f"**Commitment:** {clean_text(club.commitment)}")
             embed.add_field(
                 name=f"✨ {clean_text(club.name)}",
-                value=(
-                    f"**Summary:** {clean_text(club.summary)}\n\n"
-                    f"**Workload:** {clean_text(club.commitment or 'Unknown')}"
-                ),
+                value="\n".join(lines),
                 inline=False
             )
         embed.set_footer(text="Use /club [name] to view specific details.")
