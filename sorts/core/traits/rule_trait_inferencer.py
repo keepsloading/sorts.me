@@ -17,7 +17,9 @@ class RuleTraitInferencer(ITraitInferencer):
                 r"\brobotic(s)?\b", r"\bhardware\b", r"\barduino\b", r"\braspberry pi\b", 
                 r"\belectronic(s)?\b", r"\bcircuit(s)?\b", r"\bsensor(s)?\b", 
                 r"\bmicrocontroller(s)?\b", r"\bembedded system(s)?\b", r"\biot\b", 
-                r"\binternet of things\b", r"\blab\b"
+                r"\binternet of things\b", r"\blab\b", r"\bengineering\b", r"\bmechanic(s|al)?\b", 
+                r"\bfabricat(e|ion|ed)\b", r"\bmanufactur(ing|ed)\b", r"\bvehicle(s)?\b", 
+                r"\bautomotive\b", r"\bmachinery\b"
             ],
             "public_speaking": [
                 r"\bpublic speaking\b", r"\bdebate(s|d|r|rs)?\b", r"\borator(y|s)?\b", 

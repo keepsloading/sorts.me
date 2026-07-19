@@ -13,25 +13,48 @@ class VarianceQuestionSelector(IQuestionSelector):
         self.top_k_cutoff = top_k_cutoff
         self.temperature = temperature
 
-    def _calculate_cosine_scores(self, traits: Dict[str, float], clubs: List[Club]) -> List[float]:
-        """Calculates cosine similarity scores for all clubs."""
+    def _cosine_similarity(self, vec1: Dict[str, float], vec2: Dict[str, float]) -> float:
+        """Calculates cosine similarity between two vectors."""
+        v1_sum_sq = sum(val ** 2 for val in vec1.values())
+        v1_norm = math.sqrt(v1_sum_sq)
+        v2_sum_sq = sum(val ** 2 for val in vec2.values())
+        v2_norm = math.sqrt(v2_sum_sq)
+        if v1_norm <= 0.001 or v2_norm <= 0.001:
+            return 0.0
+        dot_product = sum(vec1.get(k, 0.0) * vec2.get(k, 0.0) for k in vec1.keys())
+        return dot_product / (v1_norm * v2_norm + 1e-9)
+
+    def _calculate_scores(self, traits: Dict[str, float], clubs: List[Club]) -> List[float]:
+        """Calculates match scores by separating interests (85%) and commitment (15%)."""
+        interest_slugs = {
+            "software", "hardware", "public_speaking", "entrepreneurship",
+            "aerospace", "music", "social", "creative"
+        }
+        commitment_slugs = {"commitment_high", "commitment_medium", "commitment_low"}
+
+        # Extract student vectors
+        s_interests = {slug: val for slug, val in traits.items() if slug in interest_slugs and abs(val) > 0.001}
+        s_commitments = {slug: val for slug, val in traits.items() if slug in commitment_slugs and abs(val) > 0.001}
+
         scores = []
-        s_sum_sq = sum(val ** 2 for val in traits.values())
-        s_norm = math.sqrt(s_sum_sq)
-        
         for club in clubs:
-            numerator = 0.0
-            club_sum_sq = 0.0
+            c_interests = {}
+            c_commitments = {}
             for ct in club.traits:
-                club_sum_sq += ct.weight ** 2
-                s_val = traits.get(ct.trait_slug, 0.0)
-                numerator += s_val * ct.weight
-            
-            club_norm = math.sqrt(club_sum_sq)
-            if s_norm > 0.001 and club_norm > 0.001:
-                scores.append(numerator / (s_norm * club_norm + 1e-9))
+                if ct.trait_slug in interest_slugs:
+                    c_interests[ct.trait_slug] = ct.weight
+                elif ct.trait_slug in commitment_slugs:
+                    c_commitments[ct.trait_slug] = ct.weight
+
+            interest_score = self._cosine_similarity(s_interests, c_interests)
+            commitment_score = self._cosine_similarity(s_commitments, c_commitments)
+
+            if c_interests and interest_score <= 0.0:
+                overall_score = min(0.0, interest_score)
             else:
-                scores.append(0.0)
+                overall_score = 0.85 * interest_score + 0.15 * commitment_score
+
+            scores.append(max(0.0, min(1.0, overall_score)))
         return scores
 
     def _calculate_entropy(self, scores: List[float]) -> float:
@@ -39,15 +62,12 @@ class VarianceQuestionSelector(IQuestionSelector):
         if not scores:
             return 0.0
             
-        # Softmax to convert scores into a probability distribution
-        # Subtract max for numerical stability
         max_score = max(scores)
         exp_scores = [math.exp(self.temperature * (s - max_score)) for s in scores]
         sum_exp = sum(exp_scores)
         
         probabilities = [e / (sum_exp + 1e-9) for e in exp_scores]
         
-        # Shannon Entropy: -Sum(p * log2(p))
         entropy = 0.0
         for p in probabilities:
             if p > 1e-6:
@@ -66,32 +86,25 @@ class VarianceQuestionSelector(IQuestionSelector):
             return unasked_questions[0]
 
         best_question = None
-        # We want to minimize expected conditional entropy, so we start with infinity
         best_expected_entropy = float("inf")
 
         for q in unasked_questions:
             expected_entropy = 0.0
             
             for opt in q.options:
-                # Simulate student traits after choosing this option
                 sim_traits = current_session_traits.copy()
                 for mod in opt.trait_modifiers:
                     sim_traits[mod.trait_slug] = max(-1.0, min(1.0, sim_traits.get(mod.trait_slug, 0.0) + mod.weight))
                 
-                # Calculate simulated scores for all clubs
-                sim_scores = self._calculate_cosine_scores(sim_traits, candidate_clubs)
+                sim_scores = self._calculate_scores(sim_traits, candidate_clubs)
                 
-                # Sort simulated scores to take the top K candidates
                 sim_scores.sort(reverse=True)
                 top_sim_scores = sim_scores[:self.top_k_cutoff]
                 
-                # Compute simulated entropy
                 expected_entropy += self._calculate_entropy(top_sim_scores)
                 
-            # Average expected entropy across options
             avg_expected_entropy = expected_entropy / len(q.options) if q.options else 0.0
             
-            # We select the question that results in the lowest expected conditional entropy (highest Info Gain)
             if avg_expected_entropy < best_expected_entropy:
                 best_expected_entropy = avg_expected_entropy
                 best_question = q

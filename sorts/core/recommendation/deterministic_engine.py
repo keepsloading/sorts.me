@@ -11,60 +11,85 @@ class DeterministicRecommendationEngine(IRecommendationEngine):
         """
         self.trait_names = trait_names or {}
 
+    def _cosine_similarity(self, vec1: Dict[str, float], vec2: Dict[str, float]) -> float:
+        """Calculates cosine similarity between two vectors."""
+        epsilon = 1e-9
+        
+        # Calculate norm for vec1
+        v1_sum_sq = sum(val ** 2 for val in vec1.values())
+        v1_norm = math.sqrt(v1_sum_sq)
+        
+        # Calculate norm for vec2
+        v2_sum_sq = sum(val ** 2 for val in vec2.values())
+        v2_norm = math.sqrt(v2_sum_sq)
+        
+        if v1_norm <= 0.001 or v2_norm <= 0.001:
+            return 0.0
+            
+        # Calculate dot product
+        dot_product = sum(vec1.get(k, 0.0) * vec2.get(k, 0.0) for k in vec1.keys())
+        return dot_product / (v1_norm * v2_norm + epsilon)
+
     def calculate_recommendations(
         self, session_traits: Dict[str, float], clubs: List[Club]
     ) -> List[RecommendationEvidence]:
-        """Calculates match scores using Cosine Similarity.
+        """Calculates match scores by separating interests (85%) and commitment (15%).
         
-        Formula:
-            CosineSimilarity = Sum(S[t] * C[t]) / (Sqrt(Sum(S[t]^2)) * Sqrt(Sum(C[t]^2)) + epsilon)
-            This guarantees a value in the range [-1.0, 1.0].
+        This prevents workload commitment from dominates matching when interests do not align.
         """
-        results = []
-        epsilon = 1e-9
+        interest_slugs = {
+            "software", "hardware", "public_speaking", "entrepreneurship",
+            "aerospace", "music", "social", "creative"
+        }
+        commitment_slugs = {"commitment_high", "commitment_medium", "commitment_low"}
 
-        # Filter out 0.0 values to ensure clean norm calculation
-        cleaned_session_traits = {slug: val for slug, val in session_traits.items() if abs(val) > 0.001}
-        s_sum_sq = sum(val ** 2 for val in cleaned_session_traits.values())
-        s_norm = math.sqrt(s_sum_sq)
+        # Extract student vectors
+        s_interests = {slug: val for slug, val in session_traits.items() if slug in interest_slugs and abs(val) > 0.001}
+        s_commitments = {slug: val for slug, val in session_traits.items() if slug in commitment_slugs and abs(val) > 0.001}
+
+        results = []
 
         for club in clubs:
-            numerator = 0.0
-            club_sum_sq = 0.0
+            # Extract club vectors
+            c_interests = {}
+            c_commitments = {}
             matches = []
 
-            # Process traits
             for ct in club.traits:
-                c_weight = ct.weight
-                club_sum_sq += c_weight ** 2
+                if ct.trait_slug in interest_slugs:
+                    c_interests[ct.trait_slug] = ct.weight
+                elif ct.trait_slug in commitment_slugs:
+                    c_commitments[ct.trait_slug] = ct.weight
 
-                s_value = cleaned_session_traits.get(ct.trait_slug, 0.0)
-                contribution = s_value * c_weight
-                numerator += contribution
-
-                # Capture non-trivial contributions as evidence
+                # Capture non-trivial matches for explanation evidence
+                s_val = session_traits.get(ct.trait_slug, 0.0)
+                contribution = s_val * ct.weight
                 if abs(contribution) > 0.001:
                     trait_name = self.trait_names.get(ct.trait_slug, ct.trait_slug.replace("_", " ").title())
                     matches.append(
                         TraitMatchEvidence(
                             trait_slug=ct.trait_slug,
                             trait_name=trait_name,
-                            student_weight=s_value,
-                            club_weight=c_weight,
+                            student_weight=s_val,
+                            club_weight=ct.weight,
                             contribution=contribution,
                         )
                     )
 
-            club_norm = math.sqrt(club_sum_sq)
-            
-            # Compute cosine similarity
-            if s_norm > 0.001 and club_norm > 0.001:
-                overall_score = numerator / (s_norm * club_norm + epsilon)
-            else:
-                overall_score = 0.0
+            # Calculate independent cosine similarities
+            interest_score = self._cosine_similarity(s_interests, c_interests)
+            commitment_score = self._cosine_similarity(s_commitments, c_commitments)
 
-            # Clamp cosine similarity score strictly within [-1.0, 1.0] to prevent any floating point overflow
-            overall_score = max(-1.0, min(1.0, overall_score))
+            # Combine scores
+            if c_interests and interest_score <= 0.0:
+                # If they have no matching interests (or negative alignment), heavily penalize the match
+                overall_score = min(0.0, interest_score)
+            else:
+                # Weighted combination: 85% interests, 15% commitment
+                overall_score = 0.85 * interest_score + 0.15 * commitment_score
+
+            # Clamp score to [0.0, 1.0] range
+            overall_score = max(0.0, min(1.0, overall_score))
 
             # Sort matches by absolute contribution
             matches.sort(key=lambda m: abs(m.contribution), reverse=True)
