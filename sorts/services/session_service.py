@@ -151,8 +151,8 @@ class SessionService:
         db.commit()
         logger.debug(f"Submitted answer for session {session_id}, question {question_id}, option {option_id}")
 
-    def generate_recommendations(self, db: Session, session_id: str, limit: int = 3) -> List[db_models.Recommendation]:
-        """Calculates final recommendations, generates explanations, saves them, and closes the session."""
+    def generate_recommendations(self, db: Session, session_id: str, limit: int = 6) -> List[db_models.Recommendation]:
+        """Calculates final recommendations, generates explanations, saves top limit (default 6), and closes the session."""
         session = self.get_session(db, session_id)
         if not session:
             raise SessionNotFoundException(session_id)

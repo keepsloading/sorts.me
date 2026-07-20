@@ -96,7 +96,7 @@ class OptionButton(nextcord.ui.Button):
                         color=BRAND_COLOR,
                     )
 
-                    for r in recs:
+                    for r in recs[:3]:
                         club = r.club
                         medal = RANK_MEDALS.get(r.rank, f"#{r.rank}")
                         embed.add_field(
@@ -308,7 +308,7 @@ class RefineInterestsView(nextcord.ui.View):
                         color=BRAND_COLOR,
                     )
 
-                    for r in new_recs:
+                    for r in new_recs[:3]:
                         club = r.club
                         medal = RANK_MEDALS.get(r.rank, f"#{r.rank}")
                         embed.add_field(
@@ -378,5 +378,79 @@ class RecommendationResultsView(nextcord.ui.View):
             logger.error(f"Error in refine_interests_button: {e}", exc_info=True)
             try:
                 await interaction.response.send_message("An error occurred while opening interest refinement.", ephemeral=True)
+            except Exception:
+                pass
+
+    @nextcord.ui.button(label="I want more!", style=nextcord.ButtonStyle.secondary)
+    async def more_clubs_button(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
+        try:
+            with get_db() as db:
+                session = self.session_service.get_session(db, self.session_id)
+                if not session:
+                    await interaction.response.send_message("Session expired.", ephemeral=True)
+                    return
+
+                contenders = (
+                    db.query(db_models.Recommendation)
+                    .filter(
+                        db_models.Recommendation.session_id == self.session_id,
+                        db_models.Recommendation.rank > 3,
+                        db_models.Recommendation.score > 0.05
+                    )
+                    .order_by(db_models.Recommendation.rank.asc())
+                    .all()
+                )
+
+                if not contenders:
+                    embed, file = create_sortling_embed(
+                        title="No Additional Matches",
+                        description="There are no other close contenders matching your quiz profile. Try `/clubs` to browse the full directory!",
+                        is_error=False,
+                    )
+                    if file:
+                        await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
+                    else:
+                        await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+
+                univ = db.query(db_models.University).filter_by(id=session.university_id).first()
+                univ_name = univ.name if univ else "your campus"
+
+                embed = nextcord.Embed(
+                    title="Other Clubs You Might Enjoy",
+                    description=f"Close contenders at **{univ_name}** matching your profile:",
+                    color=BRAND_COLOR,
+                )
+
+                rank_badges = {4: "4️⃣", 5: "5️⃣", 6: "6️⃣"}
+                for r in contenders:
+                    club = r.club
+                    badge = rank_badges.get(r.rank, f"#{r.rank}")
+                    embed.add_field(
+                        name=f"{badge}  {clean_text(club.name)}",
+                        value=(
+                            f"> {clean_text(club.summary)}\n\n"
+                            f"**Why you fit:** {clean_text(r.explanation)}"
+                        ),
+                        inline=False,
+                    )
+
+                embed.set_footer(text="Sortling • Close Contenders")
+
+                icon_path = os.path.join("Sortling Mascot", "Icon_Neutral.png")
+                file = None
+                if os.path.exists(icon_path):
+                    file = nextcord.File(icon_path, filename="Icon_Neutral.png")
+                    embed.set_thumbnail(url="attachment://Icon_Neutral.png")
+
+                if file:
+                    await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
+                else:
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        except Exception as e:
+            logger.error(f"Error in more_clubs_button: {e}", exc_info=True)
+            try:
+                await interaction.response.send_message("An error occurred while loading additional clubs.", ephemeral=True)
             except Exception:
                 pass
