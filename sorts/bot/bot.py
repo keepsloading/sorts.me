@@ -83,28 +83,37 @@ class SortlingBot(commands.Bot):
 
 
 def run_bot():
-    """Bootstraps and executes the Nextcord Bot client."""
+    """Bootstraps and executes the Nextcord Bot client with automatic reconnection resiliency."""
     if not settings.DISCORD_TOKEN:
         logger.error("DISCORD_TOKEN is missing! Please configure it in your environment/.env file.")
         print("Error: DISCORD_TOKEN is missing. Please set it in your .env file.")
         return
 
-    bot = SortlingBot()
-
-    # Load all Cogs
-    extensions = [
-        "sorts.bot.cogs.about",
-        "sorts.bot.cogs.clubs",
-        "sorts.bot.cogs.feedback",
-        "sorts.bot.cogs.sort",
-        "sorts.bot.cogs.admin"
-    ]
-
-    for ext in extensions:
+    import time
+    while True:
         try:
-            bot.load_extension(ext)
-            logger.info(f"Loaded extension: {ext}")
-        except Exception as e:
-            logger.exception(f"Failed to load extension {ext}: {str(e)}")
+            bot = SortlingBot()
 
-    bot.run(settings.DISCORD_TOKEN)
+            # Load all Cogs
+            extensions = [
+                "sorts.bot.cogs.about",
+                "sorts.bot.cogs.clubs",
+                "sorts.bot.cogs.feedback",
+                "sorts.bot.cogs.sort",
+                "sorts.bot.cogs.admin"
+            ]
+
+            for ext in extensions:
+                try:
+                    bot.load_extension(ext)
+                    logger.info(f"Loaded extension: {ext}")
+                except Exception as e:
+                    logger.exception(f"Failed to load extension {ext}: {str(e)}")
+
+            logger.info("Connecting Sortling to Discord Gateway...")
+            bot.run(settings.DISCORD_TOKEN)
+            logger.warning("Bot event loop exited normally. Reconnecting in 5 seconds...")
+            time.sleep(5)
+        except Exception as e:
+            logger.error(f"Bot execution exception: {e}. Reconnecting in 5 seconds...", exc_info=True)
+            time.sleep(5)
