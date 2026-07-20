@@ -30,16 +30,19 @@ class DeterministicRecommendationEngine(IRecommendationEngine):
     def calculate_recommendations(
         self, session_traits: Dict[str, float], clubs: List[Club]
     ) -> List[RecommendationEvidence]:
-        """Calculates match scores dynamically by separating interests and commitment.
+        """Calculates match scores dynamically by separating interests, commitment, and disinterest penalties.
         
-        Categorizes commitment traits if 'commitment' is in the trait slug.
+        - Positive interest alignment uses non-negative student vector matching.
+        - Disinterest (negative student trait values) applies a targeted linear penalty.
+        - Official status & verification confidence act as bounded tie-breakers.
         """
         # Classify traits dynamically
         interest_slugs = {slug for slug in session_traits.keys() if "commitment" not in slug}
         commitment_slugs = {slug for slug in session_traits.keys() if "commitment" in slug}
 
-        # Extract student vectors
-        s_interests = {slug: val for slug, val in session_traits.items() if slug in interest_slugs and abs(val) > 0.001}
+        # Extract student positive & negative vectors
+        s_pos_interests = {slug: val for slug, val in session_traits.items() if slug in interest_slugs and val > 0.001}
+        s_neg_interests = {slug: abs(val) for slug, val in session_traits.items() if slug in interest_slugs and val < -0.001}
         s_commitments = {slug: val for slug, val in session_traits.items() if slug in commitment_slugs and abs(val) > 0.001}
 
         results = []
@@ -70,21 +73,36 @@ class DeterministicRecommendationEngine(IRecommendationEngine):
                         )
                     )
 
-            # Calculate independent cosine similarities
-            interest_score = self._cosine_similarity(s_interests, c_interests)
+            # 1. Positive interest cosine similarity (unaffected by negative preferences)
+            interest_score = self._cosine_similarity(s_pos_interests, c_interests)
+            
+            # 2. Commitment cosine similarity
             commitment_score = self._cosine_similarity(s_commitments, c_commitments)
 
-            # Combine scores
+            # 3. Disinterest penalty (if student dis-likes a topic that club specializes in)
+            disinterest_penalty = 0.0
+            if s_neg_interests and c_interests:
+                disinterest_sum = sum(s_neg_interests[slug] * c_interests.get(slug, 0.0) for slug in s_neg_interests)
+                c_norm = math.sqrt(sum(v**2 for v in c_interests.values())) + 1e-9
+                disinterest_penalty = disinterest_sum / c_norm
+
+            # Combine scores: 85% interest, 15% commitment - 10% disinterest penalty
             if c_interests and interest_score <= 0.0:
-                overall_score = min(0.0, interest_score)
+                overall_score = 0.0
             else:
-                # Weighted combination: 85% interests, 15% commitment
-                overall_score = 0.85 * interest_score + 0.15 * commitment_score
+                overall_score = (0.85 * interest_score) + (0.15 * commitment_score) - (0.10 * disinterest_penalty)
+
+            # Micro tie-breaker for official status & verification confidence (+0.02 max)
+            ver_conf = 1.0
+            if hasattr(club, "verification") and isinstance(club.verification, dict):
+                ver_conf = club.verification.get("confidence", 100) / 100.0
+            official_bonus = 0.015 if getattr(club, "official", False) else 0.005
+            overall_score += (official_bonus * ver_conf)
 
             # Clamp score to [0.0, 1.0] range
             overall_score = max(0.0, min(1.0, overall_score))
 
-            matches.sort(key=lambda m: abs(m.contribution), reverse=True)
+            matches.sort(key=lambda m: m.contribution, reverse=True)
 
             results.append(
                 RecommendationEvidence(

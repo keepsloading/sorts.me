@@ -25,13 +25,12 @@ class VarianceQuestionSelector(IQuestionSelector):
         return dot_product / (v1_norm * v2_norm + 1e-9)
 
     def _calculate_scores(self, traits: Dict[str, float], clubs: List[Club]) -> List[float]:
-        """Calculates match scores dynamically by separating interests and commitment."""
-        # Classify traits dynamically
+        """Calculates match scores dynamically by separating interests, commitment, and disinterest penalties."""
         interest_slugs = {slug for slug in traits.keys() if "commitment" not in slug}
         commitment_slugs = {slug for slug in traits.keys() if "commitment" in slug}
 
-        # Extract student vectors
-        s_interests = {slug: val for slug, val in traits.items() if slug in interest_slugs and abs(val) > 0.001}
+        s_pos_interests = {slug: val for slug, val in traits.items() if slug in interest_slugs and val > 0.001}
+        s_neg_interests = {slug: abs(val) for slug, val in traits.items() if slug in interest_slugs and val < -0.001}
         s_commitments = {slug: val for slug, val in traits.items() if slug in commitment_slugs and abs(val) > 0.001}
 
         scores = []
@@ -44,13 +43,25 @@ class VarianceQuestionSelector(IQuestionSelector):
                 elif ct.trait_slug in commitment_slugs:
                     c_commitments[ct.trait_slug] = ct.weight
 
-            interest_score = self._cosine_similarity(s_interests, c_interests)
+            interest_score = self._cosine_similarity(s_pos_interests, c_interests)
             commitment_score = self._cosine_similarity(s_commitments, c_commitments)
 
+            disinterest_penalty = 0.0
+            if s_neg_interests and c_interests:
+                disinterest_sum = sum(s_neg_interests[slug] * c_interests.get(slug, 0.0) for slug in s_neg_interests)
+                c_norm = math.sqrt(sum(v**2 for v in c_interests.values())) + 1e-9
+                disinterest_penalty = disinterest_sum / c_norm
+
             if c_interests and interest_score <= 0.0:
-                overall_score = min(0.0, interest_score)
+                overall_score = 0.0
             else:
-                overall_score = 0.85 * interest_score + 0.15 * commitment_score
+                overall_score = (0.85 * interest_score) + (0.15 * commitment_score) - (0.10 * disinterest_penalty)
+
+            ver_conf = 1.0
+            if hasattr(club, "verification") and isinstance(club.verification, dict):
+                ver_conf = club.verification.get("confidence", 100) / 100.0
+            official_bonus = 0.015 if getattr(club, "official", False) else 0.005
+            overall_score += (official_bonus * ver_conf)
 
             scores.append(max(0.0, min(1.0, overall_score)))
         return scores
