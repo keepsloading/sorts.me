@@ -269,17 +269,14 @@ def sync_verified_clubs(db: Session) -> None:
         )
         db.commit()
 
-        # Synchronize trait weights
+        # Synchronize trait weights (clear stale traits first)
+        db.query(db_models.ClubTrait).filter_by(club_id=db_club.id).delete()
         traits_dict = club_info.get("traits", {})
         for trait_slug, weight in traits_dict.items():
             t_obj = db.query(db_models.Trait).filter_by(slug=trait_slug).first()
             if t_obj:
-                ct = db.query(db_models.ClubTrait).filter_by(club_id=db_club.id, trait_id=t_obj.id).first()
-                if not ct:
-                    ct = db_models.ClubTrait(club_id=db_club.id, trait_id=t_obj.id, weight=weight)
-                    db.add(ct)
-                else:
-                    ct.weight = weight
+                ct = db_models.ClubTrait(club_id=db_club.id, trait_id=t_obj.id, weight=weight)
+                db.add(ct)
         db.commit()
 
     total_count = db.query(db_models.Club).filter_by(university_id=univ.id).count()
