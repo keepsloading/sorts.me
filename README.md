@@ -1,4 +1,4 @@
-# sorts.me 🧭 <img src="Sortling%20Mascot/Icon_Neutral.png" align="right" width="48" height="48">
+# sorts.me (Sortling) 🧭 <img src="Sortling%20Mascot/Icon_Neutral.png" align="right" width="48" height="48">
 
 ### 🎓 Find your clubs. Adaptive campus guide for university Discord servers.
 
