@@ -7,7 +7,10 @@ load_dotenv()
 
 # Configuration variables
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///sorts.db")
+
+# Use persistent disk /var/data if mounted (Render cloud deployment)
+default_db_url = "sqlite:////var/data/sorts.db" if os.path.exists("/var/data") else "sqlite:///sorts.db"
+DATABASE_URL = os.getenv("DATABASE_URL", default_db_url)
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
 # Exempted guilds for auto-university resolution (Mahindra Uni and test servers)

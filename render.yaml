@@ -10,6 +10,10 @@ services:
       - key: DISCORD_TOKEN
         sync: false
       - key: DATABASE_URL
-        value: sqlite:///sorts.db
+        value: sqlite:////var/data/sorts.db
       - key: LOG_LEVEL
         value: INFO
+    disk:
+      name: sorts-data
+      mountPath: /var/data
+      sizeGB: 1
