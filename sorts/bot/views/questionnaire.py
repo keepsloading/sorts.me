@@ -398,6 +398,7 @@ class RecommendationResultsView(nextcord.ui.View):
                         db_models.Recommendation.score > 0.05
                     )
                     .order_by(db_models.Recommendation.rank.asc())
+                    .limit(3)
                     .all()
                 )
 
