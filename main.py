@@ -17,11 +17,26 @@ logging.basicConfig(
 logger = logging.getLogger("main")
 
 
+from sorts.web.compliance import TERMS_HTML, PRIVACY_HTML
+
+
 class _HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"ok")
+        if self.path == "/terms":
+            self.send_response(200)
+            self.send_header("Content-type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(TERMS_HTML.encode("utf-8"))
+        elif self.path == "/privacy":
+            self.send_response(200)
+            self.send_header("Content-type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(PRIVACY_HTML.encode("utf-8"))
+        else:
+            self.send_response(200)
+            self.send_header("Content-type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"ok")
 
     def log_message(self, *args):
         pass  # Silence access logs

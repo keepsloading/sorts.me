@@ -43,12 +43,14 @@ class AboutCog(commands.Cog):
                     inline=False,
                 )
 
-                if univ.website:
-                    embed.add_field(
-                        name="Website",
-                        value=f"[{univ.name}]({univ.website})",
-                        inline=True,
-                    )
+                embed.add_field(
+                    name="Legal & Privacy",
+                    value=(
+                        "[Terms of Service](https://sortling-bot.onrender.com/terms) • "
+                        "[Privacy Policy](https://sortling-bot.onrender.com/privacy)"
+                    ),
+                    inline=False,
+                )
 
                 embed.set_footer(text="Sortling • Your Campus Guide")
 
