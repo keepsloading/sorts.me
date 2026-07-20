@@ -9,21 +9,37 @@
 
 > **Students join campus clubs without knowing what exists. sorts.me fixes that by asking a short set of adaptive questions and matching each student to the clubs that actually fit them.**
 
-**sorts.me** is a multi-tenant Discord bot that brings an Akinator-style adaptive questionnaire to any university server. Instead of reading through a long directory and guessing, students answer a handful of questions and receive three ranked, personalized club recommendations with a plain-language explanation for each match.
+**sorts.me** is a multi-tenant Discord bot that brings an adaptive decision-tree questionnaire to university servers. Instead of reading through long static directories, students answer a dynamic set of targeted questions and receive three ranked, personalized club recommendations with plain-language explanations.
 
-Sortling is the mascot that guides students through the experience. The platform is sorts.me.
+**Sortling** is the mascot that guides students through the questionnaire experience. The platform is **sorts.me**.
 
 ---
 
 ## 🌟 Key Features
 
-* 🎯 **Adaptive Matching:** A Bayesian engine selects each question using Shannon Entropy to maximize information gain, narrowing the candidate pool with every answer.
-* 🏆 **Ranked Recommendations:** Students receive their top three clubs ranked by a weighted score that prioritizes interest alignment (85%) over workload commitment (15%).
-* 🏫 **Multi-Tenant:** Any university can install the bot, run `/setup`, and get an isolated club directory. Existing universities are unaffected.
-* 🔄 **Live Club Sync:** Administrators run `/admin sync` to crawl the university clubs page, then `/admin review` to preview changes before they go live.
-* 📊 **Session Analytics:** Every completed session is logged with the full answer trace, trait vector, and match scores for ongoing improvement.
-* 💬 **Feedback Loop:** Students rate their matches with `/feedback`. Ratings are stored against the specific recommendation for future tuning.
-* 🚀 **Render Ready:** Ships with `render.yaml` and a persistent SQLite disk mount for one-click cloud deployment.
+* 🎯 **Adaptive Decision Tree:** A Bayesian matching engine selects questions using Shannon Entropy to maximize information gain, reaching convergence in 3 to 6 questions.
+* 🏆 **Ranked Recommendations:** Students receive their top three club matches scored by a vector similarity model prioritizing interest alignment (85%) over workload commitment (15%).
+* 🛡️ **Verified Club Registry:** Evidence-backed database of **50 university clubs** complete with verification confidence ratings, multi-attribute aliases, categories, and direct contact details.
+* 🔍 **Multi-Stage Alias Search:** Find any club via slash option autocomplete (`/club`) with fuzzy matching across names, exact aliases, tags, and category keywords.
+* 🧠 **Automated Self-Training Engine:** Real-time feedback loop that dynamically adjusts club trait weights when students refine their interests or submit feedback.
+* 🏫 **Multi-Tenant Architecture:** Any university can add the bot, run `/setup`, and operate an isolated club directory with automatic database schema migrations.
+* 🔄 **Live Crawler Pipeline:** Administrators run `/admin sync` to crawl university club pages, `/admin review` to preview diffs, and `/admin publish` to update live listings.
+* 💬 **Feedback & Logging:** Built-in stdout feedback stream (`[FEEDBACK_LOG]` & `[SELF_TRAINING]`) to monitor student interactions and recommendation quality.
+* 🚀 **Cloud Ready:** Ships with a `render.yaml` blueprint and persistent SQLite volume support for zero-config cloud deployment.
+
+---
+
+## 🤖 Slash Commands
+
+| Command | Usage | Access | Description |
+|---|---|---|---|
+| `/sort` | `/sort` | All Students | Starts the interactive adaptive club matching questionnaire. |
+| `/club` | `/club <name>` | All Students | Looks up a specific club profile card with verification info & contacts (supports autocomplete). |
+| `/clubs` | `/clubs` | All Students | Opens an interactive, paginated directory of all registered university clubs. |
+| `/feedback` | `/feedback <rating> [comments]` | All Students | Submits match quality feedback to train the recommendation engine. |
+| `/about` | `/about` | All Students | Displays Sortling mascot info, bot status, and platform version. |
+| `/setup` | `/setup` | Administrators | Links the Discord server to a university context. |
+| `/admin` | `/admin [sync \| review \| publish]` | Administrators | Manages live web crawler imports and directory updates. |
 
 ---
 
@@ -31,37 +47,41 @@ Sortling is the mascot that guides students through the experience. The platform
 
 ```mermaid
 graph TD
-    A[Discord User] -->|/sort| B(SortCog)
+    A[Discord Student] -->|/sort| B(SortCog)
     B --> C[SessionService]
     C --> D[VarianceQuestionSelector]
     D -->|Shannon Entropy| E[Candidate Clubs]
-    C -->|All answers collected| F[DeterministicRecommendationEngine]
+    C -->|Convergence Reached| F[DeterministicRecommendationEngine]
     F -->|Cosine Similarity| G[Club Trait Vectors]
     F --> H[ExplanationGenerator]
     H --> I[Recommendation Embed]
     I --> A
 
-    J[Discord Admin] -->|/admin sync| K(AdminCog)
-    K --> L[ImportService]
-    L --> M[BS4 Extractor]
-    M -->|Crawl| N[University Website]
-    M --> O[RuleTraitInferencer]
-    O --> P[DraftClub Store]
-    K -->|/admin review| Q[Preview Diff]
-    K -->|/admin publish| R[Live Club Directory]
+    A -->|Am I wrong? / Feedback| J[TrainingService]
+    J -->|Trait Weight Reinforcement| G
+
+    K[Discord Admin] -->|/admin sync| L(AdminCog)
+    L --> M[ImportService]
+    M --> N[BS4 Extractor]
+    N -->|Crawl| O[University Website]
+    M --> P[RuleTraitInferencer]
+    P --> Q[DraftClub Store]
+    L -->|/admin review| R[Preview Diff]
+    L -->|/admin publish| S[Live Club Registry]
 ```
 
 ---
 
 ## 📂 Codebase Structure
 
-* **`DeterministicRecommendationEngine` ([deterministic_engine.py](sorts/core/recommendation/deterministic_engine.py)):** Scores every club against the student's trait vector using cosine similarity. Separates interest and commitment scoring to prevent workload from dominating matches.
-* **`VarianceQuestionSelector` ([variance_selector.py](sorts/core/questions/variance_selector.py)):** Chooses the next question by simulating all option outcomes and selecting the question that minimizes expected Shannon Entropy across candidate clubs.
-* **`ExplanationGenerator` ([explanation_generator.py](sorts/core/recommendation/explanation_generator.py)):** Generates a concise, deterministic explanation for each match derived directly from the matched trait names - no AI wording.
-* **`RuleTraitInferencer` ([rule_trait_inferencer.py](sorts/core/traits/rule_trait_inferencer.py)):** Infers club trait weights from crawled descriptions using regex keyword matching. Fully dynamic - adding a new trait requires no code changes to the engine.
-* **`ImporterPipeline` ([pipeline.py](sorts/core/importer/pipeline.py)):** Orchestrates crawling, trait inference, and draft storage. Stages changes for admin review before publishing.
-* **`SessionService` ([session_service.py](sorts/services/session_service.py)):** Manages the full student session lifecycle from creation through recommendation generation. Logs every session for analytics.
-* **`AdminCog` ([admin.py](sorts/bot/cogs/admin.py)):** Exposes `/setup`, `/admin sync`, `/admin review`, and `/admin publish` for server administrators.
+* **`DeterministicRecommendationEngine` ([deterministic_engine.py](sorts/core/recommendation/deterministic_engine.py)):** Scores candidate clubs against student trait vectors using cosine similarity.
+* **`VarianceQuestionSelector` ([variance_selector.py](sorts/core/questions/variance_selector.py)):** Dynamically selects the next question by calculating expected Shannon Entropy reduction across candidate clubs.
+* **`TrainingService` ([training_service.py](sorts/services/training_service.py)):** Online self-training engine that adjusts club trait weights based on student interest feedback.
+* **`ClubService` ([club_service.py](sorts/services/club_service.py)):** Multi-stage search engine matching queries against club names, aliases, category, and tags.
+* **`RuleTraitInferencer` ([rule_trait_inferencer.py](sorts/core/traits/rule_trait_inferencer.py)):** Infers trait weights from crawled text descriptions using regex keyword rule sets.
+* **`ImporterPipeline` ([pipeline.py](sorts/core/importer/pipeline.py)):** Manages crawling, trait inference, draft staging, and publishing.
+* **`SessionService` ([session_service.py](sorts/services/session_service.py)):** Manages student sessions, adaptive decision tree state, and recommendation logging.
+* **`SeedService` ([seed_service.py](sorts/services/seed_service.py)):** Handles automatic database seeding and verified club registry synchronization.
 
 ---
 
@@ -72,53 +92,55 @@ graph TD
    git clone https://github.com/keepsloading/sorts.me.git
    cd sorts.me
    python -m venv .venv
-   .venv\Scripts\activate   # Windows
+   .venv\Scripts\activate   # Windows (.venv/bin/activate on Linux/macOS)
    pip install -r requirements.txt
    ```
 
-2. Copy the environment template and fill in your Discord bot token:
+2. Configure environment variables (`.env`):
    ```bash
    cp .env.template .env
    ```
 
    ```env
-   DISCORD_TOKEN=your_token_here
+   DISCORD_TOKEN=your_bot_token_here
    DATABASE_URL=sqlite:///sorts.db
    ```
 
-3. Seed the database and import club data:
+3. Seed the database and synchronize the verified club registry:
    ```bash
-   python -m sorts.cli seed
-   python -m sorts.cli import --source-id 2
-   python -m sorts.cli publish --job-id 1
-   ```
-
-4. Launch the bot:
-   ```bash
-   # Windows - double-click run.bat, or:
    python main.py
+   ```
+   *(Auto-migrates SQLite schema, seeds questions/traits, and synchronizes 50 verified club profiles on boot).*
+
+4. Run unit tests:
+   ```bash
+   python -m pytest
    ```
 
 ---
 
-### ☁️ Cloud Deployment (Render)
+## ☁️ Cloud Deployment (Render)
 
-sorts.me ships with a `render.yaml` blueprint. Connect the repository to Render, set `DISCORD_TOKEN` in the environment dashboard, and deploy. The bot runs as a background worker with a 1 GB persistent disk mounted at `/var/data/sorts.db`.
+**sorts.me** is built for Render web services:
+1. Connect repository to Render dashboard.
+2. Select **Docker** environment.
+3. Set `DISCORD_TOKEN` in environment variables.
+4. Mount persistent disk at `/var/data` (for `sqlite:////var/data/sorts.db`).
 
 ---
 
 ## 📝 Environment Variables
 
 ```env
-DISCORD_TOKEN=          # Required. Your Discord bot token.
+DISCORD_TOKEN=          # Required. Discord Bot Token from Developer Portal.
 DATABASE_URL=           # Optional. Defaults to sqlite:///sorts.db
 LOG_LEVEL=              # Optional. Defaults to INFO
-EXEMPTED_GUILDS=        # Optional. Comma-separated guild IDs that auto-resolve to Mahindra University.
+EXEMPTED_GUILDS=        # Optional. Comma-separated guild IDs auto-linked to default university.
 ```
 
 ---
 
-## 💡 Naming
+## 💡 Naming Convention
 
 > [!NOTE]
-> **sorts.me** is the platform and brand. **Sortling** is the mascot that guides students through the questionnaire. The two names are not interchangeable.
+> **sorts.me** is the platform and project name. **Sortling** is the mascot that guides students through the questionnaire. The two names are distinct and complementary.questionnaire. The two names are not interchangeable.
