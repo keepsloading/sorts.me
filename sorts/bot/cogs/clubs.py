@@ -147,7 +147,7 @@ class ClubsCog(commands.Cog):
                 if social_links:
                     embed.add_field(name="Get in Touch", value="  ·  ".join(social_links), inline=False)
 
-                embed.set_footer(text="Sortling Campus Club Registry")
+                embed.set_footer(text="Sortling • Campus Clubs")
                 await interaction.send(embed=embed)
 
         except Exception as e:

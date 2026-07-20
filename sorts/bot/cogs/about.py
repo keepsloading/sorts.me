@@ -50,7 +50,7 @@ class AboutCog(commands.Cog):
                         inline=True,
                     )
 
-                embed.set_footer(text="Campus Guide")
+                embed.set_footer(text="Sortling • Your Campus Guide")
 
                 if file:
                     await interaction.send(embed=embed, file=file)

@@ -108,7 +108,7 @@ class OptionButton(nextcord.ui.Button):
                             inline=False,
                         )
 
-                    embed.set_footer(text="Rate your matches with /feedback")
+                    embed.set_footer(text="Sortling • Rate your matches anytime with /feedback")
 
                     icon_path = os.path.join("Sortling Mascot", "Icon_Neutral.png")
                     file = None
@@ -273,7 +273,7 @@ class RefineInterestsView(nextcord.ui.View):
                         description="Follow-up question for your updated interests. Select the option that fits you best.",
                         color=BRAND_COLOR,
                     )
-                    embed.set_footer(text="Follow-up Question")
+                    embed.set_footer(text="Sortling • Quick follow-up")
 
                     thinking_path = os.path.join("Sortling Mascot", "thinking.gif")
                     file = None
@@ -320,7 +320,7 @@ class RefineInterestsView(nextcord.ui.View):
                             inline=False,
                         )
 
-                    embed.set_footer(text="Interests updated and logged")
+                    embed.set_footer(text="Sortling • Tailored for you")
 
                     icon_path = os.path.join("Sortling Mascot", "Icon_Neutral.png")
                     file = None

@@ -35,7 +35,7 @@ class ClubPagingView(nextcord.ui.View):
                 value="\n".join(lines),
                 inline=False
             )
-        embed.set_footer(text="Use /club [name] to view specific details.")
+        embed.set_footer(text="Sortling • Use /club <name> to view any club profile")
         return embed
 
     @nextcord.ui.button(label="◀ Previous", style=nextcord.ButtonStyle.secondary)
