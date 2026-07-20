@@ -1,15 +1,11 @@
-<div align="center">
-  <img src="Sortling%20Mascot/Icon_Neutral.png" width="100" height="100" alt="Sortling Mascot">
-  <h1>sorts.me 🧭</h1>
-  <p><strong>Find your clubs. Adaptive campus guide for university Discord servers.</strong></p>
+# sorts.me 🧭 <img src="https://raw.githubusercontent.com/keepsloading/sorts.me/main/Sortling%20Mascot/Icon_Neutral.png" align="right" width="80" height="80">
 
-  <p>
-    <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.12%2B-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python"></a>
-    <a href="https://github.com/nextcord/nextcord"><img src="https://img.shields.io/badge/nextcord-Discord%20Bot-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="nextcord"></a>
-    <a href="https://sqlalchemy.org"><img src="https://img.shields.io/badge/SQLAlchemy-ORM-red?style=for-the-badge&logo=databricks&logoColor=white" alt="SQLAlchemy"></a>
-    <a href="https://render.com"><img src="https://img.shields.io/badge/Render-Ready%20to%20Deploy-46E3B7?style=for-the-badge&logo=render&logoColor=white" alt="Render Ready"></a>
-  </p>
-</div>
+### 🎓 Find your clubs. Adaptive campus guide for university Discord servers.
+
+[![Python](https://img.shields.io/badge/Python-3.12%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![nextcord](https://img.shields.io/badge/nextcord-Discord%20Bot-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://github.com/nextcord/nextcord)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-red?style=for-the-badge&logo=databricks&logoColor=white)](https://sqlalchemy.org)
+[![Render Ready](https://img.shields.io/badge/Render-Ready%20to%20Deploy-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com)
 
 > **Students join campus clubs without knowing what exists. sorts.me fixes that by asking a short set of adaptive questions and matching each student to the clubs that actually fit them.**
 
