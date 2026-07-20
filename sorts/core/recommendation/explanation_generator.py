@@ -15,7 +15,12 @@ class ExplanationGenerator(IExplanationGenerator):
         positive_matches.sort(key=lambda m: m.contribution, reverse=True)
 
         for m in positive_matches[:2]:
-            name_lower = m.trait_name.lower()
+            trait_name = m.trait_name
+            acronyms = {"AI", "UN", "BAJA", "DSA", "IOT", "MUN", "SAE", "EIC", "TEDX"}
+            words = trait_name.split()
+            cased_words = [w if w.upper() in acronyms else w.lower() for w in words]
+            name_formatted = " ".join(cased_words)
+
             if m.trait_slug == "commitment_high":
                 reasons.append("Your high commitment preference fits their intensive schedule.")
             elif m.trait_slug == "commitment_medium":
@@ -25,7 +30,7 @@ class ExplanationGenerator(IExplanationGenerator):
             elif "commitment" in m.trait_slug:
                 reasons.append("Fits your availability and schedule.")
             else:
-                reasons.append(f"Your interest in {name_lower} fits their focus.")
+                reasons.append(f"Your interest in {name_formatted} fits their focus.")
 
         if not reasons:
             if evidence.overall_score <= 0.001:

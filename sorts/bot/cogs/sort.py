@@ -60,7 +60,7 @@ class SortCog(commands.Cog):
                     description="Select the option that fits you best.",
                     color=BRAND_COLOR,
                 )
-                embed.set_footer(text="Question 1")
+                embed.set_footer(text="Sortling • Question 1")
 
                 thinking_path = os.path.join("Sortling Mascot", "thinking.gif")
                 file = None
