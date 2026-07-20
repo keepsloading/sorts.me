@@ -1,4 +1,4 @@
-# sorts.me (Sortling) 🧭 <img src="Sortling%20Mascot/Icon_Neutral.png" align="right" width="48" height="48">
+# sorts.me 🧭 <img src="Sortling%20Mascot/Icon_Neutral.png" align="right" width="48" height="48">
 
 ### 🎓 Find your clubs. Adaptive campus guide for university Discord servers.
 
@@ -25,7 +25,7 @@
 * 🏫 **Multi-Tenant Architecture:** Any university can add the bot, run `/setup`, and operate an isolated club directory with automatic database schema migrations.
 * 🔄 **Live Crawler Pipeline:** Administrators run `/admin sync` to crawl university club pages, `/admin review` to preview diffs, and `/admin publish` to update live listings.
 * 💬 **Feedback & Logging:** Built-in stdout feedback stream (`[FEEDBACK_LOG]` & `[SELF_TRAINING]`) to monitor student interactions and recommendation quality.
-* 🚀 **Cloud Ready:** Ships with a `render.yaml` blueprint and persistent SQLite volume support for zero-config cloud deployment.
+* 🚀 **Cloud Ready:** Ships with a `render.yaml` blueprint and containerized deployment support for zero-config cloud hosting.
 
 ---
 
@@ -121,11 +121,11 @@ graph TD
 
 ## ☁️ Cloud Deployment (Render)
 
-**sorts.me** is built for Render web services:
+**sorts.me** is preconfigured with a `render.yaml` blueprint:
 1. Connect repository to Render dashboard.
-2. Select **Docker** environment.
-3. Set `DISCORD_TOKEN` in environment variables.
-4. Mount persistent disk at `/var/data` (for `sqlite:////var/data/sorts.db`).
+2. Select **Docker Web Service** runtime.
+3. Add `DISCORD_TOKEN` in environment dashboard.
+4. Deploy — database seeding and migrations run automatically on startup.
 
 ---
 
@@ -142,4 +142,5 @@ EXEMPTED_GUILDS=        # Optional. Comma-separated guild IDs auto-linked to def
 
 ## 💡 Naming Convention
 
+> [!NOTE]
 > **sorts.me** is the platform and project name. **Sortling** is the mascot that guides students through the questionnaire. The two names are distinct and complementary.
