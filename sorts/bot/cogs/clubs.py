@@ -145,7 +145,7 @@ class ClubsCog(commands.Cog):
                             social_links.append(f"[{label}]({val})")
 
                 if social_links:
-                    embed.add_field(name="Social Links", value="  ·  ".join(social_links), inline=False)
+                    embed.add_field(name="Get in Touch", value="  ·  ".join(social_links), inline=False)
 
                 embed.set_footer(text="Sortling Campus Club Registry")
                 await interaction.send(embed=embed)
