@@ -66,10 +66,18 @@ class OptionButton(nextcord.ui.Button):
 
                 else:
                     loading_embed = nextcord.Embed(
-                        description="Finding your matches...",
+                        title="Analyzing Your Profile...",
+                        description="Finding your best-fit club matches...",
                         color=BRAND_COLOR,
                     )
-                    await interaction.response.edit_message(embed=loading_embed, view=None)
+                    thinking_path = os.path.join("Sortling Mascot", "thinking.gif")
+                    file = None
+                    if os.path.exists(thinking_path):
+                        file = nextcord.File(thinking_path, filename="thinking.gif")
+                        loading_embed.set_thumbnail(url="attachment://thinking.gif")
+                        await interaction.response.edit_message(embed=loading_embed, file=file, view=None)
+                    else:
+                        await interaction.response.edit_message(embed=loading_embed, view=None)
 
                     recs = view.session_service.generate_recommendations(db, view.session_id)
 
@@ -269,8 +277,12 @@ class RefineInterestsView(nextcord.ui.View):
                 if next_q and added_interests:
                     view = QuestionnaireView(self.session_id, next_q)
                     embed = nextcord.Embed(
-                        title=clean_text(next_q.text),
-                        description="Follow-up question for your updated interests. Select the option that fits you best.",
+                        title=f"Follow-up: {clean_text(next_q.text)}",
+                        description=(
+                            f"**Interest Profile Updated!**\n"
+                            f"Added: {', '.join(added_interests)}.\n\n"
+                            f"Select the option that fits you best below:"
+                        ),
                         color=BRAND_COLOR,
                     )
                     embed.set_footer(text="Sortling • Quick follow-up")
@@ -283,7 +295,6 @@ class RefineInterestsView(nextcord.ui.View):
 
                     if file:
                         await interaction.response.send_message(
-                            f"**Interest Profile Updated!**\nAdded: {', '.join(added_interests)}. Let's fine-tune your matches with a quick follow-up:",
                             embed=embed,
                             view=view,
                             file=file,
@@ -291,7 +302,6 @@ class RefineInterestsView(nextcord.ui.View):
                         )
                     else:
                         await interaction.response.send_message(
-                            f"**Interest Profile Updated!**\nAdded: {', '.join(added_interests)}. Let's fine-tune your matches with a quick follow-up:",
                             embed=embed,
                             view=view,
                             ephemeral=True
