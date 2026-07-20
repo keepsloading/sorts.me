@@ -142,5 +142,4 @@ EXEMPTED_GUILDS=        # Optional. Comma-separated guild IDs auto-linked to def
 
 ## 💡 Naming Convention
 
-> [!NOTE]
-> **sorts.me** is the platform and project name. **Sortling** is the mascot that guides students through the questionnaire. The two names are distinct and complementary.questionnaire. The two names are not interchangeable.
+> **sorts.me** is the platform and project name. **Sortling** is the mascot that guides students through the questionnaire. The two names are distinct and complementary.
