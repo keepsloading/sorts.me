@@ -1,33 +1,24 @@
 """
 HTML pages for Terms of Service and Privacy Policy compliance required by Discord Developer Portal.
-Serves responsive, Sortling UI Native HTML endpoints at /terms and /privacy.
+Serves responsive, minimalist HTML endpoints at /terms and /privacy strictly using #000543 and white.
 """
 
 COMMON_STYLE = """
 <style>
     :root {
-        --bg: #0b1329;
-        --card-bg: #131f37;
-        --card-border: #1f3459;
-        --brand-blue: #1B365D;
-        --accent-blue: #4f80ff;
-        --accent-cyan: #38bdf8;
-        --text-main: #f1f5f9;
-        --text-muted: #94a3b8;
-        --code-bg: #1e2d4a;
-        --code-border: #2d436c;
-        --app-badge-bg: #5865f2;
+        --bg: #000543;
+        --card-bg: rgba(255, 255, 255, 0.04);
+        --border: rgba(255, 255, 255, 0.18);
+        --text: #ffffff;
+        --text-muted: rgba(255, 255, 255, 0.75);
     }
     * {
         box-sizing: border-box;
     }
     body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        background-color: var(--bg);
-        background-image: 
-            radial-gradient(at 0% 0%, rgba(27, 54, 93, 0.4) 0px, transparent 50%),
-            radial-gradient(at 100% 100%, rgba(79, 128, 255, 0.15) 0px, transparent 50%);
-        color: var(--text-main);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: #000543;
+        color: #ffffff;
         margin: 0;
         padding: 40px 20px;
         line-height: 1.6;
@@ -37,28 +28,28 @@ COMMON_STYLE = """
         max-width: 820px;
         margin: 0 auto;
         background: var(--card-bg);
-        border: 1px solid var(--card-border);
+        border: 1px solid var(--border);
         border-radius: 20px;
         padding: 44px;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     }
     .brand-header {
         display: flex;
         align-items: center;
         gap: 16px;
         padding-bottom: 24px;
-        border-bottom: 1px solid var(--card-border);
+        border-bottom: 1px solid var(--border);
         margin-bottom: 28px;
     }
     .brand-icon {
         width: 52px;
         height: 52px;
         background: #ffffff;
+        color: #000543;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         font-size: 26px;
     }
     .brand-title-group {
@@ -74,10 +65,10 @@ COMMON_STYLE = """
         gap: 8px;
     }
     .discord-badge {
-        background: var(--app-badge-bg);
-        color: #ffffff;
+        background: #ffffff;
+        color: #000543;
         font-size: 0.65rem;
-        font-weight: 700;
+        font-weight: 800;
         padding: 2px 6px;
         border-radius: 4px;
         letter-spacing: 0.5px;
@@ -96,11 +87,13 @@ COMMON_STYLE = """
         justify-content: space-between;
     }
     h2 {
-        color: var(--accent-cyan);
-        font-size: 1.15rem;
+        color: #ffffff;
+        font-size: 1.2rem;
         font-weight: 600;
-        margin-top: 28px;
+        margin-top: 32px;
         margin-bottom: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 6px;
     }
     p, li {
         color: var(--text-muted);
@@ -114,9 +107,9 @@ COMMON_STYLE = """
         margin-bottom: 6px;
     }
     code {
-        background: var(--code-bg);
-        border: 1px solid var(--code-border);
-        color: #a5c2f5;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
         padding: 2px 8px;
         border-radius: 6px;
         font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
@@ -131,58 +124,58 @@ COMMON_STYLE = """
         padding: 8px 16px;
         border-radius: 8px;
         font-size: 0.9rem;
-        font-weight: 500;
+        font-weight: 600;
         text-decoration: none;
         transition: all 0.2s ease;
     }
     .nav-tab.active {
-        background: var(--brand-blue);
-        border: 1px solid var(--accent-blue);
-        color: #ffffff;
+        background: #ffffff;
+        color: #000543;
     }
     .nav-tab:not(.active) {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid var(--card-border);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
         color: var(--text-muted);
     }
     .nav-tab:not(.active):hover {
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.12);
         color: #ffffff;
     }
     .date-badge {
-        background: rgba(56, 189, 248, 0.1);
-        color: var(--accent-cyan);
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
         font-size: 0.8rem;
         font-weight: 500;
         padding: 4px 12px;
         border-radius: 12px;
-        border: 1px solid rgba(56, 189, 248, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
     .callout {
-        background: rgba(27, 54, 93, 0.35);
-        border-left: 4px solid var(--accent-blue);
+        background: rgba(255, 255, 255, 0.06);
+        border-left: 4px solid #ffffff;
         padding: 16px 20px;
         border-radius: 0 12px 12px 0;
         margin: 24px 0;
     }
     .callout p {
         margin: 0;
-        color: var(--text-main);
+        color: #ffffff;
     }
     .footer {
         margin-top: 40px;
         text-align: center;
         font-size: 0.85rem;
         color: var(--text-muted);
-        border-top: 1px solid var(--card-border);
+        border-top: 1px solid var(--border);
         padding-top: 24px;
     }
     a {
-        color: var(--accent-blue);
-        text-decoration: none;
+        color: #ffffff;
+        text-decoration: underline;
+        font-weight: 500;
     }
     a:hover {
-        text-decoration: underline;
+        opacity: 0.85;
     }
 </style>
 """
