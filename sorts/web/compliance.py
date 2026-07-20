@@ -129,17 +129,19 @@ COMMON_STYLE = """
         transition: all 0.2s ease;
     }
     .nav-tab.active {
-        background: #ffffff;
-        color: #000543;
+        background: transparent;
+        border: 1px solid #ffffff;
+        color: #ffffff;
     }
     .nav-tab:not(.active) {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--border);
-        color: var(--text-muted);
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: rgba(255, 255, 255, 0.65);
     }
     .nav-tab:not(.active):hover {
-        background: rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.1);
         color: #ffffff;
+        border-color: #ffffff;
     }
     .date-badge {
         background: rgba(255, 255, 255, 0.1);
