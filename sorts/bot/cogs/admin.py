@@ -69,6 +69,9 @@ class AdminCog(commands.Cog):
                 univ = db.query(db_models.University).filter_by(guild_id=str(guild_id)).first()
                 slug = f"guild_{guild_id}"
 
+                src_url = website if (website and website.startswith("http")) else f"sorts/assets/data/{slug}_clubs.html"
+                src_type = "url" if (website and website.startswith("http")) else "file"
+
                 if not univ:
                     univ = db_models.University(
                         slug=slug,
@@ -83,20 +86,27 @@ class AdminCog(commands.Cog):
                     db.refresh(univ)
                     import_src = db_models.ImportSource(
                         university_id=univ.id,
-                        name="Default Source",
-                        source_type="file",
-                        url=f"sorts/assets/data/{slug}_clubs.html",
+                        name="Official Source",
+                        source_type=src_type,
+                        url=src_url,
                     )
                     db.add(import_src)
                     db.commit()
                     msg = f"**{name}** is now registered on Sortling. Use `/admin sync` whenever you want to update the club directory."
                 else:
                     univ.name = name
-                    univ.website = website
+                    if website:
+                        univ.website = website
                     if logo_url:
                         univ.logo = logo_url
                     if description:
                         univ.description = description
+                    
+                    existing_src = db.query(db_models.ImportSource).filter_by(university_id=univ.id).first()
+                    if existing_src and website and website.startswith("http"):
+                        existing_src.url = website
+                        existing_src.source_type = "url"
+
                     db.commit()
                     msg = f"Profile updated for **{name}**."
 

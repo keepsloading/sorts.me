@@ -44,8 +44,12 @@ class ImporterPipeline:
             if source.source_type == "file":
                 filepath = source.url
                 if not os.path.exists(filepath):
-                    # Check relative path from current directory or root
-                    raise FileNotFoundError(f"Local seed file not found: {filepath}")
+                    fallback_file = "sorts/assets/data/mahindra_clubs.html"
+                    if os.path.exists(fallback_file):
+                        logger.warning(f"Seed file '{filepath}' not found. Falling back to default seed '{fallback_file}'.")
+                        filepath = fallback_file
+                    else:
+                        raise FileNotFoundError(f"Local seed file not found: {filepath}")
                 with open(filepath, "r", encoding="utf-8") as f:
                     html_content = f.read()
             else:
