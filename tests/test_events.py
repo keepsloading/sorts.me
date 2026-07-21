@@ -21,3 +21,29 @@ def test_event_seeding_and_querying():
         assert sih_event.email_required is True
         assert "₹60,000" in sih_event.prizes
         assert "10 August 2026" in sih_event.registration_deadline
+
+        # Verify 'sih' alias resolution
+        query_name = "sih"
+        sih_by_alias = (
+            db.query(db_models.Event)
+            .filter(
+                db_models.Event.university_id == univ.id,
+                (db_models.Event.slug == query_name)
+                | (db_models.Event.name.ilike(f"%{query_name}%"))
+                | (db_models.Event.slug.ilike(f"%{query_name}%"))
+            )
+            .first()
+        )
+        if not sih_by_alias:
+            all_evs = db.query(db_models.Event).filter_by(university_id=univ.id).all()
+            sih_by_alias = next(
+                (
+                    e for e in all_evs
+                    if query_name in e.name.lower()
+                    or query_name in e.slug
+                    or (query_name == "sih" and "smart india" in e.name.lower())
+                ),
+                None,
+            )
+        assert sih_by_alias is not None
+        assert sih_by_alias.slug == "smart-india-hackathon-2026"

@@ -119,18 +119,30 @@ class EventsCog(commands.Cog):
                     await interaction.send(embed=embed, file=file, ephemeral=True)
                     return
 
+                query_name = name.lower().strip()
+
                 ev = (
                     db.query(db_models.Event)
                     .filter(
                         db_models.Event.university_id == univ.id,
-                        (db_models.Event.slug == name.lower()) | (db_models.Event.name.ilike(f"%{name}%")),
+                        (db_models.Event.slug == query_name)
+                        | (db_models.Event.name.ilike(f"%{query_name}%"))
+                        | (db_models.Event.slug.ilike(f"%{query_name}%"))
                     )
                     .first()
                 )
 
                 if not ev:
                     all_evs = db.query(db_models.Event).filter_by(university_id=univ.id).all()
-                    ev = next((e for e in all_evs if name.lower() in e.name.lower() or name.lower() in e.slug), None)
+                    ev = next(
+                        (
+                            e for e in all_evs
+                            if query_name in e.name.lower()
+                            or query_name in e.slug
+                            or (query_name == "sih" and "smart india" in e.name.lower())
+                        ),
+                        None,
+                    )
 
                 if not ev:
                     embed, file = create_sortling_embed(
