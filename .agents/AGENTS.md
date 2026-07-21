@@ -1,28 +1,24 @@
 # Sortling UI & Design Principles
 
 ## 1. Discord UI Buttons & Interactive Controls
-- **NO EMOJIS ON BUTTON LABELS**: Discord UI Buttons (`nextcord.ui.Button`) MUST NOT contain any emojis in their `label` property under any circumstances (e.g., use `"Register Now"` instead of `"Register Now 🚀"`, `"I want more!"` instead of `"I want more! 🚀"`).
-- Button labels should be fun, punchy, concise, and professional text-only.
+- **NO EMOJIS ON BUTTON LABELS**: Discord UI Buttons (`nextcord.ui.Button`) MUST NOT contain any emojis in their `label` property under any circumstances (e.g., use `"Register Now!"` instead of `"Register Now! 🚀"`).
+- Button labels must be concise, text-only, and professional.
 
-## 2. Color Palette & Web Compliance Styling
-- **Web Brand Colors**: The web UI (including `/terms` and `/privacy` compliance endpoints) strictly uses `#000543` (Deep Midnight Blue) and `#ffffff` (White).
-- **Transparent Control Backgrounds**: Web navigation buttons (`.nav-tab`) must use transparent backgrounds (`background: transparent`) with clean 1px white borders (`border: 1px solid #ffffff`).
-- **Discord Bot Embed Color**: Embeds use `BRAND_COLOR` (`0x000543`).
+## 2. Text-Based Emoji Prohibition Across All Embeds
+- **NO EMOJIS IN EMBEDS**: Do not use emojis in embed titles, field names, or descriptions.
+- **Numbered Points**: Use code ticks for numbered rank indicators (e.g. `1`, `2`, `3` instead of `[1]` or `🥇`).
+- Use clean ASCII / Unicode characters for hierarchy and bullet points: `->`, `>`, `•`, `|`, `[Official]`, `[Verified]`.
 
-## 3. Emoji Usage in Message Embeds & Text Content
-- Use emojis cleanly and consistently for category badges, field section titles, and status indicators.
-- **Do not overload emojis**: Maximum 1 emoji per field title or line item.
-- Standard Emoji Map:
-  - Header / Compass: `🧭`
-  - Hackathons / Competitions: `🚀`
-  - Prizes & Rewards: `🏆`
-  - Dates & Schedules: `📅` / `🕒`
-  - Category: `🏷️`
-  - Verification & Trust: `🛡️`
-  - Official Links / Web: `🌐`
-  - Team Rules: `👥`
-  - Email Requirements: `📧`
+## 3. Visual Hierarchy, Headers & Dividers in Embeds
+- **Prominent Headers**: Embed section titles must use Discord header markdown (`### Section Title`) so headers are visually larger and distinct from body text.
+- **Dividers & Blockquotes**: Use text dividers (`─────────────────────────`) and blockquotes (`> `) between major sections to prevent clutter and group related fields cleanly.
+- **Readable Spacing**: Separate key-value pairs with clean bullet lists (`• **Key**: Value`).
 
-## 4. Embed Layout & Encapsulation
+## 4. Color Palette & Web Styling
+- **Brand Colors**: Web UI strictly uses `#000543` (Deep Midnight Blue) and `#ffffff` (White).
+- **Control Styling**: Web navigation buttons (`.nav-tab`) use `background: transparent` with `border: 1px solid #ffffff`.
+- **Bot Embed Color**: Embeds use `BRAND_COLOR` (`0x000543`).
+
+## 5. Embed Layout & Encapsulation
 - Keep status notices, feedback confirmations, and refined profile updates inside `embed.description`.
-- Place mascot thumbnails (`thinking.gif` / `Icon_Neutral.png`) inside the embed card via `embed.set_thumbnail(url=...)` to avoid stand-alone image message attachments.
+- Place mascot thumbnails (`thinking.gif` / `Icon_Neutral.png`) inside the embed card via `embed.set_thumbnail(url=...)`.

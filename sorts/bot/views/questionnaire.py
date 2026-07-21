@@ -13,9 +13,9 @@ from sorts.bot.utils import BRAND_COLOR, clean_text, create_sortling_embed
 logger = logging.getLogger(__name__)
 
 RANK_MEDALS = {
-    1: "🥇",
-    2: "🥈",
-    3: "🥉",
+    1: "`1`",
+    2: "`2`",
+    3: "`3`",
 }
 
 INTEREST_NODES = [
@@ -433,7 +433,7 @@ class RecommendationResultsView(nextcord.ui.View):
                     color=BRAND_COLOR,
                 )
 
-                rank_badges = {4: "4️⃣", 5: "5️⃣", 6: "6️⃣"}
+                rank_badges = {4: "`4`", 5: "`5`", 6: "`6`"}
                 for r in contenders:
                     club = r.club
                     badge = rank_badges.get(r.rank, f"#{r.rank}")

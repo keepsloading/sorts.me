@@ -34,7 +34,7 @@ class AboutCog(commands.Cog):
                     embed.set_thumbnail(url=univ.logo)
 
                 embed.add_field(
-                    name="🧭 How it Works",
+                    name="How it Works",
                     value=(
                         "Answer a short set of adaptive questions and sorts.me will match you "
                         "with clubs that fit your interests, skills, and availability.\n\n"
@@ -44,7 +44,7 @@ class AboutCog(commands.Cog):
                 )
 
                 embed.add_field(
-                    name="📜 Legal & Privacy",
+                    name="Legal & Privacy",
                     value=(
                         "[Terms of Service](https://sortling-bot.onrender.com/terms) • "
                         "[Privacy Policy](https://sortling-bot.onrender.com/privacy)"

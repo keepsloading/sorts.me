@@ -394,7 +394,7 @@ class AdminCog(commands.Cog):
                 db.commit()
 
                 embed, file = create_sortling_embed(
-                    title="Club Added Successfully 🚀",
+                    title="Club Added Successfully",
                     description=(
                         f"**{name}** has been added to the **{univ.name}** club directory!\n\n"
                         f"• **Category**: {category or 'General'}\n"

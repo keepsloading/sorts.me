@@ -306,11 +306,11 @@ def sync_verified_events(db: Session) -> None:
                 "the opportunity to represent Mahindra University on a national stage at SIH 2026!"
             ),
             prizes=(
-                "🏆 **Cash Prizes Worth ₹60,000!**\n"
+                "**Cash Prizes Worth ₹60,000!**\n"
                 "• **1st Prize**: ₹10,000 x 3 teams\n"
                 "• **2nd Prize**: ₹6,000 x 3 teams\n"
                 "• **3rd Prize**: ₹4,000 x 3 teams\n\n"
-                "✨ *Winner of each Problem Statement will receive 1st Prize of ₹1,000,000 at SIH 2026!*"
+                "*Winner of each Problem Statement will receive 1st Prize of ₹1,000,000 at SIH 2026!*"
             ),
             registration_deadline="10 August 2026",
             event_date="19 August 2026",
@@ -337,11 +337,11 @@ def sync_verified_events(db: Session) -> None:
             "the opportunity to represent Mahindra University on a national stage at SIH 2026!"
         )
         sih_event.prizes = (
-            "🏆 **Cash Prizes Worth ₹60,000!**\n"
+            "**Cash Prizes Worth ₹60,000!**\n"
             "• **1st Prize**: ₹10,000 x 3 teams\n"
             "• **2nd Prize**: ₹6,000 x 3 teams\n"
             "• **3rd Prize**: ₹4,000 x 3 teams\n\n"
-            "✨ *Winner of each Problem Statement will receive 1st Prize of ₹1,000,000 at SIH 2026!*"
+            "*Winner of each Problem Statement will receive 1st Prize of ₹1,000,000 at SIH 2026!*"
         )
         sih_event.registration_deadline = "10 August 2026"
         sih_event.event_date = "19 August 2026"

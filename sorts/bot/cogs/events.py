@@ -63,26 +63,26 @@ class EventsCog(commands.Cog):
                     await interaction.send(embed=embed, file=file)
                     return
 
-                embed, file = create_sortling_embed(
-                    title=f"Campus Events & Opportunities  ·  {univ.name}",
-                    description=f"Showing **{len(events_list)}** upcoming hackathons & opportunities for **{univ.name}**.\nType `/event <name>` for full registration details.",
-                    is_error=False,
-                )
+                desc_lines = [
+                    f"Showing **{len(events_list)}** upcoming hackathons & opportunities for **{univ.name}**.",
+                    "Type `/event <name>` for full registration details.",
+                    "─────────────────────────"
+                ]
 
                 for ev in events_list[:10]:
-                    badge = "🚀" if ev.category == "Hackathon" else "💡"
-                    req_text = "📧 *Student Email Required*" if ev.email_required else ""
-                    val = (
-                        f"{clean_text(ev.summary)}\n"
-                        f"📅 **Deadline**: {ev.registration_deadline or 'TBA'}  |  🗓️ **Date**: {ev.event_date or 'TBA'}\n"
-                        f"{req_text}"
-                    )
-                    embed.add_field(
-                        name=f"{badge} {ev.name}",
-                        value=val,
-                        inline=False,
+                    req_text = "• *Student Email Required*" if ev.email_required else ""
+                    desc_lines.append(
+                        f"### {clean_text(ev.name)}\n"
+                        f"> {clean_text(ev.summary)}\n"
+                        f"• **Deadline**: {ev.registration_deadline or 'TBA'}  |  **Date**: {ev.event_date or 'TBA'}\n"
+                        f"{req_text}\n"
                     )
 
+                embed, file = create_sortling_embed(
+                    title=f"Campus Events & Opportunities - {univ.name}",
+                    description="\n".join(desc_lines),
+                    is_error=False,
+                )
                 embed.set_footer(text="Sortling • Campus Opportunity Engine")
 
                 if file:
@@ -119,7 +119,6 @@ class EventsCog(commands.Cog):
                     await interaction.send(embed=embed, file=file, ephemeral=True)
                     return
 
-                # Search by exact slug or substring match
                 ev = (
                     db.query(db_models.Event)
                     .filter(
@@ -130,7 +129,6 @@ class EventsCog(commands.Cog):
                 )
 
                 if not ev:
-                    # Fallback search across all events
                     all_evs = db.query(db_models.Event).filter_by(university_id=univ.id).all()
                     ev = next((e for e in all_evs if name.lower() in e.name.lower() or name.lower() in e.slug), None)
 
@@ -143,54 +141,34 @@ class EventsCog(commands.Cog):
                     await interaction.send(embed=embed, file=file, ephemeral=True)
                     return
 
-                # Build Sortling-Native detailed embed
-                embed, file = create_sortling_embed(
-                    title=f"🚀 {ev.name}",
-                    description=clean_text(ev.description),
-                    is_error=False,
-                )
-
-                embed.add_field(
-                    name="🏛️ Organized By",
-                    value=clean_text(ev.organizer),
-                    inline=True,
-                )
-
-                embed.add_field(
-                    name="🏷️ Category",
-                    value=f"`{ev.category}`",
-                    inline=True,
-                )
-
-                if ev.registration_deadline or ev.event_date:
-                    dates_str = f"• **Registration Deadline**: {ev.registration_deadline or 'N/A'}\n• **Event Date**: {ev.event_date or 'N/A'}"
-                    embed.add_field(
-                        name="📅 Important Dates",
-                        value=dates_str,
-                        inline=False,
-                    )
-
-                if ev.prizes:
-                    embed.add_field(
-                        name="🏆 Cash Prizes & Rewards",
-                        value=clean_text(ev.prizes),
-                        inline=False,
-                    )
-
-                if ev.team_rules:
-                    embed.add_field(
-                        name="👥 Team Formation Rules",
-                        value=clean_text(ev.team_rules),
-                        inline=False,
-                    )
+                # Build clean, non-cluttered embed with Discord markdown headers & dividers
+                desc_parts = [
+                    f"> {clean_text(ev.description)}",
+                    "─────────────────────────",
+                    f"**Organized By**: {clean_text(ev.organizer)}  |  **Category**: `{ev.category}`",
+                    "─────────────────────────",
+                    "### Important Dates",
+                    f"• **Registration Deadline**: {ev.registration_deadline or 'N/A'}\n• **Internal Hackathon Date**: {ev.event_date or 'N/A'}",
+                    "─────────────────────────",
+                    "### Cash Prizes & Rewards",
+                    clean_text(ev.prizes or "N/A"),
+                    "─────────────────────────",
+                    "### Team Formation Rules",
+                    clean_text(ev.team_rules or "N/A"),
+                ]
 
                 if ev.email_required:
-                    embed.add_field(
-                        name="📧 Registration Requirement",
-                        value="⚠️ **Student Email (@mahindrauniversity.edu.in) is required for registration.**",
-                        inline=False,
-                    )
+                    desc_parts.extend([
+                        "─────────────────────────",
+                        "### Registration Requirement",
+                        "**Student Email (@mahindrauniversity.edu.in) is required for registration.**"
+                    ])
 
+                embed, file = create_sortling_embed(
+                    title=clean_text(ev.name),
+                    description="\n\n".join(desc_parts),
+                    is_error=False,
+                )
                 embed.set_footer(text="Sortling • Official Campus Hackathon & Opportunity Guide")
 
                 view = RegisterButtonView(ev.registration_link)

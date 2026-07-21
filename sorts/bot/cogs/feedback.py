@@ -96,7 +96,7 @@ class FeedbackCog(commands.Cog):
                     db.commit()
                     msg = "Feedback received! Thank you for helping us improve."
 
-                embed, file = create_sortling_embed(title="Feedback Saved 🎯", description=msg, is_error=False)
+                embed, file = create_sortling_embed(title="Feedback Saved", description=msg, is_error=False)
                 await interaction.send(embed=embed, file=file, ephemeral=True)
 
         except Exception as e:
