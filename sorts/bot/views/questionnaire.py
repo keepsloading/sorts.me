@@ -100,7 +100,11 @@ class OptionButton(nextcord.ui.Button):
 
                     embed = nextcord.Embed(
                         title="Your Club Matches",
-                        description=f"Based on your answers, here are the best-fit clubs at **{univ_name}**.",
+                        description=(
+                            f"> **Top recommendation matches based on your answers.**\n\n"
+                            f"Here are the best-fit clubs for you at **{univ_name}**:\n"
+                            f"━━━━━━━━━━━━━━━━━━━━━━━"
+                        ),
                         color=BRAND_COLOR,
                     )
 
@@ -110,8 +114,8 @@ class OptionButton(nextcord.ui.Button):
                         embed.add_field(
                             name=f"{medal}  {clean_text(club.name)}",
                             value=(
-                                f"> {clean_text(club.summary)}\n\n"
-                                f"**Why you fit:** {clean_text(r.explanation)}"
+                                f"> **{clean_text(club.summary)}**\n\n"
+                                f"• **Why you fit**: {clean_text(r.explanation)}"
                             ),
                             inline=False,
                         )
@@ -314,7 +318,11 @@ class RefineInterestsView(nextcord.ui.View):
 
                     embed = nextcord.Embed(
                         title="Your Refined Club Matches",
-                        description=f"Updated recommendations for **{univ_name}** based on your refined interests.",
+                        description=(
+                            f"> **Updated recommendation matches based on your refined interests.**\n\n"
+                            f"Re-ranked clubs for you at **{univ_name}**:\n"
+                            f"━━━━━━━━━━━━━━━━━━━━━━━"
+                        ),
                         color=BRAND_COLOR,
                     )
 
@@ -324,8 +332,8 @@ class RefineInterestsView(nextcord.ui.View):
                         embed.add_field(
                             name=f"{medal}  {clean_text(club.name)}",
                             value=(
-                                f"> {clean_text(club.summary)}\n\n"
-                                f"**Why you fit:** {clean_text(r.explanation)}"
+                                f"> **{clean_text(club.summary)}**\n\n"
+                                f"• **Why you fit**: {clean_text(r.explanation)}"
                             ),
                             inline=False,
                         )
@@ -429,7 +437,11 @@ class RecommendationResultsView(nextcord.ui.View):
 
                 embed = nextcord.Embed(
                     title="Other Clubs You Might Enjoy",
-                    description=f"Close contenders at **{univ_name}** matching your profile:",
+                    description=(
+                        f"> **Additional close contenders matching your profile.**\n\n"
+                        f"More recommended clubs at **{univ_name}**:\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━"
+                    ),
                     color=BRAND_COLOR,
                 )
 
@@ -440,8 +452,8 @@ class RecommendationResultsView(nextcord.ui.View):
                     embed.add_field(
                         name=f"{badge}  {clean_text(club.name)}",
                         value=(
-                            f"> {clean_text(club.summary)}\n\n"
-                            f"**Why you fit:** {clean_text(r.explanation)}"
+                            f"> **{clean_text(club.summary)}**\n\n"
+                            f"• **Why you fit**: {clean_text(r.explanation)}"
                         ),
                         inline=False,
                     )

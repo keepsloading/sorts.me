@@ -393,14 +393,18 @@ class AdminCog(commands.Cog):
                         db.add(ct)
                 db.commit()
 
+                desc_parts = [
+                    f"> **{name} has been added to the {univ.name} club directory.**",
+                    "",
+                    "## Club Details",
+                    f"• **Category**: {category or 'General'}",
+                    f"• **Summary**: {summary}",
+                    f"• **Status**: Verified & active for `/sort` recommendations.",
+                ]
+
                 embed, file = create_sortling_embed(
                     title="Club Added Successfully",
-                    description=(
-                        f"**{name}** has been added to the **{univ.name}** club directory!\n\n"
-                        f"• **Category**: {category or 'General'}\n"
-                        f"• **Summary**: {summary}\n"
-                        f"• **Status**: Verified & active for `/sort` recommendations."
-                    ),
+                    description="\n".join(desc_parts),
                     is_error=False,
                 )
                 await interaction.send(embed=embed, file=file)

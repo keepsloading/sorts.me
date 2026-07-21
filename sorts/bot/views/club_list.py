@@ -22,23 +22,27 @@ class ClubPagingView(nextcord.ui.View):
 
     def make_embed(self, clubs: list[db_models.Club]) -> nextcord.Embed:
         embed = nextcord.Embed(
-            title=clean_text(f"Club Directory: Page {self.page}"),
-            description=clean_text(f"Showing clubs {((self.page - 1) * self.per_page) + 1} to {min(self.page * self.per_page, self.total_count)} of {self.total_count}."),
+            title=clean_text(f"Club Directory - Page {self.page}"),
+            description=(
+                f"> **Explore verified campus clubs and student organizations.**\n\n"
+                f"Showing clubs **{((self.page - 1) * self.per_page) + 1}** to **{min(self.page * self.per_page, self.total_count)}** of **{self.total_count}**:\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━"
+            ),
             color=self.color
         )
         for club in clubs:
-            lines = [f"> {clean_text(club.summary)}"]
+            lines = [f"> **{clean_text(club.summary)}**"]
             if club.commitment:
-                lines.append(f"**Commitment:** {clean_text(club.commitment)}")
+                lines.append(f"• **Commitment**: {clean_text(club.commitment)}")
             embed.add_field(
-                name=f"✨ {clean_text(club.name)}",
+                name=clean_text(club.name),
                 value="\n".join(lines),
                 inline=False
             )
-        embed.set_footer(text="Sortling • Use /club <name> to view any club profile")
+        embed.set_footer(text="Sortling • Type /club <name> to view full profile")
         return embed
 
-    @nextcord.ui.button(label="◀ Previous", style=nextcord.ButtonStyle.secondary)
+    @nextcord.ui.button(label="Previous", style=nextcord.ButtonStyle.secondary)
     async def prev_page_btn(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
         if self.page > 1:
             self.page -= 1
@@ -47,7 +51,7 @@ class ClubPagingView(nextcord.ui.View):
                 self.update_buttons()
                 await interaction.response.edit_message(embed=self.make_embed(clubs), view=self)
 
-    @nextcord.ui.button(label="Next ▶", style=nextcord.ButtonStyle.secondary)
+    @nextcord.ui.button(label="Next", style=nextcord.ButtonStyle.secondary)
     async def next_page_btn(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
         if self.page * self.per_page < self.total_count:
             self.page += 1
