@@ -26,4 +26,7 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger("sortling")
-logger.info(f"Configuration loaded. Database URL: {DATABASE_URL}")
+from urllib.parse import urlparse
+_parsed = urlparse(DATABASE_URL)
+_safe_url = f"{_parsed.scheme}://***@{_parsed.hostname}{_parsed.path}"
+logger.info(f"Configuration loaded. Database: {_safe_url}")
