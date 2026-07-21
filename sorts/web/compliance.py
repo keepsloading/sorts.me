@@ -1,10 +1,13 @@
 """
 HTML pages for Terms of Service and Privacy Policy compliance required by Discord Developer Portal.
-Serves responsive, minimalist HTML endpoints at /terms and /privacy strictly using #000543 and white.
+Serves mobile-friendly HTML endpoints at /terms and /privacy strictly using #000543, white, Horizon font, and Sortling Mascot icon.
 """
 
 COMMON_STYLE = """
 <style>
+    @import url('https://fonts.cdnfonts.com/css/horizon');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
     :root {
         --bg: #000543;
         --card-bg: rgba(255, 255, 255, 0.04);
@@ -45,26 +48,34 @@ COMMON_STYLE = """
         width: 52px;
         height: 52px;
         background: #ffffff;
-        color: #000543;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 26px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        flex-shrink: 0;
+    }
+    .brand-icon img {
+        width: 38px;
+        height: 38px;
+        object-fit: contain;
     }
     .brand-title-group {
         display: flex;
         flex-direction: column;
     }
     .brand-name {
+        font-family: 'Horizon', 'Inter', sans-serif;
         font-size: 1.5rem;
         font-weight: 700;
         color: #ffffff;
         display: flex;
         align-items: center;
         gap: 8px;
+        letter-spacing: 1px;
     }
     .discord-badge {
+        font-family: 'Inter', sans-serif;
         background: #ffffff;
         color: #000543;
         font-size: 0.65rem;
@@ -78,22 +89,26 @@ COMMON_STYLE = """
         color: var(--text-muted);
     }
     h1 {
+        font-family: 'Horizon', 'Inter', sans-serif;
         color: #ffffff;
-        font-size: 1.7rem;
+        font-size: 1.6rem;
         font-weight: 700;
         margin: 0 0 20px 0;
         display: flex;
         align-items: center;
         justify-content: space-between;
+        letter-spacing: 0.5px;
     }
     h2 {
+        font-family: 'Horizon', 'Inter', sans-serif;
         color: #ffffff;
-        font-size: 1.2rem;
+        font-size: 1.15rem;
         font-weight: 600;
         margin-top: 32px;
         margin-bottom: 10px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         padding-bottom: 6px;
+        letter-spacing: 0.5px;
     }
     p, li {
         color: var(--text-muted);
@@ -144,6 +159,7 @@ COMMON_STYLE = """
         border-color: #ffffff;
     }
     .date-badge {
+        font-family: 'Inter', sans-serif;
         background: rgba(255, 255, 255, 0.1);
         color: #ffffff;
         font-size: 0.8rem;
@@ -179,6 +195,60 @@ COMMON_STYLE = """
     a:hover {
         opacity: 0.85;
     }
+
+    /* Mobile Responsive Optimizations */
+    @media (max-width: 640px) {
+        body {
+            padding: 16px 12px;
+        }
+        .container {
+            padding: 24px 18px;
+            border-radius: 16px;
+        }
+        .brand-header {
+            gap: 12px;
+            padding-bottom: 18px;
+            margin-bottom: 20px;
+        }
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+        }
+        .brand-icon img {
+            width: 32px;
+            height: 32px;
+        }
+        .brand-name {
+            font-size: 1.2rem;
+        }
+        .brand-subtitle {
+            font-size: 0.8rem;
+        }
+        h1 {
+            font-size: 1.3rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        h2 {
+            font-size: 1.05rem;
+            margin-top: 24px;
+        }
+        .nav-tabs {
+            gap: 8px;
+        }
+        .nav-tab {
+            padding: 6px 12px;
+            font-size: 0.82rem;
+        }
+        .callout {
+            padding: 12px 14px;
+            margin: 18px 0;
+        }
+        p, li {
+            font-size: 0.92rem;
+        }
+    }
 </style>
 """
 
@@ -193,7 +263,9 @@ TERMS_HTML = f"""<!DOCTYPE html>
 <body>
     <div class="container">
         <div class="brand-header">
-            <div class="brand-icon">🧭</div>
+            <div class="brand-icon">
+                <img src="https://raw.githubusercontent.com/keepsloading/sorts.me/main/Sortling%20Mascot/Icon_Neutral.png" alt="Sortling Mascot">
+            </div>
             <div class="brand-title-group">
                 <div class="brand-name">Sortling <span class="discord-badge">APP</span></div>
                 <div class="brand-subtitle">Mahindra University Campus Discovery Engine</div>
@@ -209,7 +281,7 @@ TERMS_HTML = f"""<!DOCTYPE html>
         <p>Welcome to <strong>Sortling</strong>. By adding or using the Sortling Discord Application in your server, you agree to comply with and be bound by these Terms of Service.</p>
         
         <h2>1. Agreement to Terms</h2>
-        <p>By interacting with Sortling, executing slash commands (such as <code>/sort</code>, <code>/clubs</code>, <code>/about</code>), or completing questionnaires, you acknowledge that you have read, understood, and agreed to these Terms and the Discord Developer Terms of Service.</p>
+        <p>By interacting with Sortling, executing slash commands (such as <code>/sort</code>, <code>/clubs</code>, <code>/events</code>, <code>/about</code>), or completing questionnaires, you acknowledge that you have read, understood, and agreed to these Terms and the Discord Developer Terms of Service.</p>
 
         <h2>2. Permitted Use</h2>
         <p>Sortling is designed strictly for campus club discovery, organization recommendations, and student engagement. You agree not to:</p>
@@ -251,7 +323,9 @@ PRIVACY_HTML = f"""<!DOCTYPE html>
 <body>
     <div class="container">
         <div class="brand-header">
-            <div class="brand-icon">🧭</div>
+            <div class="brand-icon">
+                <img src="https://raw.githubusercontent.com/keepsloading/sorts.me/main/Sortling%20Mascot/Icon_Neutral.png" alt="Sortling Mascot">
+            </div>
             <div class="brand-title-group">
                 <div class="brand-name">Sortling <span class="discord-badge">APP</span></div>
                 <div class="brand-subtitle">Mahindra University Campus Discovery Engine</div>
