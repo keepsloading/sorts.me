@@ -141,34 +141,47 @@ class EventsCog(commands.Cog):
                     await interaction.send(embed=embed, file=file, ephemeral=True)
                     return
 
-                # Build clean, non-cluttered embed with Discord markdown headers & dividers
-                desc_parts = [
-                    f"> {clean_text(ev.description)}",
-                    "─────────────────────────",
-                    f"**Organized By**: {clean_text(ev.organizer)}  |  **Category**: `{ev.category}`",
-                    "─────────────────────────",
-                    "### Important Dates",
-                    f"• **Registration Deadline**: {ev.registration_deadline or 'N/A'}\n• **Internal Hackathon Date**: {ev.event_date or 'N/A'}",
-                    "─────────────────────────",
-                    "### Cash Prizes & Rewards",
-                    clean_text(ev.prizes or "N/A"),
-                    "─────────────────────────",
-                    "### Team Formation Rules",
-                    clean_text(ev.team_rules or "N/A"),
-                ]
-
-                if ev.email_required:
-                    desc_parts.extend([
-                        "─────────────────────────",
-                        "### Registration Requirement",
-                        "**Student Email (@mahindrauniversity.edu.in) is required for registration.**"
-                    ])
-
                 embed, file = create_sortling_embed(
                     title=clean_text(ev.name),
-                    description="\n\n".join(desc_parts),
+                    description=f"> {clean_text(ev.description)}",
                     is_error=False,
                 )
+
+                embed.add_field(
+                    name="Organizer & Category",
+                    value=f"• **Organized By**: {clean_text(ev.organizer)}\n• **Category**: `{ev.category}`",
+                    inline=False,
+                )
+                embed.add_field(name="\u200b", value="\u200b", inline=False)
+
+                embed.add_field(
+                    name="Important Dates",
+                    value=f"• **Registration Deadline**: {ev.registration_deadline or 'N/A'}\n• **Internal Hackathon Date**: {ev.event_date or 'N/A'}",
+                    inline=False,
+                )
+                embed.add_field(name="\u200b", value="\u200b", inline=False)
+
+                embed.add_field(
+                    name="Cash Prizes & Rewards",
+                    value=clean_text(ev.prizes or "N/A"),
+                    inline=False,
+                )
+                embed.add_field(name="\u200b", value="\u200b", inline=False)
+
+                embed.add_field(
+                    name="Team Formation Rules",
+                    value=clean_text(ev.team_rules or "N/A"),
+                    inline=False,
+                )
+
+                if ev.email_required:
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    embed.add_field(
+                        name="Registration Requirement",
+                        value="**Student Email (@mahindrauniversity.edu.in) is required for registration.**",
+                        inline=False,
+                    )
+
                 embed.set_footer(text="Sortling • Official Campus Hackathon & Opportunity Guide")
 
                 view = RegisterButtonView(ev.registration_link)

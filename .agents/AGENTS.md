@@ -10,8 +10,8 @@
 - Use clean ASCII / Unicode characters for hierarchy and bullet points: `->`, `>`, `•`, `|`, `[Official]`, `[Verified]`.
 
 ## 3. Visual Hierarchy, Headers & Dividers in Embeds
-- **Prominent Headers**: Embed section titles must use Discord header markdown (`### Section Title`) so headers are visually larger and distinct from body text.
-- **Dividers & Blockquotes**: Use text dividers (`─────────────────────────`) and blockquotes (`> `) between major sections to prevent clutter and group related fields cleanly.
+- **Prominent Native Headers**: Embed section titles must use native Discord Embed Fields (`embed.add_field(name="Section Title", value="...", inline=False)`). Discord's native UI formats field titles as distinct, prominent bold section headers with native platform typography.
+- **Discord Native Dividers**: Use zero-width space fields (`embed.add_field(name="\\u200b", value="\\u200b", inline=False)`) between major section fields to render native Discord visual gaps/dividers without cluttered ASCII lines.
 - **Readable Spacing**: Separate key-value pairs with clean bullet lists (`• **Key**: Value`).
 
 ## 4. Color Palette & Web Styling

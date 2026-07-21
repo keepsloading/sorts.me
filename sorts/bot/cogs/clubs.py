@@ -100,21 +100,34 @@ class ClubsCog(commands.Cog):
                 conf = ver.get("confidence", 100 if club.official else 75)
                 is_ver = "Verified" if ver.get("verified", True) else "Unverified"
 
-                desc_parts = [
-                    f"> {summary}"
-                ]
+                desc_text = f"> {summary}"
                 if full_desc and full_desc != summary:
-                    desc_parts.append(full_desc)
+                    desc_text += f"\n\n{full_desc}"
 
-                desc_parts.extend([
-                    "─────────────────────────",
-                    f"**Category**: {cat_text}  |  **Type**: {type_text}",
-                    "─────────────────────────",
-                    "### Details & Schedule",
-                    f"• **Meeting Schedule**: {clean_text(club.meeting_frequency or 'Bi-weekly sessions')}",
-                    f"• **Commitment Level**: {clean_text(club.commitment or 'Medium commitment')}",
-                    f"• **Verification Status**: {conf}% Confidence ({is_ver})"
-                ])
+                embed = nextcord.Embed(
+                    title=clean_text(club.name),
+                    description=desc_text,
+                    color=BRAND_COLOR,
+                )
+                if club.image:
+                    embed.set_thumbnail(url=club.image)
+
+                embed.add_field(
+                    name="Category & Status",
+                    value=f"• **Category**: {cat_text}\n• **Type**: {type_text}",
+                    inline=False,
+                )
+                embed.add_field(name="\u200b", value="\u200b", inline=False)
+
+                embed.add_field(
+                    name="Details & Schedule",
+                    value=(
+                        f"• **Meeting Schedule**: {clean_text(club.meeting_frequency or 'Bi-weekly sessions')}\n"
+                        f"• **Commitment Level**: {clean_text(club.commitment or 'Medium commitment')}\n"
+                        f"• **Verification Status**: {conf}% Confidence ({is_ver})"
+                    ),
+                    inline=False,
+                )
 
                 soc_dict = club.get_socials()
                 social_labels = {
@@ -139,19 +152,8 @@ class ClubsCog(commands.Cog):
                             social_links.append(f"[{label}]({val})")
 
                 if social_links:
-                    desc_parts.extend([
-                        "─────────────────────────",
-                        "### Official Links",
-                        "  ·  ".join(social_links)
-                    ])
-
-                embed = nextcord.Embed(
-                    title=clean_text(club.name),
-                    description="\n\n".join(desc_parts),
-                    color=BRAND_COLOR,
-                )
-                if club.image:
-                    embed.set_thumbnail(url=club.image)
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    embed.add_field(name="Official Links", value="  ·  ".join(social_links), inline=False)
 
                 embed.set_footer(text="Sortling • Campus Clubs")
                 await interaction.send(embed=embed)
