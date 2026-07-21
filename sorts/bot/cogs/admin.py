@@ -89,7 +89,7 @@ class AdminCog(commands.Cog):
                     )
                     db.add(import_src)
                     db.commit()
-                    msg = f"**{name}** is now registered on sorts.me. Use `/admin sync` whenever you want to update the club directory."
+                    msg = f"**{name}** is now registered on Sortling. Use `/admin sync` whenever you want to update the club directory."
                 else:
                     univ.name = name
                     univ.website = website
@@ -148,7 +148,7 @@ class AdminCog(commands.Cog):
                 if not sources:
                     embed, file = create_sortling_embed(
                         title="No Source Configured",
-                        description="No club data source has been set up for this university. Contact a sorts.me administrator.",
+                        description="No club data source has been set up for this university. Contact a Sortling administrator.",
                         is_error=True,
                     )
                     await interaction.followup.send(embed=embed, file=file, ephemeral=True)

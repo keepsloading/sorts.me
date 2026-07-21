@@ -8,9 +8,9 @@ class AboutCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @nextcord.slash_command(name="about", description="Learn about sorts.me and how it works.")
+    @nextcord.slash_command(name="about", description="Learn about Sortling and how it works.")
     async def about(self, interaction: nextcord.Interaction):
-        """Displays the university profile and a short explanation of the sorts.me guide."""
+        """Displays the university profile and a short explanation of Sortling."""
         try:
             with get_db() as db:
                 univ = get_guild_university(db, interaction.guild_id)

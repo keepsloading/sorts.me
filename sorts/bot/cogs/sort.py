@@ -35,7 +35,7 @@ class SortCog(commands.Cog):
                 if total_questions == 0:
                     embed, file = create_sortling_embed(
                         title="No Questions Available",
-                        description="The questionnaire hasn't been set up for this university. Contact a sorts.me administrator.",
+                        description="The questionnaire hasn't been set up for this university. Contact a Sortling administrator.",
                         is_error=True,
                     )
                     await interaction.send(embed=embed, file=file, ephemeral=True)
@@ -47,7 +47,7 @@ class SortCog(commands.Cog):
                 if not first_q:
                     embed, file = create_sortling_embed(
                         title="No Questions Available",
-                        description="The questionnaire hasn't been set up for this university. Contact a sorts.me administrator.",
+                        description="The questionnaire hasn't been set up for this university. Contact a Sortling administrator.",
                         is_error=True,
                     )
                     await interaction.send(embed=embed, file=file, ephemeral=True)
