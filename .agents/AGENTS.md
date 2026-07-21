@@ -12,7 +12,7 @@
 ## 3. Visual Hierarchy, Headers & Dividers in Embeds
 - **Subheadings**: Subheadings inside embeds must use Discord Header 2 (`## Subheading Title`) so they are visually larger than body text, but smaller than the main embed title (`# Title`).
 - **Visible Dividers**: Separate distinct sections using crisp heavy horizontal divider lines (`━━━━━━━━━━━━━━━━━━━━━━━`) to prevent wall-of-text clutter.
-- **Readable Spacing**: Separate key-value pairs with clean bullet lists (`• **Key**: Value`).
+- **Bulleted Metadata Under Subheadings**: All metadata key-value pairs (e.g. Organizer, Category, Type, Dates) MUST be formatted as clean bullet lists (`• **Key**: Value`) placed under an appropriate `## Subheading Title` (e.g. `## Event Overview`, `## Club Overview`, `## Details & Schedule`), NEVER piped on a single inline line.
 
 ## 4. Color Palette & Web Styling
 - **Brand Colors**: Web UI strictly uses `#000543` (Deep Midnight Blue) and `#ffffff` (White).
