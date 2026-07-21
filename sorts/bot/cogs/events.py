@@ -11,7 +11,7 @@ class RegisterButtonView(nextcord.ui.View):
         super().__init__(timeout=None)
         self.add_item(
             nextcord.ui.Button(
-                label="Register Now 🚀",
+                label="Register Now!",
                 url=registration_url or "https://qrco.de/bgvXHe",
                 style=nextcord.ButtonStyle.link,
             )
