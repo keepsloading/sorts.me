@@ -92,7 +92,17 @@ class AdminCog(commands.Cog):
                     )
                     db.add(import_src)
                     db.commit()
-                    msg = f"**{name}** is now registered on Sortling. Use `/admin sync` whenever you want to update the club directory."
+
+                    # Seed the universal question bank so /sort works immediately
+                    from sorts.services.seed_service import seed_default_questions
+                    q_count = seed_default_questions(db, univ.id)
+
+                    msg = (
+                        f"**{name}** is now registered on Sortling.\n\n"
+                        f"• {q_count} questions loaded — `/sort` is ready to use.\n"
+                        f"• Run `/admin sync` to import your club directory from your website.\n"
+                        f"• Use `/admin add` to manually add clubs one by one."
+                    )
                 else:
                     univ.name = name
                     if website:

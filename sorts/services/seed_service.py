@@ -8,6 +8,101 @@ from sorts.database.models import (
 
 logger = logging.getLogger(__name__)
 
+_GLOBAL_DEFAULTS_PATH = "sorts/assets/data/global_defaults.json"
+
+
+def seed_global_traits(db: Session) -> None:
+    """Seeds the universal trait vocabulary into the database.
+
+    Traits are shared across all universities — they define the vector space
+    used by the recommendation engine.  Safe to call on every boot; skips
+    any trait that already exists.
+    """
+    if not os.path.exists(_GLOBAL_DEFAULTS_PATH):
+        logger.warning(f"global_defaults.json not found at {_GLOBAL_DEFAULTS_PATH}. Skipping trait seed.")
+        return
+
+    with open(_GLOBAL_DEFAULTS_PATH, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    seeded = 0
+    for trait_data in data.get("traits", []):
+        existing = db.query(Trait).filter_by(slug=trait_data["slug"]).first()
+        if not existing:
+            db.add(Trait(
+                slug=trait_data["slug"],
+                name=trait_data["name"],
+                description=trait_data["description"],
+                category=trait_data["category"],
+            ))
+            seeded += 1
+    db.commit()
+    if seeded:
+        logger.info(f"Seeded {seeded} global traits.")
+    else:
+        logger.debug("Global traits already present. Skipping.")
+
+
+def seed_default_questions(db: Session, university_id: int) -> int:
+    """Seeds the universal question bank for a university that has just been set up.
+
+    Loads questions from global_defaults.json and clones them (with their
+    options and trait modifiers) into the given university.  Idempotent —
+    skips questions whose code already exists for that university.
+
+    Returns the number of questions actually created.
+    """
+    if not os.path.exists(_GLOBAL_DEFAULTS_PATH):
+        logger.warning(f"global_defaults.json not found at {_GLOBAL_DEFAULTS_PATH}. Skipping question seed.")
+        return 0
+
+    with open(_GLOBAL_DEFAULTS_PATH, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Build slug → Trait.id map for modifier FK lookups
+    slug_to_trait_id = {
+        t.slug: t.id
+        for t in db.query(Trait).all()
+    }
+
+    created = 0
+    for q_data in data.get("questions", []):
+        existing = db.query(Question).filter_by(
+            university_id=university_id, code=q_data["code"]
+        ).first()
+        if existing:
+            continue
+
+        question = Question(
+            university_id=university_id,
+            text=q_data["text"],
+            code=q_data["code"],
+        )
+        db.add(question)
+        db.commit()
+        db.refresh(question)
+
+        for opt_data in q_data.get("options", []):
+            option = QuestionOption(question_id=question.id, text=opt_data["text"])
+            db.add(option)
+            db.commit()
+            db.refresh(option)
+
+            for trait_slug, weight in opt_data.get("trait_modifiers", {}).items():
+                trait_id = slug_to_trait_id.get(trait_slug)
+                if trait_id:
+                    db.add(OptionTraitModifier(
+                        option_id=option.id,
+                        trait_id=trait_id,
+                        weight=weight,
+                    ))
+        db.commit()
+        created += 1
+
+    logger.info(f"Seeded {created} default questions for university_id={university_id}.")
+    return created
+
+
 def seed_database(db: Session, seed_filepath: str) -> None:
     """Seeds the database with university, traits, questions, and import sources from a JSON file."""
     if not os.path.exists(seed_filepath):
