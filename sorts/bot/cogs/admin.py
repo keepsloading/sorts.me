@@ -168,12 +168,18 @@ class AdminCog(commands.Cog):
                 source = sources[0]
                 job_id = self.import_service.trigger_import(db, source.id)
 
+                desc_parts = [
+                    "> **Club data sync processed.**",
+                    "",
+                    "## Sync Status",
+                    "• **Status**: Source processed successfully.",
+                    "• **Next Step**: Run `/admin review` to preview changes before publishing.",
+                    "• **Manual Entry**: Administrators can also add clubs anytime using `/admin add_club`."
+                ]
+
                 embed, file = create_sortling_embed(
                     title="Sync Complete",
-                    description=(
-                        f"Club data has been fetched and is ready for review.\n\n"
-                        f"Run `/admin review` to see what changed before publishing."
-                    ),
+                    description="\n".join(desc_parts),
                     is_error=False,
                 )
                 await interaction.followup.send(embed=embed, file=file, ephemeral=True)

@@ -14,7 +14,12 @@
 - **Visible Dividers**: Separate distinct sections using crisp heavy horizontal divider lines (`━━━━━━━━━━━━━━━━━━━━━━━`) to prevent wall-of-text clutter.
 - **Bulleted Metadata Under Subheadings**: All metadata key-value pairs (e.g. Organizer, Category, Type, Dates) MUST be formatted as clean bullet lists (`• **Key**: Value`) placed under an appropriate `## Subheading Title` (e.g. `## Event Overview`, `## Club Overview`, `## Details & Schedule`), NEVER piped on a single inline line.
 
-## 4. Color Palette & Web Styling
+## 4. University Workspace & Mahindra Isolation Rule
+- **Mahindra University Slug Isolation**: Mahindra University (`slug: "mahindra"`) is a unique, dedicated university workspace.
+- **NEVER USE MAHINDRA DATA AS FALLBACK**: Mahindra seed data (`mahindra_clubs.html`, `mahindra_seed.json`) MUST NEVER be used as a fallback, default, or auto-seed for any other guild or university server under any circumstances.
+- Dummy or custom university servers start with clean empty registries. Administrators populates their directory via website crawling or manually using `/admin add_club`.
+
+## 5. Color Palette & Web Styling
 - **Brand Colors**: Web UI strictly uses `#000543` (Deep Midnight Blue) and `#ffffff` (White).
 - **Control Styling**: Web navigation buttons (`.nav-tab`) use `background: transparent` with `border: 1px solid #ffffff`.
 - **Bot Embed Color**: Embeds use `BRAND_COLOR` (`0x000543`).

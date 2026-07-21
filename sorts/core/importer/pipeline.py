@@ -44,14 +44,11 @@ class ImporterPipeline:
             if source.source_type == "file":
                 filepath = source.url
                 if not os.path.exists(filepath):
-                    fallback_file = "sorts/assets/data/mahindra_clubs.html"
-                    if os.path.exists(fallback_file):
-                        logger.warning(f"Seed file '{filepath}' not found. Falling back to default seed '{fallback_file}'.")
-                        filepath = fallback_file
-                    else:
-                        raise FileNotFoundError(f"Local seed file not found: {filepath}")
-                with open(filepath, "r", encoding="utf-8") as f:
-                    html_content = f.read()
+                    logger.warning(f"Seed file '{filepath}' not found for source {source.id}. Returning empty seed container.")
+                    html_content = "<div></div>"
+                else:
+                    with open(filepath, "r", encoding="utf-8") as f:
+                        html_content = f.read()
             else:
                 headers = {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
