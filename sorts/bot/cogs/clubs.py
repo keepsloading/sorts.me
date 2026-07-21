@@ -101,10 +101,14 @@ class ClubsCog(commands.Cog):
                 is_ver = "Verified" if ver.get("verified", True) else "Unverified"
 
                 desc_parts = [
-                    f"> {summary}"
+                    f"> **{summary}**",
                 ]
-                if full_desc and full_desc != summary:
-                    desc_parts.append(full_desc)
+                if full_desc:
+                    desc_parts.extend([
+                        "",
+                        "## About",
+                        full_desc,
+                    ])
 
                 desc_parts.extend([
                     "",

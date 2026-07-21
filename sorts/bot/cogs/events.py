@@ -70,7 +70,7 @@ class EventsCog(commands.Cog):
                 ]
 
                 for ev in events_list[:10]:
-                    req_text = "• *Student Email Required*" if ev.email_required else ""
+                    req_text = "• **Student Email Required**" if ev.email_required else ""
                     desc_lines.append(
                         f"### {clean_text(ev.name)}\n"
                         f"> {clean_text(ev.summary)}\n"
@@ -142,7 +142,17 @@ class EventsCog(commands.Cog):
                     return
 
                 desc_parts = [
-                    f"> {clean_text(ev.description)}",
+                    f"> **{clean_text(ev.summary or ev.description)}**",
+                ]
+
+                if ev.description and ev.description != ev.summary:
+                    desc_parts.extend([
+                        "",
+                        "## About",
+                        clean_text(ev.description),
+                    ])
+
+                desc_parts.extend([
                     "",
                     "━━━━━━━━━━━━━━━━━━━━━━━",
                     "",
@@ -163,7 +173,7 @@ class EventsCog(commands.Cog):
                     "",
                     "## Team Formation Rules",
                     clean_text(ev.team_rules or "N/A"),
-                ]
+                ])
 
                 if ev.email_required:
                     desc_parts.extend([
