@@ -24,35 +24,31 @@ class AboutCog(commands.Cog):
                     await interaction.send(embed=embed, file=file, ephemeral=True)
                     return
 
+                desc_parts = [
+                    "> **Your campus, sorted.**",
+                    "",
+                    "## About",
+                    "Sortling is your intelligent campus discovery engine. Designed to connect students with official campus clubs, hackathons, and student opportunities, Sortling matches you with communities aligned with your skills, interests, and availability.",
+                    "",
+                    "━━━━━━━━━━━━━━━━━━━━━━━",
+                    "",
+                    "## How it Works",
+                    "• **Interactive Matching**: Type `/sort` to answer quick adaptive questions and receive personalized club recommendations.",
+                    "• **Campus Clubs Directory**: Type `/clubs` or `/club <name>` to explore verified student organizations.",
+                    "• **Hackathons & Opportunities**: Type `/events` or `/event <name>` to discover upcoming competitions, prizes, and registration details.",
+                    "",
+                    "━━━━━━━━━━━━━━━━━━━━━━━",
+                    "",
+                    "## Legal & Privacy",
+                    "[Terms of Service](https://sortling-bot.onrender.com/terms)  ·  [Privacy Policy](https://sortling-bot.onrender.com/privacy)"
+                ]
+
                 embed, file = create_sortling_embed(
-                    title=f"sorts.me  ·  {univ.name}",
-                    description=clean_text(univ.description or "Your campus club guide."),
+                    title="Sortling",
+                    description="\n".join(desc_parts),
                     is_error=False,
                 )
-
-                if univ.logo:
-                    embed.set_thumbnail(url=univ.logo)
-
-                embed.add_field(
-                    name="How it Works",
-                    value=(
-                        "Answer a short set of adaptive questions and sorts.me will match you "
-                        "with clubs that fit your interests, skills, and availability.\n\n"
-                        "Type `/sort` to get started."
-                    ),
-                    inline=False,
-                )
-
-                embed.add_field(
-                    name="Legal & Privacy",
-                    value=(
-                        "[Terms of Service](https://sortling-bot.onrender.com/terms) • "
-                        "[Privacy Policy](https://sortling-bot.onrender.com/privacy)"
-                    ),
-                    inline=False,
-                )
-
-                embed.set_footer(text="Sortling • Your Campus Guide")
+                embed.set_footer(text="Sortling • Intelligent Campus Discovery Engine")
 
                 if file:
                     await interaction.send(embed=embed, file=file)
