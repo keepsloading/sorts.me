@@ -7,6 +7,21 @@ from sorts.bot.views.admin_preview import AdminPreviewView
 from sorts.bot.utils import BRAND_COLOR, create_sortling_embed, get_guild_university, clean_text
 
 
+def _clean_url(url: str) -> str:
+    """
+    Strips Google (and other) tracking parameters that get appended when
+    copying links from search results, e.g. &ved=...&usg=...
+    These turn a valid URL into a 404 because they are concatenated directly
+    onto the path instead of after a proper '?'.
+    """
+    import re
+    # Remove &ved=... &usg=... &sa=... that Google injects after the real URL
+    url = re.sub(r'&(ved|usg|sa|ei|sqi|source|rlz|oq|gs_lcp|sclient)=[^\s&]*', '', url)
+    # If the URL now ends with a dangling '?' or '&', clean that up too
+    url = url.rstrip('?&')
+    return url.strip()
+
+
 def _is_admin(interaction: nextcord.Interaction) -> bool:
     if not interaction.user:
         return False
@@ -74,15 +89,16 @@ class AdminCog(commands.Cog):
                 univ = db.query(db_models.University).filter_by(guild_id=str(guild_id)).first()
                 slug = f"guild_{guild_id}"
 
-                src_url = website if (website and website.startswith("http")) else f"sorts/assets/data/{slug}_clubs.html"
-                src_type = "url" if (website and website.startswith("http")) else "file"
+                cleaned_website = _clean_url(website) if (website and website.startswith("http")) else website
+                src_url = cleaned_website if (cleaned_website and cleaned_website.startswith("http")) else f"sorts/assets/data/{slug}_clubs.html"
+                src_type = "url" if (cleaned_website and cleaned_website.startswith("http")) else "file"
 
                 if not univ:
                     # ── Create university ────────────────────────────────────
                     univ = db_models.University(
                         slug=slug,
                         name=name,
-                        website=website,
+                        website=cleaned_website or website,
                         logo=logo_url,
                         description=description or f"Campus guide for {name}.",
                         guild_id=str(guild_id),
@@ -164,13 +180,15 @@ class AdminCog(commands.Cog):
                         ]
                         if sync_error:
                             lines += [
-                                "• Club sync could not complete — run `/admin sync` to retry.",
-                                f"• Error: `{sync_error}`",
+                                "• Unable to reach your website — the club directory could not be loaded.",
+                                f"• Reason: `{sync_error}`",
+                                "• Check the URL is correct, then run `/admin sync` to retry.",
                             ]
                         else:
                             lines += [
-                                "• No clubs were detected from your website.",
-                                "• Use `/admin add_club` to add clubs manually, or `/admin sync` to retry.",
+                                "• No clubs were found on your website.",
+                                "• The page may require a login, use JavaScript, or list clubs differently.",
+                                "• Use `/admin add_club` to add clubs manually, or `/admin sync` to retry with a different URL.",
                             ]
                         lines += ["", _DIVIDER]
                         embed = nextcord.Embed(
