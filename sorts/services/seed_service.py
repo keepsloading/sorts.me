@@ -299,25 +299,27 @@ def sync_verified_events(db: Session) -> None:
             name="Smart India Hackathon 2026 (Internal Hackathon)",
             organizer="Mahindra University & SIH 2026",
             category="Hackathon",
-            summary="Build. Innovate. Represent Mahindra University at SIH 2026! Solve real-world problem statements.",
+            summary="BUILD. INNOVATE. REPRESENT MAHINDRA UNIVERSITY.",
             description=(
-                "Smart India Hackathon 2026 Internal Hackathon is back! Solve real-world problems proposed by "
-                "Government Ministries, Departments & Industry. Work with a multidisciplinary team and get "
-                "the opportunity to represent Mahindra University on a national stage at SIH 2026!"
+                "Smart India Hackathon 2026 Internal Hackathon is India's biggest innovation challenge! "
+                "Solve real-world problems proposed by Government Ministries, Departments & Industry (around 250 problem statements). "
+                "Work with a multidisciplinary team across AI & ML, Cybersecurity, Healthcare, Robotics, Sustainability, and Smart Technologies "
+                "to build impactful solutions and earn the opportunity to represent Mahindra University on a national stage."
             ),
             prizes=(
                 "**Cash Prizes Worth ₹60,000!**\n"
                 "• **1st Prize**: ₹10,000 x 3 teams\n"
                 "• **2nd Prize**: ₹6,000 x 3 teams\n"
                 "• **3rd Prize**: ₹4,000 x 3 teams\n\n"
-                "• **National Stage**: Winner of each Problem Statement receives 1st Prize of ₹1,000,000 at SIH 2026!"
+                "• **National Stage**: Winner of each Problem Statement receives 1st Prize of ₹1,000,000 (₹1 Lakh) at SIH 2026!"
             ),
             registration_deadline="10 August 2026",
             event_date="19 August 2026",
             team_rules=(
                 "• **Team Size**: 6 Members per Team\n"
-                "• **Diversity Rule**: At least 1 Female Team Member is MANDATORY\n"
-                "• **Eligibility**: Students from any Year & Discipline can team up together"
+                "• **Diversity Requirement**: At least 1 Female Team Member is MANDATORY\n"
+                "• **Eligibility**: Students from Any Year & Discipline can team up together\n"
+                "• **Experience**: No prior hackathon experience required"
             ),
             email_required=True,
             registration_link="https://qrco.de/bgvXHe",
@@ -330,25 +332,27 @@ def sync_verified_events(db: Session) -> None:
         sih_event.name = "Smart India Hackathon 2026 (Internal Hackathon)"
         sih_event.organizer = "Mahindra University & SIH 2026"
         sih_event.category = "Hackathon"
-        sih_event.summary = "Build. Innovate. Represent Mahindra University at SIH 2026! Solve real-world problem statements."
+        sih_event.summary = "BUILD. INNOVATE. REPRESENT MAHINDRA UNIVERSITY."
         sih_event.description = (
-            "Smart India Hackathon 2026 Internal Hackathon is back! Solve real-world problems proposed by "
-            "Government Ministries, Departments & Industry. Work with a multidisciplinary team and get "
-            "the opportunity to represent Mahindra University on a national stage at SIH 2026!"
+            "Smart India Hackathon 2026 Internal Hackathon is India's biggest innovation challenge! "
+            "Solve real-world problems proposed by Government Ministries, Departments & Industry (around 250 problem statements). "
+            "Work with a multidisciplinary team across AI & ML, Cybersecurity, Healthcare, Robotics, Sustainability, and Smart Technologies "
+            "to build impactful solutions and earn the opportunity to represent Mahindra University on a national stage."
         )
         sih_event.prizes = (
             "**Cash Prizes Worth ₹60,000!**\n"
             "• **1st Prize**: ₹10,000 x 3 teams\n"
             "• **2nd Prize**: ₹6,000 x 3 teams\n"
             "• **3rd Prize**: ₹4,000 x 3 teams\n\n"
-            "*Winner of each Problem Statement will receive 1st Prize of ₹1,000,000 at SIH 2026!*"
+            "• **National Stage**: Winner of each Problem Statement receives 1st Prize of ₹1,000,000 (₹1 Lakh) at SIH 2026!"
         )
         sih_event.registration_deadline = "10 August 2026"
         sih_event.event_date = "19 August 2026"
         sih_event.team_rules = (
             "• **Team Size**: 6 Members per Team\n"
-            "• **Diversity Rule**: At least 1 Female Team Member is MANDATORY\n"
-            "• **Eligibility**: Students from any Year & Discipline can team up together"
+            "• **Diversity Requirement**: At least 1 Female Team Member is MANDATORY\n"
+            "• **Eligibility**: Students from Any Year & Discipline can team up together\n"
+            "• **Experience**: No prior hackathon experience required"
         )
         sih_event.email_required = True
         sih_event.registration_link = "https://qrco.de/bgvXHe"
