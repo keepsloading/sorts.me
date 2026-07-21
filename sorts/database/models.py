@@ -21,6 +21,7 @@ class University(Base):
     # Relationships
     sources = relationship("ImportSource", back_populates="university", cascade="all, delete-orphan")
     clubs = relationship("Club", back_populates="university", cascade="all, delete-orphan")
+    events = relationship("Event", back_populates="university", cascade="all, delete-orphan")
     questions = relationship("Question", back_populates="university", cascade="all, delete-orphan")
     sessions = relationship("RecommendationSession", back_populates="university", cascade="all, delete-orphan")
 
@@ -229,6 +230,31 @@ class ClubTrait(Base):
     # Relationships
     club = relationship("Club", back_populates="traits")
     trait = relationship("Trait")
+
+
+class Event(Base):
+    __tablename__ = "events"
+    __table_args__ = (UniqueConstraint("university_id", "slug", name="uq_event_university_slug"),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    university_id = Column(Integer, ForeignKey("universities.id", ondelete="CASCADE"), nullable=False)
+    name = Column(String(150), nullable=False)
+    slug = Column(String(100), nullable=False, index=True)
+    organizer = Column(String(150), nullable=False)
+    category = Column(String(50), nullable=False, default="Hackathon")
+    summary = Column(String(255), nullable=False)
+    description = Column(Text, nullable=False)
+    prizes = Column(Text, nullable=True)
+    registration_deadline = Column(String(50), nullable=True)
+    event_date = Column(String(50), nullable=True)
+    team_rules = Column(Text, nullable=True)
+    email_required = Column(Boolean, nullable=False, default=True)
+    registration_link = Column(String(255), nullable=False)
+    official = Column(Boolean, nullable=False, default=True)
+    metadata_json = Column(Text, nullable=True, default="{}")
+
+    # Relationships
+    university = relationship("University", back_populates="events")
 
 
 class DraftClub(Base):

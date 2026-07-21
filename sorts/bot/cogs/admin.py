@@ -8,9 +8,14 @@ from sorts.bot.utils import BRAND_COLOR, create_sortling_embed, get_guild_univer
 
 
 def _is_admin(interaction: nextcord.Interaction) -> bool:
-    if not interaction.user or not hasattr(interaction.user, "guild_permissions"):
+    if not interaction.user:
         return False
-    return bool(interaction.user.guild_permissions.administrator)
+    if interaction.guild and interaction.guild.owner_id == interaction.user.id:
+        return True
+    if hasattr(interaction.user, "guild_permissions"):
+        perms = interaction.user.guild_permissions
+        return bool(perms.administrator or perms.manage_guild)
+    return False
 
 
 class AdminCog(commands.Cog):
@@ -308,6 +313,101 @@ class AdminCog(commands.Cog):
             embed, file = create_sortling_embed(
                 title="Publish Failed",
                 description=f"Could not publish changes.\n`{e}`",
+                is_error=True,
+            )
+            await interaction.send(embed=embed, file=file, ephemeral=True)
+
+    # ─── /admin add_club ──────────────────────────────────────────────────────
+
+    @admin.subcommand(name="add_club", description="Manually add a new student club to this server's university directory.")
+    async def add_club(
+        self,
+        interaction: nextcord.Interaction,
+        name: str = nextcord.SlashOption(description="Full name of the club"),
+        summary: str = nextcord.SlashOption(description="Short one-line summary of what the club does"),
+        description: str = nextcord.SlashOption(description="Detailed description of activities and goals"),
+        category: str = nextcord.SlashOption(description="Category (e.g. Technology, Cultural, Sports)", required=False),
+        commitment: str = nextcord.SlashOption(description="Commitment level (e.g. Low, Medium, High)", required=False),
+        meeting_frequency: str = nextcord.SlashOption(description="Meeting schedule (e.g. Weekly, Bi-weekly)", required=False),
+        website: str = nextcord.SlashOption(description="Official website or linktree URL", required=False),
+        instagram: str = nextcord.SlashOption(description="Instagram profile URL", required=False),
+        discord: str = nextcord.SlashOption(description="Discord invite URL", required=False),
+    ):
+        """Allows server administrators to manually register a new club into the database."""
+        if not _is_admin(interaction):
+            embed, file = create_sortling_embed(
+                title="Access Denied",
+                description="Only server owners and administrators can add new clubs.",
+                is_error=True,
+            )
+            await interaction.send(embed=embed, file=file, ephemeral=True)
+            return
+
+        try:
+            with get_db() as db:
+                univ = get_guild_university(db, interaction.guild_id)
+                if not univ:
+                    embed, file = create_sortling_embed(
+                        title="Not Configured",
+                        description="Run `/setup` first to link this server to a university.",
+                        is_error=True,
+                    )
+                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    return
+
+                import re
+                base_slug = re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+                slug = base_slug
+                counter = 1
+                while db.query(db_models.Club).filter_by(university_id=univ.id, slug=slug).first():
+                    slug = f"{base_slug}-{counter}"
+                    counter += 1
+
+                club = db_models.Club(
+                    university_id=univ.id,
+                    name=name,
+                    slug=slug,
+                    summary=summary,
+                    description=description,
+                    category=category or "General",
+                    commitment=commitment or "Medium commitment",
+                    meeting_frequency=meeting_frequency or "Bi-weekly sessions",
+                    website=website,
+                    instagram=instagram,
+                    discord=discord,
+                    official=True
+                )
+                club.set_verification(confidence=100, verified=True, source=["Admin Added"], last_verified="2026-07-21")
+                db.add(club)
+                db.commit()
+                db.refresh(club)
+
+                from sorts.core.traits.rule_trait_inferencer import RuleTraitInferencer
+                inferencer = RuleTraitInferencer()
+                trait_weights = inferencer.infer_traits(name=name, summary=summary, description=description, category=category or "General")
+
+                for trait_slug, weight in trait_weights.items():
+                    t_obj = db.query(db_models.Trait).filter_by(slug=trait_slug).first()
+                    if t_obj:
+                        ct = db_models.ClubTrait(club_id=club.id, trait_id=t_obj.id, weight=weight)
+                        db.add(ct)
+                db.commit()
+
+                embed, file = create_sortling_embed(
+                    title="Club Added Successfully 🚀",
+                    description=(
+                        f"**{name}** has been added to the **{univ.name}** club directory!\n\n"
+                        f"• **Category**: {category or 'General'}\n"
+                        f"• **Summary**: {summary}\n"
+                        f"• **Status**: Verified & active for `/sort` recommendations."
+                    ),
+                    is_error=False,
+                )
+                await interaction.send(embed=embed, file=file)
+        except Exception as e:
+            embed, file = create_sortling_embed(
+                title="Failed to Add Club",
+                description=f"Could not save the club entry.\n`{e}`",
                 is_error=True,
             )
             await interaction.send(embed=embed, file=file, ephemeral=True)

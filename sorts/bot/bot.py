@@ -32,12 +32,16 @@ class SortlingBot(commands.Bot):
     async def check_application_command(self, interaction: nextcord.Interaction) -> bool:
         cmd_name = interaction.application_command.name if interaction.application_command else ""
 
-        # Strictly restrict administrative commands (/admin, /setup) to Administrators ONLY
+        # Restrict administrative commands (/admin, /setup) to Server Owners and Administrators/Managers
         if cmd_name in ("admin", "setup"):
-            if not interaction.user_permissions or not interaction.user_permissions.administrator:
+            is_owner = interaction.guild and interaction.user and (interaction.guild.owner_id == interaction.user.id)
+            is_admin = interaction.user_permissions and (
+                interaction.user_permissions.administrator or interaction.user_permissions.manage_guild
+            )
+            if not is_owner and not is_admin:
                 embed, file = create_sortling_embed(
                     title="Access Denied",
-                    description="Only server administrators can run administrative commands.",
+                    description="Only server owners and administrators can run administrative commands.",
                     is_error=True,
                 )
                 try:
@@ -106,7 +110,8 @@ def run_bot():
                 "sorts.bot.cogs.clubs",
                 "sorts.bot.cogs.feedback",
                 "sorts.bot.cogs.sort",
-                "sorts.bot.cogs.admin"
+                "sorts.bot.cogs.admin",
+                "sorts.bot.cogs.events"
             ]
 
             for ext in extensions:

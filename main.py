@@ -99,12 +99,13 @@ def bootstrap():
         else:
             logger.info(f"{club_count} clubs already live. Skipping auto-import.")
 
-        # ── Ensure Verified Club Registry is synchronized ─────────────────────
+        # ── Ensure Verified Club Registry and Events are synchronized ─────────
         try:
-            from sorts.services.seed_service import sync_verified_clubs
+            from sorts.services.seed_service import sync_verified_clubs, sync_verified_events
             sync_verified_clubs(db)
+            sync_verified_events(db)
         except Exception as e:
-            logger.error(f"Failed to sync verified club registry: {e}")
+            logger.error(f"Failed to sync verified registry or events: {e}")
 
 def main():
     start_health_server()  # Open port before anything else so Render health check passes

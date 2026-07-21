@@ -281,3 +281,75 @@ def sync_verified_clubs(db: Session) -> None:
 
     total_count = db.query(db_models.Club).filter_by(university_id=univ.id).count()
     logger.info(f"Registry sync complete. Total active clubs: {total_count}")
+
+
+def sync_verified_events(db: Session) -> None:
+    """Synchronizes upcoming campus hackathons, workshops, and opportunities into the database."""
+    from sorts.database import models as db_models
+
+    univ = db.query(db_models.University).filter_by(slug="mahindra").first()
+    if not univ:
+        return
+
+    sih_event = db.query(db_models.Event).filter_by(university_id=univ.id, slug="smart-india-hackathon-2026").first()
+    if not sih_event:
+        sih_event = db_models.Event(
+            university_id=univ.id,
+            slug="smart-india-hackathon-2026",
+            name="Smart India Hackathon 2026 (Internal Hackathon)",
+            organizer="Mahindra University & SIH 2026",
+            category="Hackathon",
+            summary="Build. Innovate. Represent Mahindra University at SIH 2026! Solve real-world problem statements.",
+            description=(
+                "Smart India Hackathon 2026 Internal Hackathon is back! Solve real-world problems proposed by "
+                "Government Ministries, Departments & Industry. Work with a multidisciplinary team and get "
+                "the opportunity to represent Mahindra University on a national stage at SIH 2026!"
+            ),
+            prizes=(
+                "🏆 **Cash Prizes Worth ₹60,000!**\n"
+                "• **1st Prize**: ₹10,000 x 3 teams\n"
+                "• **2nd Prize**: ₹6,000 x 3 teams\n"
+                "• **3rd Prize**: ₹4,000 x 3 teams\n\n"
+                "✨ *Winner of each Problem Statement will receive 1st Prize of ₹1,000,000 at SIH 2026!*"
+            ),
+            registration_deadline="10 August 2026",
+            event_date="19 August 2026",
+            team_rules=(
+                "• **Team Size**: 6 Members per Team\n"
+                "• **Diversity Rule**: At least 1 Female Team Member is MANDATORY\n"
+                "• **Eligibility**: Students from any Year & Discipline can team up together"
+            ),
+            email_required=True,
+            registration_link="https://qrco.de/bgvXHe",
+            official=True
+        )
+        db.add(sih_event)
+        db.commit()
+        logger.info("Seeded Smart India Hackathon 2026 into Mahindra University events registry.")
+    else:
+        sih_event.name = "Smart India Hackathon 2026 (Internal Hackathon)"
+        sih_event.organizer = "Mahindra University & SIH 2026"
+        sih_event.category = "Hackathon"
+        sih_event.summary = "Build. Innovate. Represent Mahindra University at SIH 2026! Solve real-world problem statements."
+        sih_event.description = (
+            "Smart India Hackathon 2026 Internal Hackathon is back! Solve real-world problems proposed by "
+            "Government Ministries, Departments & Industry. Work with a multidisciplinary team and get "
+            "the opportunity to represent Mahindra University on a national stage at SIH 2026!"
+        )
+        sih_event.prizes = (
+            "🏆 **Cash Prizes Worth ₹60,000!**\n"
+            "• **1st Prize**: ₹10,000 x 3 teams\n"
+            "• **2nd Prize**: ₹6,000 x 3 teams\n"
+            "• **3rd Prize**: ₹4,000 x 3 teams\n\n"
+            "✨ *Winner of each Problem Statement will receive 1st Prize of ₹1,000,000 at SIH 2026!*"
+        )
+        sih_event.registration_deadline = "10 August 2026"
+        sih_event.event_date = "19 August 2026"
+        sih_event.team_rules = (
+            "• **Team Size**: 6 Members per Team\n"
+            "• **Diversity Rule**: At least 1 Female Team Member is MANDATORY\n"
+            "• **Eligibility**: Students from any Year & Discipline can team up together"
+        )
+        sih_event.email_required = True
+        sih_event.registration_link = "https://qrco.de/bgvXHe"
+        db.commit()
