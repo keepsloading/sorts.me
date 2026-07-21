@@ -108,18 +108,18 @@ class ClubsCog(commands.Cog):
                 # Category & Official Status
                 cat_text = clean_text(club.category or "General")
                 type_text = "Official Club" if club.official else "Verified Community Club"
-                embed.add_field(name="Category", value=f"{cat_text} ({type_text})", inline=True)
+                embed.add_field(name="🏷️ Category", value=f"{cat_text} ({type_text})", inline=True)
 
                 if club.meeting_frequency:
-                    embed.add_field(name="Meets", value=clean_text(club.meeting_frequency), inline=True)
+                    embed.add_field(name="🕒 Meeting Schedule", value=clean_text(club.meeting_frequency), inline=True)
                 if club.commitment:
-                    embed.add_field(name="Commitment", value=clean_text(club.commitment), inline=True)
+                    embed.add_field(name="⚡ Commitment", value=clean_text(club.commitment), inline=True)
 
                 # Verification metadata
                 ver = club.get_verification()
                 conf = ver.get("confidence", 100 if club.official else 75)
                 is_ver = "Verified" if ver.get("verified", True) else "Unverified"
-                embed.add_field(name="Verification", value=f"{conf}% Confidence ({is_ver})", inline=True)
+                embed.add_field(name="🛡️ Verification", value=f"{conf}% Confidence ({is_ver})", inline=True)
 
                 # Social Links (ONLY non-empty verified links, no placeholders)
                 soc_dict = club.get_socials()
@@ -145,7 +145,7 @@ class ClubsCog(commands.Cog):
                             social_links.append(f"[{label}]({val})")
 
                 if social_links:
-                    embed.add_field(name="Get in Touch", value="  ·  ".join(social_links), inline=False)
+                    embed.add_field(name="🌐 Official Links", value="  ·  ".join(social_links), inline=False)
 
                 embed.set_footer(text="Sortling • Campus Clubs")
                 await interaction.send(embed=embed)
