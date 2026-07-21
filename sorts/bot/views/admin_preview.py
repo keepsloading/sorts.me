@@ -9,7 +9,7 @@ class AdminPreviewView(nextcord.ui.View):
         self.job_id = job_id
         self.import_service = ImportService()
 
-    @nextcord.ui.button(label="Publish Changes ✅", style=nextcord.ButtonStyle.success)
+    @nextcord.ui.button(label="Publish Changes", style=nextcord.ButtonStyle.success)
     async def publish_btn(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
         # Disable buttons to avoid double clicks
         button.disabled = True

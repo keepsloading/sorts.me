@@ -41,7 +41,7 @@ class AdminCog(commands.Cog):
                 description="Only server administrators can run setup.",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
             return
 
         guild_id = interaction.guild_id
@@ -51,7 +51,7 @@ class AdminCog(commands.Cog):
                 description="This command can only be used inside a Discord server.",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
             return
 
         from sorts.config.settings import EXEMPTED_GUILDS
@@ -61,8 +61,13 @@ class AdminCog(commands.Cog):
                 description="This server is pre-configured and does not need setup.",
                 is_error=False,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
             return
+
+        # Defer — website crawl during onboarding may take several seconds
+        await interaction.response.defer(ephemeral=True)
+
+        _DIVIDER = "━━━━━━━━━━━━━━━━━━━━━━━"
 
         try:
             with get_db() as db:
@@ -73,6 +78,7 @@ class AdminCog(commands.Cog):
                 src_type = "url" if (website and website.startswith("http")) else "file"
 
                 if not univ:
+                    # ── Create university ────────────────────────────────────
                     univ = db_models.University(
                         slug=slug,
                         name=name,
@@ -84,6 +90,7 @@ class AdminCog(commands.Cog):
                     db.add(univ)
                     db.commit()
                     db.refresh(univ)
+
                     import_src = db_models.ImportSource(
                         university_id=univ.id,
                         name="Official Source",
@@ -97,13 +104,84 @@ class AdminCog(commands.Cog):
                     from sorts.services.seed_service import seed_default_questions
                     q_count = seed_default_questions(db, univ.id)
 
-                    msg = (
-                        f"**{name}** is now registered on Sortling.\n\n"
-                        f"• {q_count} questions loaded — `/sort` is ready to use.\n"
-                        f"• Run `/admin sync` to import your club directory from your website.\n"
-                        f"• Use `/admin add` to manually add clubs one by one."
-                    )
+                    # ── Auto-sync: crawl website and stage clubs ──────────────
+                    job_id = None
+                    diff = {"new": [], "updated": [], "removed": []}
+                    sync_error = None
+                    try:
+                        sources = self.import_service.get_university_sources(db, univ.id)
+                        if sources:
+                            job_id = self.import_service.trigger_import(db, sources[0].id)
+                            diff = self.import_service.get_draft_diff(db, job_id)
+                    except Exception as sync_err:
+                        sync_error = str(sync_err)
+
+                    new_clubs = diff.get("new", [])
+                    new_count = len(new_clubs)
+
+                    if job_id and new_count > 0:
+                        # ── Onboarding review embed ──────────────────────────
+                        club_lines = [f"• {dc.name}" for dc in new_clubs[:12]]
+                        if new_count > 12:
+                            club_lines.append(f"• ... and {new_count - 12} more.")
+
+                        desc_parts = [
+                            f"> **{new_count} clubs found. Review before publishing to students.**",
+                            "",
+                            _DIVIDER,
+                            "",
+                            "## Questions Ready",
+                            f"• {q_count} questions loaded — `/sort` is active.",
+                            "",
+                            _DIVIDER,
+                            "",
+                            f"## Clubs Found  ({new_count})",
+                            *club_lines,
+                            "",
+                            _DIVIDER,
+                            "",
+                            "Click **Publish Directory** to make clubs visible to students.",
+                            "Click **Skip for Now** to publish later using `/admin review`.",
+                        ]
+                        embed = nextcord.Embed(
+                            title="Club Directory Preview",
+                            description="\n".join(desc_parts),
+                            color=BRAND_COLOR,
+                        )
+                        from sorts.bot.views.setup_onboarding import SetupOnboardingView
+                        view = SetupOnboardingView(job_id, q_count, new_count, name)
+                        await interaction.followup.send(embed=embed, view=view, ephemeral=True)
+
+                    else:
+                        # ── No clubs found or sync failed ────────────────────
+                        lines = [
+                            f"> **{name} is now registered on Sortling.**",
+                            "",
+                            _DIVIDER,
+                            "",
+                            "## Summary",
+                            f"• {q_count} questions loaded — `/sort` is active.",
+                        ]
+                        if sync_error:
+                            lines += [
+                                "• Club sync could not complete — run `/admin sync` to retry.",
+                                f"• Error: `{sync_error}`",
+                            ]
+                        else:
+                            lines += [
+                                "• No clubs were detected from your website.",
+                                "• Use `/admin add_club` to add clubs manually, or `/admin sync` to retry.",
+                            ]
+                        lines += ["", _DIVIDER]
+                        embed = nextcord.Embed(
+                            title="Setup Complete",
+                            description="\n".join(lines),
+                            color=BRAND_COLOR,
+                        )
+                        await interaction.followup.send(embed=embed, ephemeral=True)
+
                 else:
+                    # ── Update existing university profile ───────────────────
                     univ.name = name
                     if website:
                         univ.website = website
@@ -111,24 +189,27 @@ class AdminCog(commands.Cog):
                         univ.logo = logo_url
                     if description:
                         univ.description = description
-                    
+
                     existing_src = db.query(db_models.ImportSource).filter_by(university_id=univ.id).first()
                     if existing_src and website and website.startswith("http"):
                         existing_src.url = website
                         existing_src.source_type = "url"
 
                     db.commit()
-                    msg = f"Profile updated for **{name}**."
+                    embed, file = create_sortling_embed(
+                        title="Setup Complete",
+                        description=f"Profile updated for **{name}**.",
+                        is_error=False,
+                    )
+                    await interaction.followup.send(embed=embed, file=file, ephemeral=True)
 
-                embed, file = create_sortling_embed(title="Setup Complete", description=msg, is_error=False)
-                await interaction.send(embed=embed, file=file)
         except Exception as e:
             embed, file = create_sortling_embed(
                 title="Setup Failed",
                 description=f"Something went wrong. Please try again or contact support.\n`{e}`",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.followup.send(embed=embed, file=file, ephemeral=True)
 
     # ─── /admin ───────────────────────────────────────────────────────────────
 
