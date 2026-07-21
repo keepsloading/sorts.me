@@ -90,8 +90,14 @@ def run_bot():
         return
 
     import time
+    import asyncio
+
     while True:
         try:
+            # Explicitly create and set a fresh event loop for each connection attempt
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
             bot = SortlingBot()
 
             # Load all Cogs

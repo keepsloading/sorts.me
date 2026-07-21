@@ -43,7 +43,7 @@ class _HealthHandler(BaseHTTPRequestHandler):
 
 
 def start_health_server():
-    """Starts a minimal HTTP server on PORT so Render's health check passes."""
+    """Starts a minimal HTTP server on PORT so Render & UptimeRobot health checks pass."""
     port = int(os.environ.get("PORT", 10000))
     server = HTTPServer(("0.0.0.0", port), _HealthHandler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
