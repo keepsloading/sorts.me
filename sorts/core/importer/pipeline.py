@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Tuple
 from sqlalchemy.orm import Session
 from sorts.core.extractor.bs4_extractor import BS4Extractor
+from sorts.core.extractor.selector_detector import detect_parser_config
 from sorts.core.traits.rule_trait_inferencer import RuleTraitInferencer
 from sorts.database.models import (
     University, ImportSource, ImportJob, Club, Trait, ClubTrait, DraftClub, DraftClubTrait
@@ -57,8 +58,16 @@ class ImporterPipeline:
                 response.raise_for_status()
                 html_content = response.text
 
-            # 2. Extract raw clubs using bs4 extractor
+            # 2. Resolve parser config — auto-detect if none stored yet
             parser_config = source.get_parser_config()
+            if not parser_config.get("club_selector"):
+                logger.info(f"ImporterPipeline: no parser_config for source {source.id}; auto-detecting selectors.")
+                parser_config = detect_parser_config(html_content)
+                # Persist so future syncs skip detection
+                source.set_parser_config(parser_config)
+                db.commit()
+                logger.info(f"ImporterPipeline: detected config saved for source {source.id}: {parser_config}")
+
             raw_clubs = self.extractor.extract(html_content, parser_config)
             
             # Fetch all traits in the DB for keyword matching

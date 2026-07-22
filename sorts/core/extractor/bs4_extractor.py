@@ -47,7 +47,8 @@ class BS4Extractor(IExtractor):
 
                 meeting_frequency = get_text("meeting_frequency_selector")
                 commitment = get_text("commitment_selector")
-                image = get_attr("image_selector", "src")
+                # Try src first; fall back to data-src for lazy-loaded images
+                image = get_attr("image_selector", "src") or get_attr("image_selector", "data-src")
 
                 # Extract links intelligently
                 website = get_attr("website_selector", "href")
