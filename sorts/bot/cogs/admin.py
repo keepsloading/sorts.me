@@ -147,7 +147,7 @@ class AdminCog(commands.Cog):
                             _DIVIDER,
                             "",
                             "## Questions Ready",
-                            f"• {q_count} questions loaded — `/sort` is active.",
+                            f"• {q_count} questions loaded - `/sort` is active.",
                             "",
                             _DIVIDER,
                             "",
@@ -176,11 +176,11 @@ class AdminCog(commands.Cog):
                             _DIVIDER,
                             "",
                             "## Summary",
-                            f"• {q_count} questions loaded — `/sort` is active.",
+                            f"• {q_count} questions loaded - `/sort` is active.",
                         ]
                         if sync_error:
                             lines += [
-                                "• Unable to reach your website — the club directory could not be loaded.",
+                                "• Unable to reach your website. The club directory could not be loaded.",
                                 f"• Reason: `{sync_error}`",
                                 "• Check the URL is correct, then run `/admin sync` to retry.",
                             ]

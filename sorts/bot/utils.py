@@ -25,27 +25,21 @@ def create_sortling_embed(
     color: nextcord.Color = BRAND_COLOR,
     is_error: bool = False
 ) -> Tuple[nextcord.Embed, Optional[nextcord.File]]:
-    """Creates a standardized nextcord Embed showing the mascot in the thumbnail.
-    
-    Returns:
-        A tuple of (Embed, File). The File must be sent alongside the Embed in interaction.send() 
-        or interaction.followup.send() to display properly.
-    """
-    filename = "Sad_Error.png" if is_error else "Icon_Neutral.png"
-    filepath = os.path.join(MASCOT_DIR, filename)
+    """Creates a standardized nextcord Embed with no mascot thumbnail.
 
+    The thinking.gif / Icon_Neutral.png thumbnails are reserved exclusively
+    for the /sort questionnaire flow and are set there directly.
+
+    Returns:
+        A tuple of (Embed, None). The None keeps call-site signatures
+        compatible — callers can safely pass file=None to Discord.
+    """
     embed = nextcord.Embed(
-        title=clean_text(title), 
-        description=clean_text(description), 
+        title=clean_text(title),
+        description=clean_text(description),
         color=color
     )
-    
-    file = None
-    if os.path.exists(filepath):
-        file = nextcord.File(filepath, filename=filename)
-        embed.set_thumbnail(url=f"attachment://{filename}")
-    
-    return embed, file
+    return embed, None
 
 def get_guild_university(db: Session, guild_id: Optional[int]):
     """Resolves the university associated with the Discord guild.
