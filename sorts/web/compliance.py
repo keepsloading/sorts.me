@@ -5,7 +5,12 @@ Serves mobile-friendly HTML endpoints at /terms and /privacy strictly using #000
 
 COMMON_STYLE = """
 <style>
-    @import url('https://fonts.cdnfonts.com/css/horizon');
+    @font-face {
+        font-family: 'Horizon';
+        font-style: normal;
+        font-weight: 400;
+        src: url('data:font/woff;base64,d09GRk9UVE8AABWwAAwAAAAAQfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAAD5AAADxcAADEtVeIbY0dQT1MAABL8AAAA9wAAA64ypiXcR1NVQgAAE/QAAAArAAAAMLj/uP5PUy8yAAABcAAAAEEAAABgaNtm2mNtYXAAAAKEAAABKAAABAQuKzD4aGVhZAAAARwAAAAvAAAANhKjNcpoaGVhAAABTAAAABwAAAAkBtgDsGhtdHgAAAO4AAAALAAAARTDHwxObWF4cAAAAWgAAAAGAAAABgBFUABtZXRhAAAUIAAAAY4AAASlpNK3uW5hbWUAAAG0AAAA0AAAAW5yhZHscG9zdAAAA6wAAAAMAAAAIAADAAB4AWNgZGAA4UDr+/Xx/DZfGZiZXzAAwfW3Pw0R9P/TzBuY9gC5zAxMINUAdTUNlwB4AWNgZGBg+vK/g4GB+REDA4gEiqACVwBzFQSPAABQAABFAAB4AWNgYbrOOIGBlYGBqYtpNwMDQw+EZrzPYMjIxIAKmJE5EUDA4ABk/Gf68r8DqH8PgylEDYgN5CkAIRMAhFwNeQAAAHgBTcyxasMwFIXh37Hj0qHBgYwdNHToEqHESyFrCV6yeMhcD0owMRZIyZIH7HPVqBejQfBx7jkCKn7JAMh4oRQvJr+JczYgLpLOkg824pLVnFdJZx3/ycmKVzJWfIsXk1txzidf4iLpLGn4EZe8z3mVdNaT2502Zn9onO+fbmzt9TF0/mx96N2o/m9HN96DHS7q1N2sV7U22mxrdmgMhj0HGhyenieOkRbLlQcDHZ4zFk+gjzdFujvG7E7AMnBBcaLjFheKGo2Jb0v9B2XqKVJ4AeXPt8rTURyH8U94xUH0HrwEe5nkzdtT7Q0Xe+89k3fhKjh7D1aMLWKJWLFF7IotxKj8/AdMsjhlzXk43+fhbAcpA8llqkkDDTSdMFkJU0wz3QwzzTLbHHPNM98CCw1KGzJsxKgx4yZkZOXkFRQttsRSyyy3wkqrrLbGWuttsNEmm22x1Tbb7bDTLrvtsdc++x1w0CGHHXHUMceVnHLGWeecd8FFl1xWdsVV11x3Q8VNt9x2x11V99z3wEOPPPbEU88898JLNa+89sZb77z3wUeffPbFV99890Ndw09Nv/z2R0TQx39PRSPqUYvqf6j0QLkHTsfJKEYh8pGLbGQSWjsR4113aixG2pV43b8aTV6HE1o7FOmuOzUYi9qVOC2lb89f/4FVeXgBY2BmwAsAAH0ABHgBY+JnMGJAAow9DAzMCkCxXwxGQJoizHAaTewRkXofDYw9QL+DAQAVHRsjeAHtWHlUiBfWdy9BiUCqiSLtpbEkS7HJRK5lZWXvu6Y+JFq0kI2yFyVSRBJRiqxFiCxzRFmyFMXGSXF83rfvd9+ufN/3ve/7vqIwP38lxrif/G9fnc+cj0omaW0QmBCJEoMH4iSJAkSkZKsLbkgZPm6eRMbkC7gvdkHBmxLCRqZl87bXy1LSlMJNJOlJFNuJo1tDtItNbYvbVjO5Kp0M5nkV0Y1mUCL4YVXo5rXEJEiNACSYeHiBF5pPISwEJBnFzHKbOsV8bBZvlEWWgLmxNxJEKIrA8Wle+MuaAMf0KdGQkopLCnXPCfMUPHc8lQ2nBRXxUNm1H5qV+hs8b89R+klDlL3DFM6c8xNqj86ZPpWcDy+Yng+cXSZvtM3b38Wk2dPjA6IfkT3vvH6TK1kHEPJrQlFGS7Gw0bDNmMxV4jlW4h2XbF3d6yFVQBz3JdWZR3eeYpn+r4BNvVDG5HzMtX5OomJVoO72zOuKyGUKjjxH2R9yrKNUhFyaGrCXUl1UPOtMTXaRQIipAjqNmpJGaqvLgq0ZFZJMaEqKLnzJhGqUW5X0DFCkWNMcO7QSXpkSBWU2HlqCsHBK/WNNnB1FBtbNv4mUDnLmExDGFc5JLQpKOVOq5rPxRtxFEm+aNRH8Kn02IFt8u6sBOV13YGANXGdPP7jY1R3DLfbVz/p7QZ2cO5D4n1z0s7i2p7CWqQFh0mgTVQUGp/y7xqCGVmZyYk3Hl9e0MJa7bblTHuHHy08LPMhruaJW0xm/NP+PpM8ePM0q8fz9jl/uyFV5GHtF7f5YPZVsW/JBQlb0N7EhFgHDumGH9w0W7MWLA1x50WVT+JpxK0VTSEsPD5Qtz8p+kq+bBKYbG84aMRhtpomBM9HMefHzaH10cfJvqdXrjm3FZbUb1Vr3W3XJ0D/Y3t9/l49N30h3OqBWGy4sGz6dB7abR3q/ZTjPMw2Lau27DFvTyvxCpNs4w+aKWD0DG3FMgNS/MhDuCTF7nAQe4H9wUCJMr5UWlmxYYRR/ZgXpZH5X/VBUM90kLNnX73lq/jZHRY8YNVG17Z2I5OHfzUkOtqBJmDc2SQbhH8TKL3f/Guh8f4ufK5Bxb+8GWsEhvqekj8lrZMmEK3L9u3PXqJjHvsFHi3Bv9Eqv7mq/EvmRkGe0FwJYBMoHoH7NG8MfIQHXCTnvG6mHfEDk7AXBR6x8bSlFG5ZxlFTSCd4kp4TUHZOqlmHnXP3hXgTUKxFV0y89e2XHYF7GBhb/c5KFNS0WCoD9vKhBpVLiJyXE4V0kfLPWfj0Nfcv2etLwqyPFQDn0rr+dLZ3T7jMx8nVbqnFb2LlHxPv9bJRLDxGnHMz1LkMHxFxRZPYe5SWsA1gkGu8b0tBHfV2l0J5zKN1E+Uq2JbC2SJaSMq1gBLXO8wB0s+cJH8cCf0A5ZMFJl3y0XMsV9wTCikQ2vNtk2cH8bGwblJSoXfQeJEi4cAqT2UPt6CUc1dJCmq09qy0taDqjjKhHy/CZxnYVHcxDlkJiLvbTFLcWxHTD+zSrVe+V+sGa9Qi0ydOoVbP5Q6PNX7A4u/cBrNjFMLsTNk2oFJb8ksLWFp7cBifH4pWBJ3sHGRDksPRq5yoNAlJiD3sN8L43bpGCbFlA6fKvjzCXEBNHsPSTIAzgWZpHF9aPBNKA1L1iNiH5v6BNRC9FHQS+TOI4ZZFNMt2c7a0LX5z0Nq7FXHE3XfBuS4kRpgNY9cXDIVr0lJl8zIhBevpxZY2RjxY2U2jFVXSLh1q2+6wMDKKl4G1Q5Bw0uWmLh0q7YWpV4cHSXJ4V5Ug5WpJCGq2xfMx6uCNS+4lbTU/WiKBa25j3fFqQUDQWCLT29OM5JWFyBZ0kWlzH/5oJZBTlqT5EVDUYlHj7bOYXf3B16jqGv4BNKJVzBhT3kXY3YO+t8nHq3rqNvDMUEy7HFxQtL1zEVJGJJl0sHnBaqbGKbUUuMnLrr/cVe5KRz5V9S8pX72LDj4HnvsPqv+SsaFwQrHs2fJLsExMVHiLaXEF2MRaWY0VWPgkPzrJe1Vb1xVz2Ci7n4mzv4TMT3mYEp2AYPxjnHWu55rAqEyqF9i59Y7JJDS5f2c2RrjZv9BSSFbqk7YJm7f2Fjvn1zNJx/8mVnE40yZIpBi1SWY7cVsm7a5nxWKp5U/QCOP4GdHCrqSuP33LZYpV6bNolyaHbF1hXZbZBe5Aw+lSEJM8xP7T40q3UPKw4i1rOHWyxrJ4SsHW/Yo8+AXh3TDGJkGeDXh4HKUJSqzjXAZc26Bj3XoqYy9GFJBJcWkjGb6WOLbcXpAAAHgBjYGBgYXBg8GJgYuBhsGDwZfBhCGDIYNBh8GAoYGhgsGFoZOBjMGJgYZBliGfIZshi0GRIYOBh2GOIYFIB8BIMDIAMBQKADAQOB4gCMHIDLCMRsIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=') format('woff');
+    }
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     :root {
@@ -268,7 +273,7 @@ TERMS_HTML = f"""<!DOCTYPE html>
             </div>
             <div class="brand-title-group">
                 <div class="brand-name">Sortling <span class="discord-badge">APP</span></div>
-                <div class="brand-subtitle">Mahindra University Campus Discovery Engine</div>
+                <div class="brand-subtitle">Mahindra University</div>
             </div>
         </div>
 
@@ -305,7 +310,7 @@ TERMS_HTML = f"""<!DOCTYPE html>
         <p>Sortling is provided on an "as is" and "as available" basis without warranties of any kind. The developers shall not be liable for any indirect or consequential damages arising out of your use of the application.</p>
 
         <div class="footer">
-            Sortling Discord Application &bull; <a href="/privacy">Privacy Policy</a> &bull; Mahindra University Campus Discovery
+            Sortling Discord Application &bull; <a href="/privacy">Privacy Policy</a> &bull; Mahindra University
         </div>
     </div>
 </body>
@@ -328,7 +333,7 @@ PRIVACY_HTML = f"""<!DOCTYPE html>
             </div>
             <div class="brand-title-group">
                 <div class="brand-name">Sortling <span class="discord-badge">APP</span></div>
-                <div class="brand-subtitle">Mahindra University Campus Discovery Engine</div>
+                <div class="brand-subtitle">Mahindra University</div>
             </div>
         </div>
 
@@ -369,7 +374,7 @@ PRIVACY_HTML = f"""<!DOCTYPE html>
         <p>We do <strong>NOT</strong> sell, trade, or share user data with third-party advertisers or external services.</p>
 
         <div class="footer">
-            Sortling Discord Application &bull; <a href="/terms">Terms of Service</a> &bull; Mahindra University Campus Discovery
+            Sortling Discord Application &bull; <a href="/terms">Terms of Service</a> &bull; Mahindra University
         </div>
     </div>
 </body>

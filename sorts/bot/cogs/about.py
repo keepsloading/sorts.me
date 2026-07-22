@@ -28,12 +28,12 @@ class AboutCog(commands.Cog):
                     "> **Your campus, sorted.**",
                     "",
                     "## About",
-                    "Sortling is your intelligent campus discovery engine. Designed to connect students with official campus clubs, hackathons, and student opportunities, Sortling matches you with communities aligned with your skills, interests, and availability.",
+                    "Sortling connects students with clubs, hackathons, and opportunities at their campus. Answer a few questions and get matched with communities that fit your skills, interests, and schedule.",
                     "",
                     "━━━━━━━━━━━━━━━━━━━━━━━",
                     "",
                     "## How it Works",
-                    "• **Interactive Matching**: Type `/sort` to answer quick adaptive questions and receive personalized club recommendations.",
+                    "• **Club Matching**: Type `/sort` to answer a few questions and get personalized club recommendations.",
                     "• **Campus Clubs Directory**: Type `/clubs` or `/club <name>` to explore verified student organizations.",
                     "• **Hackathons & Opportunities**: Type `/events` or `/event <name>` to discover upcoming competitions, prizes, and registration details.",
                     "",
@@ -48,7 +48,7 @@ class AboutCog(commands.Cog):
                     description="\n".join(desc_parts),
                     is_error=False,
                 )
-                embed.set_footer(text="Sortling • Intelligent Campus Discovery Engine")
+                embed.set_footer(text="Sortling • Club Matching for Students")
 
                 if file:
                     await interaction.send(embed=embed)

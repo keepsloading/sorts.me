@@ -1,3 +1,4 @@
+import os
 import nextcord
 from nextcord.ext import commands
 from sorts.database.connection import get_db
@@ -79,10 +80,22 @@ class AdminCog(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-        # Defer — website crawl during onboarding may take several seconds
-        await interaction.response.defer(ephemeral=True)
-
         _DIVIDER = "━━━━━━━━━━━━━━━━━━━━━━━"
+        _thinking_path = os.path.join("Sortling Mascot", "thinking.gif")
+
+        # Send step 1 embed immediately so admins can see progress (like /sort)
+        _step1_embed = nextcord.Embed(
+            title="Connecting to Sortling",
+            description="Linking this server to Sortling...",
+            color=BRAND_COLOR,
+        )
+        _step1_embed.set_footer(text="Sortling • Step 1 of 2")
+        if os.path.exists(_thinking_path):
+            _gif = nextcord.File(_thinking_path, filename="thinking.gif")
+            _step1_embed.set_thumbnail(url="attachment://thinking.gif")
+            await interaction.response.send_message(embed=_step1_embed, file=_gif, ephemeral=True)
+        else:
+            await interaction.response.send_message(embed=_step1_embed, ephemeral=True)
 
         try:
             with get_db() as db:
@@ -119,6 +132,16 @@ class AdminCog(commands.Cog):
                     # Seed the universal question bank so /sort works immediately
                     from sorts.services.seed_service import seed_default_questions
                     q_count = seed_default_questions(db, univ.id)
+
+                    # ── Step 2: scanning clubs ────────────────────────────
+                    _step2_embed = nextcord.Embed(
+                        title="Scanning Club Directory",
+                        description="Crawling your website for clubs...",
+                        color=BRAND_COLOR,
+                    )
+                    _step2_embed.set_footer(text="Sortling • Step 2 of 2")
+                    _step2_embed.set_thumbnail(url="attachment://thinking.gif")
+                    await interaction.edit_original_message(embed=_step2_embed)
 
                     # ── Auto-sync: crawl website and stage clubs ──────────────
                     job_id = None
@@ -166,7 +189,7 @@ class AdminCog(commands.Cog):
                         )
                         from sorts.bot.views.setup_onboarding import SetupOnboardingView
                         view = SetupOnboardingView(job_id, q_count, new_count, name)
-                        await interaction.followup.send(embed=embed, view=view, ephemeral=True)
+                        await interaction.edit_original_message(embed=embed, view=view)
 
                     else:
                         # ── No clubs found or sync failed ────────────────────
@@ -196,7 +219,7 @@ class AdminCog(commands.Cog):
                             description="\n".join(lines),
                             color=BRAND_COLOR,
                         )
-                        await interaction.followup.send(embed=embed, ephemeral=True)
+                        await interaction.edit_original_message(embed=embed, view=None)
 
                 else:
                     # ── Update existing university profile ───────────────────
@@ -232,6 +255,16 @@ class AdminCog(commands.Cog):
                     # Ensure question bank exists (idempotent)
                     from sorts.services.seed_service import seed_default_questions
                     q_count = seed_default_questions(db, univ.id)
+
+                    # ── Step 2: scanning for club changes ─────────────────
+                    _step2u_embed = nextcord.Embed(
+                        title="Checking for Club Changes",
+                        description="Crawling your website for updates...",
+                        color=BRAND_COLOR,
+                    )
+                    _step2u_embed.set_footer(text="Sortling • Step 2 of 2")
+                    _step2u_embed.set_thumbnail(url="attachment://thinking.gif")
+                    await interaction.edit_original_message(embed=_step2u_embed)
 
                     # ── Auto-sync: crawl and stage clubs ─────────────────────
                     job_id = None
@@ -283,7 +316,7 @@ class AdminCog(commands.Cog):
                         )
                         from sorts.bot.views.setup_onboarding import SetupOnboardingView
                         view = SetupOnboardingView(job_id, q_count, actionable_count, name)
-                        await interaction.followup.send(embed=embed, view=view, ephemeral=True)
+                        await interaction.edit_original_message(embed=embed, view=view)
 
                     else:
                         # ── No actionable changes ─────────────────────────────
@@ -318,7 +351,7 @@ class AdminCog(commands.Cog):
                             description="\n".join(lines),
                             color=BRAND_COLOR,
                         )
-                        await interaction.followup.send(embed=embed, ephemeral=True)
+                        await interaction.edit_original_message(embed=embed, view=None)
 
         except Exception as e:
             embed, file = create_sortling_embed(
@@ -326,7 +359,7 @@ class AdminCog(commands.Cog):
                 description=f"Something went wrong. Please try again or contact support.\n`{e}`",
                 is_error=True,
             )
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.edit_original_message(embed=embed, view=None)
 
     # ─── /admin ───────────────────────────────────────────────────────────────
 
