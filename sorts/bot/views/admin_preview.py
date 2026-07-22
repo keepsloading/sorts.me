@@ -17,18 +17,28 @@ class AdminPreviewView(nextcord.ui.View):
         
         try:
             with get_db() as db:
+                job = self.import_service.get_job(db, self.job_id)
+                if job and job.status == "approved":
+                    embed = nextcord.Embed(
+                        title="Already Published",
+                        description="These changes are already live. Run `/admin sync` to fetch fresh data.",
+                        color=BRAND_COLOR,
+                    )
+                    await interaction.response.edit_message(embed=embed, view=None)
+                    return
+
                 self.import_service.publish_job(db, self.job_id)
-            
+
             embed = nextcord.Embed(
-                title="Import Approved and Published!",
-                description=f"### Success!\nAll draft club changes for Job ID **{self.job_id}** have been successfully promoted to the active university directory.",
-                color=BRAND_COLOR
+                title="Published",
+                description="The club directory has been updated. Students will see the latest data immediately.",
+                color=BRAND_COLOR,
             )
             await interaction.response.edit_message(embed=embed, view=None)
         except Exception as e:
             embed = nextcord.Embed(
-                title="Publish Error",
-                description=f"An error occurred while publishing: `{str(e)}`",
-                color=BRAND_COLOR
+                title="Publish Failed",
+                description=f"Could not publish changes.\n`{str(e)}`",
+                color=BRAND_COLOR,
             )
             await interaction.response.edit_message(embed=embed, view=None)

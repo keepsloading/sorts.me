@@ -30,6 +30,25 @@ class SetupOnboardingView(nextcord.ui.View):
 
         try:
             with get_db() as db:
+                job = self.import_service.get_job(db, self.job_id)
+                if job and job.status == "approved":
+                    desc = "\n".join([
+                        f"> **{self.univ_name} is already live on Sortling.**",
+                        "",
+                        _DIVIDER,
+                        "",
+                        "## Summary",
+                        f"• **Questions**: {self.q_count} loaded - `/sort` is ready for students.",
+                        f"• **Clubs**: {self.club_count} already published.",
+                        "",
+                        _DIVIDER,
+                        "",
+                        "Run `/admin sync` to check for new changes.",
+                    ])
+                    embed = nextcord.Embed(title="Already Published", description=desc, color=BRAND_COLOR)
+                    await interaction.response.edit_message(embed=embed, view=None, attachments=[])
+                    return
+
                 self.import_service.publish_job(db, self.job_id)
 
             desc = "\n".join([
@@ -47,7 +66,7 @@ class SetupOnboardingView(nextcord.ui.View):
                 "Use `/admin sync` anytime to pull fresh data from your website.",
             ])
             embed = nextcord.Embed(title="Setup Complete", description=desc, color=BRAND_COLOR)
-            await interaction.response.edit_message(embed=embed, view=None)
+            await interaction.response.edit_message(embed=embed, view=None, attachments=[])
 
         except Exception as e:
             desc = "\n".join([
@@ -60,7 +79,7 @@ class SetupOnboardingView(nextcord.ui.View):
                 f"• Error: `{e}`",
             ])
             embed = nextcord.Embed(title="Publish Failed", description=desc, color=BRAND_COLOR)
-            await interaction.response.edit_message(embed=embed, view=None)
+            await interaction.response.edit_message(embed=embed, view=None, attachments=[])
 
     # ── Skip for Now ─────────────────────────────────────────────────────────
 
@@ -82,4 +101,4 @@ class SetupOnboardingView(nextcord.ui.View):
             "Run `/admin review` when you are ready to publish the club directory.",
         ])
         embed = nextcord.Embed(title="Setup Saved", description=desc, color=BRAND_COLOR)
-        await interaction.response.edit_message(embed=embed, view=None)
+        await interaction.response.edit_message(embed=embed, view=None, attachments=[])

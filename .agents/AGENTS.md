@@ -27,3 +27,13 @@
 ## 5. Embed Layout & Encapsulation
 - Keep status notices, feedback confirmations, and refined profile updates inside `embed.description`.
 - Place mascot thumbnails (`thinking.gif` / `Icon_Neutral.png`) inside the embed card via `embed.set_thumbnail(url=...)`.
+
+## 6. GIF Usage Rules
+- `thinking.gif` is ONLY for loading and thinking steps (e.g. Step 1 / Step 2 progress embeds during crawling).
+- The GIF must NEVER appear on final result embeds (success, error, publish complete, skip, etc.).
+- When editing a message from a progress state to a final state, always pass `attachments=[]` so the file attachment is cleared and does not appear outside the embed.
+- No GIF is needed or allowed for the final publish step or any result/confirmation embed.
+
+## 7. Em Dash Prohibition
+- Em dashes (`-`) and en dashes (`-`) are NEVER allowed anywhere in bot output: embed titles, descriptions, field names, button labels, footers, or any other user-facing text.
+- Use a plain hyphen (`-`) or restructure the sentence instead.

@@ -189,7 +189,7 @@ class AdminCog(commands.Cog):
                         )
                         from sorts.bot.views.setup_onboarding import SetupOnboardingView
                         view = SetupOnboardingView(job_id, q_count, new_count, name)
-                        await interaction.edit_original_message(embed=embed, view=view)
+                        await interaction.edit_original_message(embed=embed, view=view, attachments=[])
 
                     else:
                         # ── No clubs found or sync failed ────────────────────
@@ -219,7 +219,7 @@ class AdminCog(commands.Cog):
                             description="\n".join(lines),
                             color=BRAND_COLOR,
                         )
-                        await interaction.edit_original_message(embed=embed, view=None)
+                        await interaction.edit_original_message(embed=embed, view=None, attachments=[])
 
                 else:
                     # ── Update existing university profile ───────────────────
@@ -316,7 +316,7 @@ class AdminCog(commands.Cog):
                         )
                         from sorts.bot.views.setup_onboarding import SetupOnboardingView
                         view = SetupOnboardingView(job_id, q_count, actionable_count, name)
-                        await interaction.edit_original_message(embed=embed, view=view)
+                        await interaction.edit_original_message(embed=embed, view=view, attachments=[])
 
                     else:
                         # ── No actionable changes ─────────────────────────────
@@ -351,7 +351,7 @@ class AdminCog(commands.Cog):
                             description="\n".join(lines),
                             color=BRAND_COLOR,
                         )
-                        await interaction.edit_original_message(embed=embed, view=None)
+                        await interaction.edit_original_message(embed=embed, view=None, attachments=[])
 
         except Exception as e:
             embed, file = create_sortling_embed(
@@ -359,7 +359,7 @@ class AdminCog(commands.Cog):
                 description=f"Something went wrong. Please try again or contact support.\n`{e}`",
                 is_error=True,
             )
-            await interaction.edit_original_message(embed=embed, view=None)
+            await interaction.edit_original_message(embed=embed, view=None, attachments=[])
 
     # ─── /admin ───────────────────────────────────────────────────────────────
 
