@@ -202,24 +202,123 @@ class AdminCog(commands.Cog):
                     # ── Update existing university profile ───────────────────
                     univ.name = name
                     if website:
-                        univ.website = website
+                        univ.website = cleaned_website or website
                     if logo_url:
                         univ.logo = logo_url
                     if description:
                         univ.description = description
 
                     existing_src = db.query(db_models.ImportSource).filter_by(university_id=univ.id).first()
-                    if existing_src and website and website.startswith("http"):
-                        existing_src.url = website
+                    url_changed = False
+                    if existing_src and cleaned_website and cleaned_website.startswith("http"):
+                        if existing_src.url != cleaned_website:
+                            url_changed = True
+                        existing_src.url = cleaned_website
                         existing_src.source_type = "url"
+                        # Reset stored selectors so detector runs fresh on the new URL
+                        if url_changed:
+                            existing_src.set_parser_config({})
+                    elif not existing_src:
+                        existing_src = db_models.ImportSource(
+                            university_id=univ.id,
+                            name="Official Source",
+                            source_type=src_type,
+                            url=src_url,
+                        )
+                        db.add(existing_src)
 
                     db.commit()
-                    embed, file = create_sortling_embed(
-                        title="Setup Complete",
-                        description=f"Profile updated for **{name}**.",
-                        is_error=False,
-                    )
-                    await interaction.followup.send(embed=embed, ephemeral=True)
+
+                    # Ensure question bank exists (idempotent)
+                    from sorts.services.seed_service import seed_default_questions
+                    q_count = seed_default_questions(db, univ.id)
+
+                    # ── Auto-sync: crawl and stage clubs ─────────────────────
+                    job_id = None
+                    diff = {"new": [], "updated": [], "removed": []}
+                    sync_error = None
+                    try:
+                        sources = self.import_service.get_university_sources(db, univ.id)
+                        if sources:
+                            job_id = self.import_service.trigger_import(db, sources[0].id)
+                            diff = self.import_service.get_draft_diff(db, job_id)
+                    except Exception as sync_err:
+                        sync_error = str(sync_err)
+
+                    new_clubs = diff.get("new", [])
+                    updated_clubs = diff.get("updated", [])
+                    new_count = len(new_clubs)
+                    updated_count = len(updated_clubs)
+                    actionable_count = new_count + updated_count
+
+                    if job_id and actionable_count > 0:
+                        # ── Review embed (same as onboarding) ────────────────
+                        preview_clubs = (new_clubs + updated_clubs)[:12]
+                        club_lines = [f"• {dc.name}" for dc in preview_clubs]
+                        if actionable_count > 12:
+                            club_lines.append(f"• ... and {actionable_count - 12} more.")
+
+                        desc_parts = [
+                            f"> **Profile updated. {actionable_count} club change(s) ready for review.**",
+                            "",
+                            _DIVIDER,
+                            "",
+                            "## Questions Ready",
+                            f"• {q_count} questions loaded - `/sort` is active.",
+                            "",
+                            _DIVIDER,
+                            "",
+                            f"## Pending Changes  ({actionable_count})",
+                            *club_lines,
+                            "",
+                            _DIVIDER,
+                            "",
+                            "Click **Publish Directory** to make clubs visible to students.",
+                            "Click **Skip for Now** to publish later using `/admin review`.",
+                        ]
+                        embed = nextcord.Embed(
+                            title="Club Directory Preview",
+                            description="\n".join(desc_parts),
+                            color=BRAND_COLOR,
+                        )
+                        from sorts.bot.views.setup_onboarding import SetupOnboardingView
+                        view = SetupOnboardingView(job_id, q_count, actionable_count, name)
+                        await interaction.followup.send(embed=embed, view=view, ephemeral=True)
+
+                    else:
+                        # ── No actionable changes ─────────────────────────────
+                        lines = [
+                            f"> **Profile updated for {name}.**",
+                            "",
+                            _DIVIDER,
+                            "",
+                            "## Summary",
+                            f"• {q_count} questions loaded - `/sort` is active.",
+                        ]
+                        if sync_error:
+                            lines += [
+                                "• Unable to reach your website. The club directory could not be loaded.",
+                                f"• Reason: `{sync_error}`",
+                                "• Check the URL is correct, then run `/admin sync` to retry.",
+                            ]
+                        else:
+                            removed_count = len(diff.get("removed", []))
+                            if removed_count:
+                                lines += [
+                                    f"• {removed_count} club(s) marked for removal. Run `/admin review` to publish.",
+                                ]
+                            else:
+                                lines += [
+                                    "• No new club changes detected.",
+                                    "• Use `/admin add_club` to add clubs manually.",
+                                ]
+                        lines += ["", _DIVIDER]
+                        embed = nextcord.Embed(
+                            title="Setup Complete",
+                            description="\n".join(lines),
+                            color=BRAND_COLOR,
+                        )
+                        await interaction.followup.send(embed=embed, ephemeral=True)
 
         except Exception as e:
             embed, file = create_sortling_embed(
