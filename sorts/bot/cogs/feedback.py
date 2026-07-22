@@ -43,7 +43,7 @@ class FeedbackCog(commands.Cog):
                         description="This server hasn't been linked to a university yet. Ask an administrator to run `/setup`.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 latest_session = (
@@ -97,7 +97,7 @@ class FeedbackCog(commands.Cog):
                     msg = "Feedback received! Thank you for helping us improve."
 
                 embed, file = create_sortling_embed(title="Feedback Saved", description=msg, is_error=False)
-                await interaction.send(embed=embed, file=file, ephemeral=True)
+                await interaction.send(embed=embed, ephemeral=True)
 
         except Exception as e:
             logger.error(f"Error saving feedback: {e}", exc_info=True)
@@ -106,7 +106,7 @@ class FeedbackCog(commands.Cog):
                 description="Could not save feedback. Please try again.",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
 
 
 def setup(bot):

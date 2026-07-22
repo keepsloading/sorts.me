@@ -24,7 +24,7 @@ class ClubsCog(commands.Cog):
                         description="This server hasn't been linked to a university yet. Ask an administrator to run `/setup`.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 clubs, total_count = self.club_service.get_clubs_paginated(db, univ.id, page=1, per_page=3)
@@ -35,7 +35,7 @@ class ClubsCog(commands.Cog):
                         description="The club directory is empty. Ask an administrator to run `/admin sync`.",
                         is_error=False,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 view = ClubPagingView(univ.id, 1, 3, total_count, None)
@@ -47,7 +47,7 @@ class ClubsCog(commands.Cog):
                 description="Could not load the club directory. Please try again.",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
 
     @nextcord.slash_command(name="club", description="Look up a specific club by name.")
     async def club(
@@ -65,7 +65,7 @@ class ClubsCog(commands.Cog):
                         description="This server hasn't been linked to a university yet. Ask an administrator to run `/setup`.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 matches = self.club_service.search_clubs(db, univ.id, name)
@@ -76,7 +76,7 @@ class ClubsCog(commands.Cog):
                         description=f"No club found matching **{name}**. Browse the full list with `/clubs`.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 if len(matches) > 1:
@@ -86,7 +86,7 @@ class ClubsCog(commands.Cog):
                         description=f"Several clubs match **{name}**. Try a more specific name:\n\n{names_list}",
                         is_error=False,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 club = matches[0]
@@ -174,7 +174,7 @@ class ClubsCog(commands.Cog):
                 description="Could not load club details. Please try again.",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
 
     @club.on_autocomplete("name")
     async def club_autocomplete(self, interaction: nextcord.Interaction, name: str):

@@ -45,7 +45,7 @@ class EventsCog(commands.Cog):
                         description="This server has not been linked to a university yet. Ask an administrator to run `/setup`.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 query = db.query(db_models.Event).filter_by(university_id=univ.id)
@@ -60,7 +60,7 @@ class EventsCog(commands.Cog):
                         description=f"No active events found for **{univ.name}** under `{category}`.",
                         is_error=False,
                     )
-                    await interaction.send(embed=embed, file=file)
+                    await interaction.send(embed=embed)
                     return
 
                 desc_lines = [
@@ -86,7 +86,7 @@ class EventsCog(commands.Cog):
                 embed.set_footer(text="Sortling • Campus Opportunity Engine")
 
                 if file:
-                    await interaction.send(embed=embed, file=file)
+                    await interaction.send(embed=embed)
                 else:
                     await interaction.send(embed=embed)
 
@@ -96,7 +96,7 @@ class EventsCog(commands.Cog):
                 description=f"Could not fetch campus events.\n`{e}`",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
 
     # ─── /event ───────────────────────────────────────────────────────────────
 
@@ -116,7 +116,7 @@ class EventsCog(commands.Cog):
                         description="This server has not been linked to a university yet. Ask an administrator to run `/setup`.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 query_name = name.lower().strip()
@@ -150,7 +150,7 @@ class EventsCog(commands.Cog):
                         description=f"Could not find an event matching **'{name}'**. Type `/events` to see all upcoming events.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 desc_parts = [
@@ -208,7 +208,7 @@ class EventsCog(commands.Cog):
                 view = RegisterButtonView(ev.registration_link)
 
                 if file:
-                    await interaction.send(embed=embed, file=file, view=view)
+                    await interaction.send(embed=embed, view=view)
                 else:
                     await interaction.send(embed=embed, view=view)
 
@@ -218,7 +218,7 @@ class EventsCog(commands.Cog):
                 description=f"Could not load event details.\n`{e}`",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
 
 
 def setup(bot):

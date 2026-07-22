@@ -56,7 +56,7 @@ class AdminCog(commands.Cog):
                 description="Only server administrators can run setup.",
                 is_error=True,
             )
-            await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         guild_id = interaction.guild_id
@@ -66,7 +66,7 @@ class AdminCog(commands.Cog):
                 description="This command can only be used inside a Discord server.",
                 is_error=True,
             )
-            await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         from sorts.config.settings import EXEMPTED_GUILDS
@@ -76,7 +76,7 @@ class AdminCog(commands.Cog):
                 description="This server is pre-configured and does not need setup.",
                 is_error=False,
             )
-            await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         # Defer — website crawl during onboarding may take several seconds
@@ -219,7 +219,7 @@ class AdminCog(commands.Cog):
                         description=f"Profile updated for **{name}**.",
                         is_error=False,
                     )
-                    await interaction.followup.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.followup.send(embed=embed, ephemeral=True)
 
         except Exception as e:
             embed, file = create_sortling_embed(
@@ -227,7 +227,7 @@ class AdminCog(commands.Cog):
                 description=f"Something went wrong. Please try again or contact support.\n`{e}`",
                 is_error=True,
             )
-            await interaction.followup.send(embed=embed, file=file, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
 
     # ─── /admin ───────────────────────────────────────────────────────────────
 
@@ -246,7 +246,7 @@ class AdminCog(commands.Cog):
                 description="Only server administrators can sync the club directory.",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
             return
 
         await interaction.response.defer(ephemeral=True)
@@ -260,7 +260,7 @@ class AdminCog(commands.Cog):
                         description="Run `/setup` first to link this server to a university.",
                         is_error=True,
                     )
-                    await interaction.followup.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.followup.send(embed=embed, ephemeral=True)
                     return
 
                 sources = self.import_service.get_university_sources(db, univ.id)
@@ -270,7 +270,7 @@ class AdminCog(commands.Cog):
                         description="No club data source has been set up for this university. Contact a Sortling administrator.",
                         is_error=True,
                     )
-                    await interaction.followup.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.followup.send(embed=embed, ephemeral=True)
                     return
 
                 # Use the first active source
@@ -291,14 +291,14 @@ class AdminCog(commands.Cog):
                     description="\n".join(desc_parts),
                     is_error=False,
                 )
-                await interaction.followup.send(embed=embed, file=file, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
         except Exception as e:
             embed, file = create_sortling_embed(
                 title="Sync Failed",
                 description=f"The sync could not complete. Please try again.\n`{e}`",
                 is_error=True,
             )
-            await interaction.followup.send(embed=embed, file=file, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
 
     # ─── /admin review ────────────────────────────────────────────────────────
 
@@ -311,7 +311,7 @@ class AdminCog(commands.Cog):
                 description="Only server administrators can review pending changes.",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
             return
 
         try:
@@ -323,7 +323,7 @@ class AdminCog(commands.Cog):
                         description="Run `/setup` first to link this server to a university.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 job = self.import_service.get_latest_job(db, univ.id)
@@ -333,7 +333,7 @@ class AdminCog(commands.Cog):
                         description="No sync has been run yet. Use `/admin sync` to fetch the latest club data.",
                         is_error=False,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 if job.status == "approved":
@@ -342,7 +342,7 @@ class AdminCog(commands.Cog):
                         description="The most recent sync has already been published. Run `/admin sync` to fetch fresh data.",
                         is_error=False,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 diff = self.import_service.get_draft_diff(db, job.id)
@@ -380,7 +380,7 @@ class AdminCog(commands.Cog):
                 description=f"Could not load pending changes.\n`{e}`",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
 
     # ─── /admin publish ───────────────────────────────────────────────────────
 
@@ -393,7 +393,7 @@ class AdminCog(commands.Cog):
                 description="Only server administrators can publish changes.",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
             return
 
         try:
@@ -405,7 +405,7 @@ class AdminCog(commands.Cog):
                         description="Run `/setup` first to link this server to a university.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 job = self.import_service.get_latest_job(db, univ.id)
@@ -415,7 +415,7 @@ class AdminCog(commands.Cog):
                         description="Run `/admin sync` to fetch the latest club data first.",
                         is_error=False,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 if job.status == "approved":
@@ -424,7 +424,7 @@ class AdminCog(commands.Cog):
                         description="The latest sync is already live. Run `/admin sync` to check for new changes.",
                         is_error=False,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 self.import_service.publish_job(db, job.id)
@@ -433,14 +433,14 @@ class AdminCog(commands.Cog):
                     description="The club directory has been updated. Students will see the latest data immediately.",
                     is_error=False,
                 )
-                await interaction.send(embed=embed, file=file, ephemeral=True)
+                await interaction.send(embed=embed, ephemeral=True)
         except Exception as e:
             embed, file = create_sortling_embed(
                 title="Publish Failed",
                 description=f"Could not publish changes.\n`{e}`",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
 
     # ─── /admin add_club ──────────────────────────────────────────────────────
 
@@ -465,7 +465,7 @@ class AdminCog(commands.Cog):
                 description="Only server owners and administrators can add new clubs.",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
             return
 
         try:
@@ -477,7 +477,7 @@ class AdminCog(commands.Cog):
                         description="Run `/setup` first to link this server to a university.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 import re
@@ -532,14 +532,14 @@ class AdminCog(commands.Cog):
                     description="\n".join(desc_parts),
                     is_error=False,
                 )
-                await interaction.send(embed=embed, file=file)
+                await interaction.send(embed=embed)
         except Exception as e:
             embed, file = create_sortling_embed(
                 title="Failed to Add Club",
                 description=f"Could not save the club entry.\n`{e}`",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
 
 
 def setup(bot):

@@ -27,7 +27,7 @@ class SortCog(commands.Cog):
                         description="This server hasn't been linked to a university yet. Ask an administrator to run `/setup`.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 # Count total questions so the view can display progress
@@ -38,7 +38,7 @@ class SortCog(commands.Cog):
                         description="The questionnaire hasn't been set up for this university. Contact a Sortling administrator.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 session = self.session_service.create_session(db, univ.id, user_identifier=user_id)
@@ -50,7 +50,7 @@ class SortCog(commands.Cog):
                         description="The questionnaire hasn't been set up for this university. Contact a Sortling administrator.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 view = QuestionnaireView(session.id, first_q, total_questions)
@@ -69,7 +69,7 @@ class SortCog(commands.Cog):
                     embed.set_thumbnail(url="attachment://thinking.gif")
 
                 if file:
-                    await interaction.send(embed=embed, view=view, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, view=view, ephemeral=True)
                 else:
                     await interaction.send(embed=embed, view=view, ephemeral=True)
 
@@ -79,7 +79,7 @@ class SortCog(commands.Cog):
                 description="Could not start the session. Please try again in a moment.",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
 
 
 def setup(bot):

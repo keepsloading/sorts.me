@@ -46,7 +46,7 @@ class SortlingBot(commands.Bot):
                 )
                 try:
                     if file:
-                        await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
+                        await interaction.response.send_message(embed=embed, ephemeral=True)
                     else:
                         await interaction.response.send_message(embed=embed, ephemeral=True)
                 except Exception:
@@ -76,7 +76,7 @@ class SortlingBot(commands.Bot):
             )
             try:
                 if file:
-                    await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
                 else:
                     await interaction.response.send_message(embed=embed, ephemeral=True)
             except Exception:

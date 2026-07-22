@@ -21,7 +21,7 @@ class AboutCog(commands.Cog):
                         description="This server hasn't been linked to a university yet. Ask an administrator to run `/setup`.",
                         is_error=True,
                     )
-                    await interaction.send(embed=embed, file=file, ephemeral=True)
+                    await interaction.send(embed=embed, ephemeral=True)
                     return
 
                 desc_parts = [
@@ -51,7 +51,7 @@ class AboutCog(commands.Cog):
                 embed.set_footer(text="Sortling • Intelligent Campus Discovery Engine")
 
                 if file:
-                    await interaction.send(embed=embed, file=file)
+                    await interaction.send(embed=embed)
                 else:
                     await interaction.send(embed=embed)
 
@@ -61,7 +61,7 @@ class AboutCog(commands.Cog):
                 description="Could not load the about page. Please try again.",
                 is_error=True,
             )
-            await interaction.send(embed=embed, file=file, ephemeral=True)
+            await interaction.send(embed=embed, ephemeral=True)
 
 
 def setup(bot):
