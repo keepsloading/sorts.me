@@ -13,9 +13,13 @@ default_db_url = "sqlite:////var/data/sorts.db" if os.path.exists("/var/data") e
 DATABASE_URL = os.getenv("DATABASE_URL", default_db_url)
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
-# Exempted guilds for auto-university resolution (Mahindra Uni and test servers)
+# Exempted guilds resolve to the default university instead of looking up by guild_id.
+# Comma-separated Discord guild IDs. Typically used for the primary/test server.
 EXEMPTED_GUILDS_STR = os.getenv("EXEMPTED_GUILDS", "1475575129726517349,1361752080297230376")
 EXEMPTED_GUILDS = {int(x.strip()) for x in EXEMPTED_GUILDS_STR.split(",") if x.strip()}
+
+# Slug of the university used as the default for exempted guilds and bootstrap seeding.
+DEFAULT_UNIVERSITY_SLUG = os.getenv("DEFAULT_UNIVERSITY_SLUG", "mahindra")
 
 # Configure logging
 numeric_level = getattr(logging, LOG_LEVEL, logging.INFO)

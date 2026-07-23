@@ -195,7 +195,7 @@ class EventsCog(commands.Cog):
                         "━━━━━━━━━━━━━━━━━━━━━━━",
                         "",
                         "## Registration Requirement",
-                        "**Student Email (@mahindrauniversity.edu.in) is required for registration.**"
+                        "**Your university student email is required for registration.**"
                     ])
 
                 embed, file = create_sortling_embed(

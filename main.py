@@ -55,41 +55,40 @@ def bootstrap():
     logger.info("Initializing database schema...")
     init_db()
 
+    from sorts.config.settings import DEFAULT_UNIVERSITY_SLUG
+
     with get_db() as db:
         # ── Always seed global traits first (safe for all universities) ──────
         seed_global_traits(db)
 
-        # ── Seed Mahindra University if not already in database ──────────────
+        # ── Seed default university if not already in database ────────────────
         # Data lives in Supabase after the first deploy; seed file only needed
         # on a completely fresh database (e.g. first migration to Supabase).
-        mahindra = db.query(db_models.University).filter_by(slug="mahindra").first()
-        if not mahindra:
-            seed_path = "sorts/assets/data/mahindra_seed.json"
+        default_univ = db.query(db_models.University).filter_by(slug=DEFAULT_UNIVERSITY_SLUG).first()
+        if not default_univ:
+            seed_path = f"sorts/assets/data/{DEFAULT_UNIVERSITY_SLUG}_seed.json"
             if os.path.exists(seed_path):
-                logger.info("Mahindra University not found in DB. Running auto-seeding from file...")
+                logger.info(f"University '{DEFAULT_UNIVERSITY_SLUG}' not found in DB. Running auto-seeding from file...")
                 try:
                     seed_database(db, seed_path)
                     logger.info("Auto-seeding completed.")
-                    mahindra = db.query(db_models.University).filter_by(slug="mahindra").first()
+                    default_univ = db.query(db_models.University).filter_by(slug=DEFAULT_UNIVERSITY_SLUG).first()
                 except Exception as e:
                     logger.error(f"Auto-seeding failed: {e}")
                     return
             else:
-                # Seed file has been removed from the repo after the initial
-                # Supabase migration — this is expected and fine. Mahindra data
-                # already lives in the persistent database.
                 logger.info(
-                    "Mahindra seed file not present and university not found in DB. "
-                    "If this is intentional (data is in Supabase), this is fine. "
-                    "Otherwise restore sorts/assets/data/mahindra_seed.json and redeploy."
+                    f"Seed file for '{DEFAULT_UNIVERSITY_SLUG}' not present and university not found in DB. "
+                    "If data is already in the persistent database this is fine. "
+                    f"Otherwise restore sorts/assets/data/{DEFAULT_UNIVERSITY_SLUG}_seed.json and redeploy."
                 )
                 return
         else:
-            logger.info("Mahindra University records present in database. Skipping seed.")
+            logger.info(f"University '{DEFAULT_UNIVERSITY_SLUG}' present in database. Skipping seed.")
 
         # ── Auto-import clubs if none are published yet ──────────────────────
         club_count = db.query(db_models.Club).filter_by(
-            university_id=mahindra.id
+            university_id=default_univ.id
         ).count()
 
         if club_count == 0:
@@ -97,18 +96,17 @@ def bootstrap():
             try:
                 from sorts.services.import_service import ImportService
                 svc = ImportService()
-                sources = svc.get_university_sources(db, mahindra.id)
+                sources = svc.get_university_sources(db, default_univ.id)
                 if not sources:
-                    logger.warning("No import sources configured for Mahindra University.")
+                    logger.warning(f"No import sources configured for university '{DEFAULT_UNIVERSITY_SLUG}'.")
                     return
-                # Prefer live website source (type='website') over static test file (type='file')
                 live_source = next((s for s in sources if s.source_type == "website"), sources[-1])
                 logger.info(f"Selected live source '{live_source.name}' (ID: {live_source.id})")
                 job_id = svc.trigger_import(db, live_source.id)
                 logger.info(f"Import job {job_id} complete. Publishing clubs...")
                 svc.publish_job(db, job_id)
                 published = db.query(db_models.Club).filter_by(
-                    university_id=mahindra.id
+                    university_id=default_univ.id
                 ).count()
                 logger.info(f"Auto-import done. {published} clubs now live.")
             except Exception as e:

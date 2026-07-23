@@ -50,7 +50,7 @@ def get_guild_university(db: Session, guild_id: Optional[int]):
     from sorts.database import models as db_models
     
     if not guild_id or guild_id in EXEMPTED_GUILDS:
-        # Default to Mahindra University (slug: "mahindra")
-        return db.query(db_models.University).filter_by(slug="mahindra").first()
-        
+        from sorts.config.settings import DEFAULT_UNIVERSITY_SLUG
+        return db.query(db_models.University).filter_by(slug=DEFAULT_UNIVERSITY_SLUG).first()
+
     return db.query(db_models.University).filter_by(guild_id=str(guild_id)).first()
