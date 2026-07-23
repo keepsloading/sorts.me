@@ -100,9 +100,9 @@ class ClubsCog(commands.Cog):
                 conf = ver.get("confidence", 100 if club.official else 75)
                 is_ver = "Verified" if ver.get("verified", True) else "Unverified"
 
-                desc_parts = [
-                    f"> **{summary}**",
-                ]
+                desc_parts = []
+                if summary:
+                    desc_parts.append(f"> **{summary}**")
                 if full_desc:
                     desc_parts.extend([
                         "",
